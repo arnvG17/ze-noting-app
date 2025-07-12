@@ -1,0 +1,6 @@
+.turquoise-highlight {
+  border: none;
+  box-shadow: 0 0 16px 2px #1DE9B633 !important;
+  border-radius: 16px;
+  transition: box-shadow 0.2s, border 0.2s;
+} 

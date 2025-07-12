@@ -1,0 +1,234 @@
+@layer base {
+  :root {
+    --color-1: 330 100% 40%; /* Dark Neon Pink */
+    --color-2: 140 100% 55%; /* Bright Electric Green */
+    --color-3: 210 100% 30%; /* Deep Neon Blue */
+    --color-4: 60 100% 70%; /* Light Neon Yellow */
+    --color-5: 295 100% 45%; /* Dark Neon Purple */
+    --brand: 50 100% 50%; /* Bright, punchy yellow */
+  }
+
+  .dark {
+    --color-1: 330 100% 40%; /* Dark Neon Pink */
+    --color-2: 140 100% 55%; /* Bright Electric Green */
+    --color-3: 210 100% 30%; /* Deep Neon Blue */
+    --color-4: 60 100% 70%; /* Light Neon Yellow */
+    --color-5: 295 100% 45%; /* Dark Neon Purple */
+    --brand: 50 100% 50%; /* Bright, punchy yellow */
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #1a1a1e;
+  color: #f3f3f3;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #23232a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #36363f;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #44444f;
+}
+
+/* Utility classes */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: #23232a;
+  color: #f3f3f3;
+}
+
+.btn-primary {
+  background: #23232a;
+  color: #a5b4fc;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.1);
+  background: #2d2d36;
+}
+
+.btn-secondary {
+  background: #18181b;
+  color: #a5b4fc;
+  border: 2px solid #23232a;
+}
+
+.btn-secondary:hover {
+  background: #23232a;
+  color: #f3f3f3;
+}
+
+.card {
+  background: #23232a;
+  border-radius: 1rem;
+  box-shadow: none;
+  padding: 2rem;
+  transition: all 0.3s ease;
+  color: #f3f3f3;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #23232a;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  background: #18181b;
+  color: #f3f3f3;
+  transition: border-color 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #a5b4fc;
+}
+
+.text-gradient {
+  background: none;
+  color: #a5b4fc;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.gradient-text {
+  color: #9b23ea;
+  font-weight: 800;
+}
+
+/* Animation classes */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes swoopInBlur {
+  0% {
+    opacity: 0;
+    filter: blur(16px);
+    transform: translateY(60px) scale(0.95);
+  }
+  60% {
+    opacity: 1;
+    filter: blur(2px);
+    transform: translateY(-8px) scale(1.03);
+  }
+  80% {
+    filter: blur(0.5px);
+    transform: translateY(2px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+.swoop-in-blur {
+  animation: swoopInBlur 1.1s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+.swoop-delay-1 { animation-delay: 0.1s; }
+.swoop-delay-2 { animation-delay: 0.25s; }
+.swoop-delay-3 { animation-delay: 0.4s; }
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+  
+  .card {
+    padding: 1.5rem;
+  }
+  
+  .btn {
+    padding: 0.5rem 1rem;
+  }
+}

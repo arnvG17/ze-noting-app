@@ -1,0 +1,44 @@
+# Node modules
+node_modules/
+frontend/node_modules/
+server/node_modules/
+
+# Build output
+dist/
+build/
+frontend/dist/
+frontend/build/
+server/dist/
+server/build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Env files
+.env
+.env.*
+frontend/.env
+server/.env
+
+# Vercel/Netlify/other deploy configs
+.vercel/
+.netlify/
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
+
+# Misc
+*.local
+*.log
+coverage/
+
+# Optional: ignore uploads if not needed in repo
+server/uploads/ 
