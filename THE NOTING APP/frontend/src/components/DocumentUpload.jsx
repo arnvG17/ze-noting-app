@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import toast from 'react-hot-toast'
 
-const backendBase = "http://localhost:5000"; // Change if your backend runs elsewhere
+const backendBase = "https://the-noting-app.onrender.com/"; // Change if your backend runs elsewhere
 
 const MAX_FILE_SIZE_MB = 25;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;

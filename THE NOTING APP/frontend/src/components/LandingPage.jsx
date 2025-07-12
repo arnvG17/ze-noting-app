@@ -41,7 +41,7 @@ const LandingPage = () => {
       const formData = new FormData();
       formData.append('file', file);
       
-      const response = await fetch('/api/upload', {
+      const response = await fetch('https://the-noting-app.onrender.com/api/upload', {
         method: 'POST',
         body: formData,
       });

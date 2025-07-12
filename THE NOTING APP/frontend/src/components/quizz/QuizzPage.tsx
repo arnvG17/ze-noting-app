@@ -25,7 +25,7 @@ const QuizSection: React.FC<QuizSectionProps> = ({ docText }) => {
     if (!docText) return;
     setLoading(true);
     setError(null);
-    fetch('http://localhost:5000/api/ask/quiz', {
+    fetch('https://the-noting-app.onrender.com/api/ask/quiz', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: docText.slice(0, 4000) })
