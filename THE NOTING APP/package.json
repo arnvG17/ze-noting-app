@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@langchain/core": "^0.3.62",
     "@langchain/openai": "^0.5.18",
     "@radix-ui/react-slot": "^1.2.3",
     "@react-three/drei": "^10.5.0",
