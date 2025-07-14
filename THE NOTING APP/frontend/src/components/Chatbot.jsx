@@ -3,6 +3,7 @@ import toast from 'react-hot-toast'
 import ReactMarkdown from 'react-markdown'
 import { useDocumentText } from './DocumentTextContext';
 import CodeBlock from './ui/CodeBlock';
+import { TextShimmer } from './ui/text-shimmer';
 
 const Chatbot = ({ onClose }) => {
   const { documentText } = useDocumentText();
@@ -176,11 +177,7 @@ const Chatbot = ({ onClose }) => {
                 boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                 alignSelf: 'flex-start',
               }}>
-                <div className="typing-indicator">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </div>
+                <TextShimmer className="font-thick font-inter text-sm">Thinking...</TextShimmer>
               </div>
             </div>
           )}
