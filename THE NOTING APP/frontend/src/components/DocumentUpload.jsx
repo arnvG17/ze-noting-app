@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import toast from 'react-hot-toast'
 
@@ -8,6 +8,7 @@ const MAX_FILE_SIZE_MB = 25;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 const DocumentUpload = ({ onFileUpload, isProcessing, uploadedFile, downloadUrl, onOpenChat }) => {
+  const [showPdf, setShowPdf] = useState(false);
   const onDrop = useCallback((acceptedFiles) => {
     console.log('DEBUG: Files dropped:', acceptedFiles)
     if (acceptedFiles.length > 0) {
@@ -56,6 +57,43 @@ const DocumentUpload = ({ onFileUpload, isProcessing, uploadedFile, downloadUrl,
       toast.success('Opened PDF in new tab!')
     } else {
       console.log('DEBUG: No downloadUrl available')
+    }
+  }
+
+  const handleViewSummary = () => {
+    if (downloadUrl) {
+      // Use absolute URL if downloadUrl is relative
+      const url = downloadUrl.startsWith('http') ? downloadUrl : backendBase + downloadUrl;
+      window.open(url, '_blank'); // This will render the file in a new tab if possible
+      toast.success('Opened summary in new tab!');
+    } else {
+      toast.error('No summary available to view.');
+    }
+  }
+
+  const handleViewAndDownloadSummary = async () => {
+    if (downloadUrl) {
+      const url = backendBase.replace(/\/$/, '') + downloadUrl;
+      // Open in new tab for viewing
+      window.open(url, '_blank');
+      // Download in current tab using Blob
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = (uploadedFile?.name?.replace(/\.[^/.]+$/, '') || 'summary') + '_summary.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+        toast.success('Opened summary in new tab and started download!');
+      } catch (err) {
+        toast.error('Failed to download summary.');
+      }
+    } else {
+      toast.error('No summary available to view.');
     }
   }
 
@@ -113,13 +151,13 @@ const DocumentUpload = ({ onFileUpload, isProcessing, uploadedFile, downloadUrl,
               </div>
             ) : downloadUrl ? (
               <div className="download-section">
-                <button onClick={handleDownload} className="btn btn-primary">
+                <button onClick={handleViewAndDownloadSummary} className="btn btn-primary">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                     <polyline points="7,10 12,15 17,10"/>
                     <line x1="12" y1="15" x2="12" y2="3"/>
                   </svg>
-                  Download Notes
+                  View & Download Summary
                 </button>
                 <button 
                   onClick={typeof onOpenChat === 'function' ? onOpenChat : undefined}
