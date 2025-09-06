@@ -71,7 +71,8 @@ npm install
 cd ../server
 npm install
 
-# In /server
+# Start backend server
+cd server
 npm run dev
 
 # In /client (new terminal)
