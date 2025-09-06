@@ -78,16 +78,18 @@ npm run dev
 # In /client (new terminal)
 npm run dev
 
-## Folder Structure
+## 🗂️ Folder Structure
 
+```plaintext
 the-noting-app/
-├── client/   # React frontend
+├── client/        # React frontend
 │   ├── src/
 │   └── public/
-├── server/   # Node.js backend
+├── server/        # Node.js backend
 │   ├── routes/
 │   ├── controllers/
 │   └── uploads/
 └── README.md
+
 
 
