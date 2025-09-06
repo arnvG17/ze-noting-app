@@ -27,7 +27,7 @@ Whether you're a student, researcher, or knowledge-worker, this is your go-to as
 - 🔹 **AI Summarization** — Upload documents & get concise, well-structured summaries in seconds.  
 - 🔹 **Interactive Chatbot** — Ask context-aware questions about your document powered by advanced LLMs.  
 - 🔹 **Downloadable Notes** — Export AI-generated notes as PDF for offline use.  
-- 🔹 **Drag-and-Drop Upload** — Effortless file upload with real-time validation & progress.  
+- 🔹 **In-Built Quiz** — Track your academic progress in a fun manner.  
 - 🔹 **Modern UI/UX** — Glassmorphism header, animated 3D notes background, responsive design, shimmer loaders, smooth transitions.  
 
 ---
