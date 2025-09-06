@@ -58,8 +58,7 @@ Whether you're a student, researcher, or knowledge-worker, this is your go-to as
 ## 🚀 Getting Started
 
 ### 1️⃣ Clone the Repo
-
-
+```bash
 git clone https://github.com/arnvG17/ze-noting-pp.git
 cd ze-noting-app
 
