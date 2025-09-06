@@ -77,6 +77,8 @@ npm run dev
 # In /client (new terminal)
 npm run dev
 
+```
+
 ## 🗂️ Folder Structure
 
 ```plaintext
@@ -89,6 +91,7 @@ the-noting-app/
 │   ├── controllers/
 │   └── uploads/
 └── README.md
+```
 
 
 
