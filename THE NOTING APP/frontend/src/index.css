@@ -3,6 +3,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global Satoshi font for all text */
+*,
+*::before,
+*::after {
+  font-family: 'Satoshi-Bold', sans-serif;
+}
+
 @layer base {
   :root {
     --color-1: 330 100% 40%;

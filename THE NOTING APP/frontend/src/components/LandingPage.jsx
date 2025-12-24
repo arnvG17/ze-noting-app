@@ -3,12 +3,10 @@ import DocumentUpload from './DocumentUpload';
 import Header from './Header';
 import Features from './Features';
 import Footer from './Footer';
-import Chatbot from './Chatbot';
-import ChatInputBar from './ChatInputBar';
+import InlineChatBox from './InlineChatBox';
 import QuizSection from './quizz/QuizzPage';
 import { useDocumentText } from './DocumentTextContext';
-import { FiDownload, FiMessageCircle, FiArrowRight } from 'react-icons/fi';
-import { FaRobot } from 'react-icons/fa';
+import { FiDownload } from 'react-icons/fi';
 import AnimatedBackground from './ui/AnimatedBackground';
 import { exportMarkdownToPdf } from '../lib/exportMarkdownToPdf';
 import toast from 'react-hot-toast';
@@ -17,7 +15,7 @@ const LandingPage = () => {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState(null);
-  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+  const [isChatExpanded, setIsChatExpanded] = useState(false);
   const { documentText, setDocumentText } = useDocumentText();
   const [showUploader, setShowUploader] = useState(false);
 
@@ -33,7 +31,7 @@ const LandingPage = () => {
   const handleFileUpload = async (file) => {
     setUploadedFile(file);
     setIsProcessing(true);
-    setDownloadUrl(null); // Reset previous results
+    setDownloadUrl(null);
     setDocumentText('');
 
     try {
@@ -75,14 +73,12 @@ const LandingPage = () => {
           <div className="container">
             <div className="hero-content">
 
-
-
               <h1 className="hero-title swoop-in-blur swoop-delay-1">
-                Transform Your Documents into Smart Notes
+                transform your documents<br />into smart notes;
               </h1>
 
               <p className="hero-subtitle swoop-in-blur swoop-delay-2">
-                Upload any document and get AI-powered summaries, key insights, and organized notes in seconds.
+                ;
               </p>
 
               <div
@@ -96,24 +92,19 @@ const LandingPage = () => {
               >
                 <DocumentUpload
                   onFileUpload={handleFileUpload}
-
                   isProcessing={isProcessing}
                   uploadedFile={uploadedFile}
                   downloadUrl={downloadUrl}
-                  onOpenChat={() => setIsChatbotOpen(true)}
+                  onOpenChat={() => setIsChatExpanded(true)}
                 />
               </div>
 
-              {/* ChatGPT-style inline chat input - appears after document upload */}
+              {/* Inline Expandable Chat - appears after document upload */}
               {documentText && (
                 <div style={{ marginTop: '2rem' }}>
-                  <ChatInputBar
-                    placeholder="Ask anything about your document..."
-                    isLoading={false}
-                    onSendMessage={(message) => {
-                      setIsChatbotOpen(true);
-                      toast.success('Opening chat with your question...');
-                    }}
+                  <InlineChatBox
+                    isExpanded={isChatExpanded}
+                    onToggle={() => setIsChatExpanded(!isChatExpanded)}
                   />
                 </div>
               )}
@@ -123,14 +114,7 @@ const LandingPage = () => {
 
         {documentText && <QuizSection docText={documentText} />}
         <Features />
-
-        {console.log("documentText in LandingPage before Chatbot", documentText)}
       </main>
-
-      {/* ChatInputBar appears after document upload - no floating button needed */}
-
-      {console.log("documentText in LandingPage before Chatbot", documentText)}
-      {isChatbotOpen && <Chatbot onClose={() => setIsChatbotOpen(false)} />}
 
       <Footer />
     </div>
