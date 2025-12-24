@@ -1,37 +1,40 @@
-/* 1. Import Google Fonts - Google Sans inspired */
-@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
+/* 1. Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* 2. CSS Variables - Gemini/NotebookLM Inspired Color Palette */
+/* 2. CSS Variables - Lovable-inspired Clean Dark Theme */
 :root {
-  /* Gemini Blue-Purple-Gray Palette */
-  --bg-primary: #0d0d1a;
-  --bg-secondary: #14141f;
-  --bg-tertiary: #1a1a2e;
-  
-  /* Gemini Brand Colors */
-  --gemini-blue: #4285f4;
-  --gemini-purple: #8b5cf6;
-  --gemini-lavender: #a78bfa;
-  --gemini-slate: #64748b;
-  
+  /* Dark Background */
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #0f0f14;
+  --bg-card: #141419;
+  --bg-card-hover: #1a1a22;
+
+  /* Accent Colors */
+  --accent-purple: #8b5cf6;
+  --accent-indigo: #6366f1;
+  --accent-orange: #fb923c;
+  --accent-pink: #ec4899;
+
   /* Text Colors */
-  --text-primary: #f1f5f9;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  
-  /* Accent Gradients */
-  --gradient-primary: linear-gradient(135deg, #4285f4 0%, #8b5cf6 100%);
-  --gradient-secondary: linear-gradient(135deg, #a78bfa 0%, #4285f4 100%);
-  --gradient-hover: linear-gradient(135deg, #5b9bff 0%, #9d6eff 100%);
-  
-  /* Effects */
-  --shadow-blue: rgba(66, 133, 244, 0.3);
-  --shadow-purple: rgba(139, 92, 246, 0.3);
-  --glow-blue: rgba(66, 133, 244, 0.5);
-  
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+
+  /* Border Colors */
+  --border-color: #27272a;
+  --border-focus: #3f3f46;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+  --gradient-hover: linear-gradient(135deg, #a78bfa 0%, #818cf8 100%);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+
   /* Typography */
-  --font-sans: 'Inter', 'Google Sans', -apple-system, sans-serif;
-  --font-display: 'Google Sans', 'Inter', sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* 3. General Body & App Styles */
@@ -40,13 +43,11 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-weight: 400;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
@@ -55,94 +56,63 @@ body {
 .App {
   min-height: 100vh;
   position: relative;
-  overflow-x: hidden;
 }
 
 /* 4. Typography & Hero Section */
 .main-content {
-  padding-top: 6rem;
+  padding-top: 8rem;
   position: relative;
   z-index: 1;
 }
 
 .hero-content {
-  animation: heroFadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: fadeIn 0.8s ease-out;
 }
 
 .hero-title {
-  font-size: clamp(2.5rem, 5vw, 4.5rem);
-  font-weight: 700;
-  line-height: 1.1;
-  margin-bottom: 1.5rem;
-  font-family: var(--font-display);
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 600;
+  line-height: 1.15;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
   letter-spacing: -0.02em;
-  animation: gradientShift 8s ease infinite;
-  background-size: 200% 200%;
-}
-
-@keyframes gradientShift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
 }
 
 .hero-subtitle {
-  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-size: clamp(1rem, 2vw, 1.2rem);
   color: var(--text-secondary);
-  max-width: 700px;
-  margin: 0 auto 3rem;
-  line-height: 1.6;
+  max-width: 550px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.7;
   font-weight: 400;
 }
 
-/* 5. Buttons & Interactive Elements - Gemini Style */
+/* 5. Buttons - Clean Lovable Style */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  padding: 1rem 2rem;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
   cursor: pointer;
   text-decoration: none;
-  border: none;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
 }
 
 .btn-primary {
   background: var(--gradient-primary);
   color: #fff;
-  box-shadow: 0 8px 24px var(--shadow-blue),
-              0 4px 12px var(--shadow-purple);
-}
-
-.btn-primary::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--gradient-hover);
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.btn-primary:hover::before {
-  opacity: 1;
+  border: none;
+  box-shadow: var(--shadow-md);
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px var(--shadow-blue),
-              0 6px 16px var(--shadow-purple);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+  filter: brightness(1.1);
 }
 
 .btn-primary:active {
@@ -150,7 +120,7 @@ body {
 }
 
 .btn-primary:disabled {
-  background: var(--bg-tertiary);
+  background: var(--bg-card);
   color: var(--text-muted);
   cursor: not-allowed;
   transform: none;
@@ -158,103 +128,78 @@ body {
 }
 
 .btn-secondary {
-  background: rgba(139, 92, 246, 0.1);
-  color: var(--gemini-lavender);
-  border: 1px solid rgba(167, 139, 250, 0.3);
-  backdrop-filter: blur(10px);
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
 }
 
 .btn-secondary:hover {
-  background: rgba(139, 92, 246, 0.2);
-  border-color: rgba(167, 139, 250, 0.5);
-  transform: translateY(-2px);
+  background: var(--bg-card);
+  border-color: var(--border-focus);
 }
 
 .upload-section {
   margin-top: 2rem;
 }
 
-/* 6. Floating Chatbot Button - Gemini Style */
+/* 6. Floating Chatbot Button */
 .floating-chatbot-btn {
   position: fixed;
   bottom: 2rem;
   right: 2rem;
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   background: var(--gradient-primary);
   border: none;
   color: white;
   cursor: pointer;
-  box-shadow: 0 8px 32px var(--shadow-blue),
-              0 4px 16px var(--shadow-purple);
+  box-shadow: var(--shadow-lg);
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  animation: pulse 3s ease-in-out infinite;
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
 }
 
 .floating-chatbot-btn:hover {
-  transform: translateY(-4px) scale(1.1);
-  box-shadow: 0 16px 48px var(--shadow-blue),
-              0 8px 24px var(--shadow-purple);
-  animation: none;
-}
-
-@keyframes pulse {
-  0%, 100% { 
-    box-shadow: 0 8px 32px var(--shadow-blue),
-                0 4px 16px var(--shadow-purple);
-  }
-  50% { 
-    box-shadow: 0 12px 40px var(--glow-blue),
-                0 6px 20px var(--shadow-purple);
-  }
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
 }
 
 /* 7. Animations */
-@keyframes heroFadeIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(30px);
-    filter: blur(10px);
-  }
-  to { 
-    opacity: 1; 
-    transform: translateY(0);
-    filter: blur(0);
-  }
-}
-
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* 8. Glassmorphism Card Effect */
-.glass-card {
-  background: rgba(26, 26, 46, 0.6);
-  border: 1px solid rgba(167, 139, 250, 0.2);
-  border-radius: 16px;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-}
-
-/* 9. Responsive Adjustments */
+/* 8. Responsive Adjustments */
 @media (max-width: 768px) {
-  .hero-title { font-size: 2.5rem; }
-  .hero-subtitle { font-size: 1rem; }
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
   .floating-chatbot-btn {
-    width: 56px;
-    height: 56px;
+    width: 50px;
+    height: 50px;
     bottom: 1.5rem;
     right: 1.5rem;
-    font-size: 1.75rem;
+    font-size: 1.25rem;
   }
+
   .main-content {
-    padding-top: 4rem;
+    padding-top: 5rem;
   }
 }
