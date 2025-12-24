@@ -1,8 +1,6 @@
-const fs = require('fs');
-const pdfParse = require('pdf-parse');
+const mammoth = require('mammoth');
 
-module.exports = async function parsePDF(filePath) {
-  const buffer = fs.readFileSync(filePath);
-  const data = await pdfParse(buffer);
-  return data.text;
+module.exports = async function parseDOCX(filePath) {
+  const result = await mammoth.extractRawText({ path: filePath });
+  return result.value;
 };
