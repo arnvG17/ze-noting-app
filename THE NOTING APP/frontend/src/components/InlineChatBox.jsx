@@ -93,7 +93,7 @@ const InlineChatBox = ({ isExpanded, onToggle }) => {
         }}>
             {/* Expandable Messages Area */}
             <div style={{
-                maxHeight: isExpanded ? '550px' : '0px',
+                maxHeight: isExpanded ? '700px' : '0px',
                 overflow: 'hidden',
                 transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                 marginBottom: isExpanded ? '0.5rem' : '0',
@@ -147,7 +147,7 @@ const InlineChatBox = ({ isExpanded, onToggle }) => {
 
                     {/* Messages */}
                     <div style={{
-                        height: '450px',
+                        height: '600px',
                         overflowY: 'auto',
                         padding: '1rem 1.25rem'
                     }}>
@@ -195,7 +195,8 @@ const InlineChatBox = ({ isExpanded, onToggle }) => {
                                                             background: 'rgba(139, 92, 246, 0.2)',
                                                             padding: '0.15rem 0.4rem',
                                                             borderRadius: 4,
-                                                            fontSize: '0.85em'
+                                                            fontSize: '0.85em',
+                                                            fontFamily: 'Consolas, Monaco, "Courier New", monospace'
                                                         }} {...props}>{children}</code>
                                                     )
                                                 }

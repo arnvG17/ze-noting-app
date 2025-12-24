@@ -10,6 +10,7 @@ import { FiDownload } from 'react-icons/fi';
 import AnimatedBackground from './ui/AnimatedBackground';
 import { exportMarkdownToPdf } from '../lib/exportMarkdownToPdf';
 import toast from 'react-hot-toast';
+import { ProgressiveBlur } from './ui/ProgressiveBlur';
 
 const LandingPage = () => {
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -117,6 +118,15 @@ const LandingPage = () => {
       </main>
 
       <Footer />
+
+      <div className="fixed bottom-0 left-0 w-full z-10 pointer-events-none">
+        <ProgressiveBlur
+          position="bottom"
+          height="80px"
+          blurAmount="4px"
+          backgroundColor="#1a1a1e"
+        />
+      </div>
     </div>
   );
 };
