@@ -74,7 +74,7 @@ const uploadController = async (req, res) => {
     // Improved LLM prompt for summarization
     const llmPrompt = [
       { role: "system", content: "You are a helpful assistant. Summarize the following document for a student. The summary should be clear, concise, and cover the main points, key ideas, and important details. Use markdown headings (##, ###) for section titles and - for lists. Do NOT use the bullet character (•). Do NOT copy the text verbatim—write a summary in your own words. Use markdown formatting for headings, lists, and emphasis." },
-      { role: "user", content: textContent.slice(0, 8000) }
+      { role: "user", content: textContent.slice(0, 50000) }
     ];
     console.log('[DEBUG] Sending prompt to LLM');
     const llmResponse = await chat.call(llmPrompt);

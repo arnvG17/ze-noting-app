@@ -1,10 +1,10 @@
 // utils/llm.js
 require('dotenv').config();
 // Polyfill fetch for Node.js
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL = 'models/gemini-1.5-flash-latest'; // High rate and token limit
+const GEMINI_MODEL = 'models/gemini-2.0-flash-exp'; // Latest with 1M token context window
 
 async function geminiChat(messages) {
   const prompt = messages.map(msg => msg.content).join('\n');
@@ -16,10 +16,10 @@ async function geminiChat(messages) {
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
-          temperature: 0.5,         // More creative
-          topP: 0.2,
+          temperature: 0.7,         // Balanced creativity for better summaries
+          topP: 0.95,
           topK: 40,
-          maxOutputTokens: 2048   // Or higher, up to model's limit
+          maxOutputTokens: 8192   // Increased for longer, more detailed summaries
         }
       })
     }

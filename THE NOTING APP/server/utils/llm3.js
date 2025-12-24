@@ -6,13 +6,13 @@ class TogetherAIClient {
     if (!apiKey) {
       throw new Error('TOGETHER_API_KEY is required. Please set it in your environment variables or .env file');
     }
-    
+
     this.client = new Together(apiKey);
     this.defaultConfig = {
-      model: "meta-llama/Llama-3.2-3B-Instruct-Turbo",
+      model: "meta-llama/Meta-Llama-3.3-70B-Instruct-Turbo",
       temperature: 0.7,
-      max_tokens: 8000,
-      top_p: 1,
+      max_tokens: 16000,
+      top_p: 0.95,
       frequency_penalty: 0,
       presence_penalty: 0
     };
@@ -46,7 +46,7 @@ class TogetherAIClient {
 
     try {
       console.log('🤖 Sending request to Together AI...');
-      
+
       const response = await this.client.chat.completions.create({
         messages,
         ...config
@@ -67,17 +67,17 @@ class TogetherAIClient {
 
       console.log('✅ Together AI response received');
       console.log('📊 Usage:', result.usage);
-      
+
       return result;
 
     } catch (error) {
       console.error('❌ Together AI error:', error.message);
-      
+
       // Handle specific error types
       if (error.response) {
         const status = error.response.status;
         const message = error.response.data?.error?.message || error.message;
-        
+
         switch (status) {
           case 400:
             throw new Error(`Bad Request: ${message}`);
@@ -91,7 +91,7 @@ class TogetherAIClient {
             throw new Error(`API Error (${status}): ${message}`);
         }
       }
-      
+
       throw new Error(`Together AI request failed: ${error.message}`);
     }
   }
@@ -116,7 +116,7 @@ class TogetherAIClient {
    */
   async *streamChat(messages, options = {}) {
     const config = { ...this.defaultConfig, ...options, stream: true };
-    
+
     try {
       const stream = await this.client.chat.completions.create({
         messages,

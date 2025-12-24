@@ -63,7 +63,7 @@ Example format:
 ]
 
 Text to create quiz from:
-${text.slice(0, 4000)}
+${text.slice(0, 20000)}
 
 Generate the quiz in the exact JSON format shown above. Do not include any explanations or additional text outside the JSON array.`;
 
