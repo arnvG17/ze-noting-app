@@ -58,12 +58,12 @@
 
 /* Hero Section */
 .hero-section {
-  padding: 4rem 0;
+  padding: 2rem 0;
   text-align: center;
   min-height: 80vh;
   display: flex;
   align-items: flex-start;
-  padding-top: 8rem;
+  padding-top: 2rem;
   background: transparent;
 }
 
