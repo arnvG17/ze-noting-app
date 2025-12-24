@@ -4,13 +4,14 @@ import Header from './Header';
 import Features from './Features';
 import Footer from './Footer';
 import Chatbot from './Chatbot';
+import ChatInputBar from './ChatInputBar';
 import QuizSection from './quizz/QuizzPage';
 import { useDocumentText } from './DocumentTextContext';
-// Import desired icons from react-icons
 import { FiDownload, FiMessageCircle, FiArrowRight } from 'react-icons/fi';
 import { FaRobot } from 'react-icons/fa';
 import AnimatedBackground from './ui/AnimatedBackground';
 import { exportMarkdownToPdf } from '../lib/exportMarkdownToPdf';
+import toast from 'react-hot-toast';
 
 const LandingPage = () => {
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -73,17 +74,7 @@ const LandingPage = () => {
         <section className="hero-section">
           <div className="container">
             <div className="hero-content">
-              <p style={{
-                fontSize: '0.95rem',
-                fontWeight: '600',
-                color: '#a78bfa',
-                marginBottom: '1rem',
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase',
-                animation: 'fadeIn 0.8s ease-out'
-              }}>
-                ✨ Study smarter, not harder
-              </p>
+
 
               <h1 className="hero-title swoop-in-blur swoop-delay-1">
                 Transform Your Documents into Smart Notes
@@ -110,8 +101,21 @@ const LandingPage = () => {
                   downloadUrl={downloadUrl}
                   onOpenChat={() => setIsChatbotOpen(true)}
                 />
-                {/* Removed the long Open Chat button below */}
               </div>
+
+              {/* ChatGPT-style inline chat input - appears after document upload */}
+              {documentText && (
+                <div style={{ marginTop: '2rem' }}>
+                  <ChatInputBar
+                    placeholder="Ask anything about your document..."
+                    isLoading={false}
+                    onSendMessage={(message) => {
+                      setIsChatbotOpen(true);
+                      toast.success('Opening chat with your question...');
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </section>
