@@ -138,15 +138,7 @@ const LandingPage = () => {
         {console.log("documentText in LandingPage before Chatbot", documentText)}
       </main>
 
-      {documentText && !isChatbotOpen && (
-        <button
-          className="floating-chatbot-btn"
-          onClick={() => setIsChatbotOpen(true)}
-          title="Open Chatbot"
-        >
-          <FaRobot />
-        </button>
-      )}
+      {/* ChatInputBar appears after document upload - no floating button needed */}
 
       {console.log("documentText in LandingPage before Chatbot", documentText)}
       {isChatbotOpen && <Chatbot onClose={() => setIsChatbotOpen(false)} />}
