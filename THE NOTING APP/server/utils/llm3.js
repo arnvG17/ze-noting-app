@@ -9,7 +9,7 @@ class TogetherAIClient {
 
     this.client = new Together(apiKey);
     this.defaultConfig = {
-      model: "meta-llama/Meta-Llama-3.3-70B-Instruct-Turbo",
+      model: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
       temperature: 0.7,
       max_tokens: 16000,
       top_p: 0.95,
