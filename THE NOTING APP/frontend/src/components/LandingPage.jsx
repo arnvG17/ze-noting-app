@@ -73,12 +73,24 @@ const LandingPage = () => {
         <section className="hero-section">
           <div className="container">
             <div className="hero-content">
+              <p style={{
+                fontSize: '0.95rem',
+                fontWeight: '600',
+                color: '#a78bfa',
+                marginBottom: '1rem',
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                animation: 'fadeIn 0.8s ease-out'
+              }}>
+                ✨ Study smarter, not harder
+              </p>
+
               <h1 className="hero-title swoop-in-blur swoop-delay-1">
                 Transform Your Documents into Smart Notes
               </h1>
 
               <p className="hero-subtitle swoop-in-blur swoop-delay-2">
-                Upload any document and get AI-powered summaries, key insights, and organized notes in seconds. Perfect for students, researchers, and professionals.
+                Upload any document and get AI-powered summaries, key insights, and organized notes in seconds.
               </p>
 
               <div
