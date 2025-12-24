@@ -1,11 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 import { useDocumentText } from './DocumentTextContext';
 import CodeBlock from './ui/CodeBlock';
 import { TextShimmer } from './ui/text-shimmer';
 import { FiPaperclip, FiMessageSquare, FiChevronUp } from 'react-icons/fi';
 import { HiOutlineSparkles } from 'react-icons/hi';
+import { ProgressiveBlur } from './ui/ProgressiveBlur';
 
 const InlineChatBox = ({ isExpanded, onToggle }) => {
     const { documentText } = useDocumentText();
@@ -89,7 +93,7 @@ const InlineChatBox = ({ isExpanded, onToggle }) => {
         }}>
             {/* Expandable Messages Area */}
             <div style={{
-                maxHeight: isExpanded ? '400px' : '0px',
+                maxHeight: isExpanded ? '550px' : '0px',
                 overflow: 'hidden',
                 transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                 marginBottom: isExpanded ? '0.5rem' : '0',
@@ -102,7 +106,8 @@ const InlineChatBox = ({ isExpanded, onToggle }) => {
                     borderRadius: '20px',
                     border: '1px solid rgba(139, 92, 246, 0.3)',
                     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    position: 'relative'
                 }}>
                     {/* Chat Header */}
                     <div style={{
@@ -113,18 +118,12 @@ const InlineChatBox = ({ isExpanded, onToggle }) => {
                         borderBottom: '1px solid rgba(255, 255, 255, 0.06)'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                            <div style={{
-                                width: 32,
-                                height: 32,
-                                borderRadius: '10px',
-                                background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                            }}>
-                                <FiMessageSquare size={16} color="#fff" />
-                            </div>
-                            <span style={{ color: '#e4e4e7', fontWeight: 600, fontSize: '0.95rem' }}>AI Assistant</span>
+                            <span style={{
+                                color: '#e4e4e7',
+                                fontWeight: 100,
+                                fontSize: '1.1rem',
+                                fontFamily: 'Satoshi, sans-serif'
+                            }}>The Noting App</span>
                         </div>
                         <button
                             onClick={onToggle}
@@ -148,7 +147,7 @@ const InlineChatBox = ({ isExpanded, onToggle }) => {
 
                     {/* Messages */}
                     <div style={{
-                        height: '300px',
+                        height: '450px',
                         overflowY: 'auto',
                         padding: '1rem 1.25rem'
                     }}>
@@ -172,11 +171,18 @@ const InlineChatBox = ({ isExpanded, onToggle }) => {
                                     borderTopLeftRadius: message.type === 'bot' ? 4 : 16,
                                     padding: '0.75rem 1rem',
                                     fontSize: '0.9rem',
-                                    lineHeight: 1.5
+                                    lineHeight: 1.6,
+                                    textAlign: 'left',
+                                    wordBreak: 'break-word'
                                 }}>
                                     {message.type === 'bot' ? (
                                         <ReactMarkdown
+                                            remarkPlugins={[remarkMath]}
+                                            rehypePlugins={[rehypeKatex]}
                                             components={{
+                                                p({ children }) {
+                                                    return <p style={{ margin: '0.5rem 0', textAlign: 'left' }}>{children}</p>
+                                                },
                                                 code({ node, inline, className, children, ...props }) {
                                                     const match = /language-(\w+)/.exec(className || '')
                                                     return !inline ? (
@@ -228,6 +234,12 @@ const InlineChatBox = ({ isExpanded, onToggle }) => {
                             Note: Using first 4000 characters of your document.
                         </div>
                     )}
+                    <ProgressiveBlur
+                        position="bottom"
+                        backgroundColor="#1e1432"
+                        blurAmount="8px"
+                        height="80px"
+                    />
                 </div>
             </div>
 
