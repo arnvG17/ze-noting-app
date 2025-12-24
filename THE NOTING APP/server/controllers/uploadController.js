@@ -273,7 +273,15 @@ const uploadController = async (req, res) => {
     let textContent = '';
     if (ext === '.pdf') {
       console.log('[DEBUG] Parsing PDF');
-      textContent = await parsePDF(filePath);
+      try {
+        textContent = await parsePDF(filePath);
+      } catch (pdfError) {
+        console.error('[DEBUG] PDF parsing error:', pdfError);
+        return res.status(400).json({
+          error: 'Unable to parse PDF file',
+          details: 'The PDF file may be corrupted, password-protected, or use an unsupported format. Please try re-saving the PDF or converting it to a different format.'
+        });
+      }
     } else if (ext === '.docx' || ext === '.doc') {
       console.log('[DEBUG] Parsing DOCX');
       textContent = await parseDOCX(filePath);

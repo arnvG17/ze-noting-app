@@ -96,10 +96,12 @@ const InlineChatBox = ({ isExpanded, onToggle }) => {
                 opacity: isExpanded ? 1 : 0
             }}>
                 <div style={{
-                    background: 'linear-gradient(180deg, #1f1f2a 0%, #1a1a24 100%)',
+                    background: 'rgba(30, 20, 50, 0.6)',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
                     borderRadius: '20px',
-                    border: '1px solid rgba(139, 92, 246, 0.2)',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
                     overflow: 'hidden'
                 }}>
                     {/* Chat Header */}
@@ -231,14 +233,16 @@ const InlineChatBox = ({ isExpanded, onToggle }) => {
 
             {/* ChatInput Bar - Same style as shadcn component */}
             <form onSubmit={handleSubmit} style={{
-                background: 'linear-gradient(180deg, #1f1f2a 0%, #1a1a24 100%)',
+                background: 'rgba(30, 20, 50, 0.6)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
                 borderRadius: '20px',
-                border: '1px solid rgba(139, 92, 246, 0.2)',
+                border: '1px solid rgba(139, 92, 246, 0.3)',
                 padding: '16px 20px',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '14px',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.03) inset'
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
             }}>
                 {/* Input area */}
                 <textarea

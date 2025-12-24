@@ -13,7 +13,7 @@ const Header = () => {
               color: '#fff',
               letterSpacing: '-0.05em'
             }}>
-              the nothing app <span style={{
+              the noting app <span style={{
                 background: 'linear-gradient(135deg, #8b5cf6, #6366f1, #ec4899)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
