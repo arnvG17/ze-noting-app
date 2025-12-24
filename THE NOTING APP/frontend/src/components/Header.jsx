@@ -8,10 +8,10 @@ const Header = () => {
           <div className="nav-brand">
             <span style={{
               fontFamily: "'Satoshi-Bold', sans-serif",
-              fontSize: '1.5rem',
-              fontWeight: 700,
+              fontSize: '2rem',
+              fontWeight: 900,
               color: '#fff',
-              letterSpacing: '-0.02em'
+              letterSpacing: '-0.05em'
             }}>
               the noting app;
             </span>

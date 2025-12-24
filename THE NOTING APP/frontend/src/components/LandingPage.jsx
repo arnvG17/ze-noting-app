@@ -75,18 +75,7 @@ const LandingPage = () => {
           <div className="container">
             <div className="hero-content">
 
-              {/* Brand title in Satoshi Bold */}
-              <p style={{
-                fontFamily: "'Satoshi-Bold', sans-serif",
-                fontSize: '1.1rem',
-                fontWeight: 700,
-                color: '#a78bfa',
-                marginBottom: '1.5rem',
-                letterSpacing: '0.02em',
-                animation: 'fadeIn 0.8s ease-out'
-              }}>
-                the noting app
-              </p>
+
 
               <h1 className="hero-title swoop-in-blur swoop-delay-1">
                 Transform Your Documents into Smart Notes
