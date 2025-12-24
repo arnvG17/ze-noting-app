@@ -1,24 +1,37 @@
+@import url('./Satoshi/Fonts/WEB/css/satoshi.css');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --color-1: 330 100% 40%; /* Dark Neon Pink */
-    --color-2: 140 100% 55%; /* Bright Electric Green */
-    --color-3: 210 100% 30%; /* Deep Neon Blue */
-    --color-4: 60 100% 70%; /* Light Neon Yellow */
-    --color-5: 295 100% 45%; /* Dark Neon Purple */
-    --brand: 50 100% 50%; /* Bright, punchy yellow */
+    --color-1: 330 100% 40%;
+    /* Dark Neon Pink */
+    --color-2: 140 100% 55%;
+    /* Bright Electric Green */
+    --color-3: 210 100% 30%;
+    /* Deep Neon Blue */
+    --color-4: 60 100% 70%;
+    /* Light Neon Yellow */
+    --color-5: 295 100% 45%;
+    /* Dark Neon Purple */
+    --brand: 50 100% 50%;
+    /* Bright, punchy yellow */
   }
 
   .dark {
-    --color-1: 330 100% 40%; /* Dark Neon Pink */
-    --color-2: 140 100% 55%; /* Bright Electric Green */
-    --color-3: 210 100% 30%; /* Deep Neon Blue */
-    --color-4: 60 100% 70%; /* Light Neon Yellow */
-    --color-5: 295 100% 45%; /* Dark Neon Purple */
-    --brand: 50 100% 50%; /* Bright, punchy yellow */
+    --color-1: 330 100% 40%;
+    /* Dark Neon Pink */
+    --color-2: 140 100% 55%;
+    /* Bright Electric Green */
+    --color-3: 210 100% 30%;
+    /* Deep Neon Blue */
+    --color-4: 60 100% 70%;
+    /* Light Neon Yellow */
+    --color-5: 295 100% 45%;
+    /* Dark Neon Purple */
+    --brand: 50 100% 50%;
+    /* Bright, punchy yellow */
   }
 }
 
@@ -28,7 +41,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -121,7 +135,7 @@ body {
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .input {
@@ -152,7 +166,7 @@ body {
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0,0,0,0);
+  clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
 }
@@ -172,6 +186,7 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -187,6 +202,7 @@ body {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -199,15 +215,18 @@ body {
     filter: blur(16px);
     transform: translateY(60px) scale(0.95);
   }
+
   60% {
     opacity: 1;
     filter: blur(2px);
     transform: translateY(-8px) scale(1.03);
   }
+
   80% {
     filter: blur(0.5px);
     transform: translateY(2px) scale(0.98);
   }
+
   100% {
     opacity: 1;
     filter: blur(0);
@@ -218,20 +237,29 @@ body {
 .swoop-in-blur {
   animation: swoopInBlur 1.1s cubic-bezier(0.23, 1, 0.32, 1) both;
 }
-.swoop-delay-1 { animation-delay: 0.1s; }
-.swoop-delay-2 { animation-delay: 0.25s; }
-.swoop-delay-3 { animation-delay: 0.4s; }
+
+.swoop-delay-1 {
+  animation-delay: 0.1s;
+}
+
+.swoop-delay-2 {
+  animation-delay: 0.25s;
+}
+
+.swoop-delay-3 {
+  animation-delay: 0.4s;
+}
 
 /* Responsive design */
 @media (max-width: 768px) {
   .container {
     padding: 0 0.5rem;
   }
-  
+
   .card {
     padding: 1.5rem;
   }
-  
+
   .btn {
     padding: 0.5rem 1rem;
   }

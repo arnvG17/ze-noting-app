@@ -62,7 +62,8 @@
   text-align: center;
   min-height: 80vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  padding-top: 8rem;
   background: transparent;
 }
 
