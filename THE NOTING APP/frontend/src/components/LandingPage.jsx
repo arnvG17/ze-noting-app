@@ -40,8 +40,8 @@ const LandingPage = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      // Use localhost for development
-      const response = await fetch('http://localhost:5000/api/upload', {
+      // Production URL
+      const response = await fetch('https://the-noting-app.onrender.com/api/upload', {
         method: 'POST',
         body: formData,
       });
@@ -68,7 +68,7 @@ const LandingPage = () => {
     setDocumentText('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/scrape', {
+      const response = await fetch('https://the-noting-app.onrender.com/api/scrape', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url }),
