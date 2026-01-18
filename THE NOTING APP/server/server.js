@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const askRoutes = require('./routes/ask');
 const uploadRoutes = require('./routes/upload');
+const scrapeRoutes = require('./routes/scrape');
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // ✅ API routes
 app.use('/api/upload', uploadRoutes);
 app.use('/api/ask', askRoutes);
+app.use('/api/scrape', scrapeRoutes);
 
 // ✅ Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

@@ -12,6 +12,7 @@ import { exportMarkdownToPdf } from '../lib/exportMarkdownToPdf';
 import toast from 'react-hot-toast';
 import { ProgressiveBlur } from './ui/ProgressiveBlur';
 
+
 const LandingPage = () => {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -39,7 +40,8 @@ const LandingPage = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('https://the-noting-app.onrender.com/api/upload', {
+      // Use localhost for development
+      const response = await fetch('http://localhost:5000/api/upload', {
         method: 'POST',
         body: formData,
       });
@@ -53,6 +55,39 @@ const LandingPage = () => {
 
     } catch (error) {
       console.error('Upload error:', error);
+      toast.error('Upload failed. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleLinkSubmit = async (url) => {
+    setUploadedFile({ name: 'Google Drive Link' });
+    setIsProcessing(true);
+    setDownloadUrl(null);
+    setDocumentText('');
+
+    try {
+      const response = await fetch('http://localhost:5000/api/scrape', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || 'Scraping failed');
+      }
+
+      const data = await response.json();
+      setDownloadUrl(data.downloadUrl);
+      setDocumentText(data.textContent || '');
+      toast.success('Link processed successfully!');
+
+    } catch (error) {
+      console.error('Link processing error:', error);
+      toast.error(error.message || 'Failed to process link.');
+      setUploadedFile(null); // Reset if failed
     } finally {
       setIsProcessing(false);
     }
@@ -74,8 +109,14 @@ const LandingPage = () => {
           <div className="container">
             <div className="hero-content">
 
-              <h1 className="hero-title swoop-in-blur swoop-delay-1">
-                transform your documents<br />into smart notes;
+              <h1 className="hero-title swoop-in-blur swoop-delay-1 leading-[0.9]">
+                <span className="font-bold text-[5rem] normal-case leading-[0.9]" style={{ fontFamily: "'Satoshi-Bold', sans-serif" }}>
+                  Transform your Documents
+                </span>
+                <br />
+                <span className="font-bold text-[5rem] normal-case leading-[0.9]" style={{ fontFamily: "'Satoshi-Bold', sans-serif" }}>
+                  into Smart Notes;
+                </span>
               </h1>
 
               <p className="hero-subtitle swoop-in-blur swoop-delay-2">
@@ -93,6 +134,7 @@ const LandingPage = () => {
               >
                 <DocumentUpload
                   onFileUpload={handleFileUpload}
+                  onLinkSubmit={handleLinkSubmit}
                   isProcessing={isProcessing}
                   uploadedFile={uploadedFile}
                   downloadUrl={downloadUrl}

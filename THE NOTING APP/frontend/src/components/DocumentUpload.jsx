@@ -1,14 +1,16 @@
 import React, { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import toast from 'react-hot-toast'
+import { FiPaperclip, FiArrowUp, FiFile, FiCheck, FiDownload, FiMessageSquare, FiX, FiLink } from 'react-icons/fi'
 
-const backendBase = "https://the-noting-app.onrender.com/"; // Change if your backend runs elsewhere
+const backendBase = "http://localhost:5000/"; // Updated to localhost for dev
 
 const MAX_FILE_SIZE_MB = 25;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
-const DocumentUpload = ({ onFileUpload, isProcessing, uploadedFile, downloadUrl, onOpenChat }) => {
-  const [showPdf, setShowPdf] = useState(false);
+const DocumentUpload = ({ onFileUpload, onLinkSubmit, isProcessing, uploadedFile, downloadUrl, onOpenChat }) => {
+  const [inputValue, setInputValue] = useState('');
+
   const onDrop = useCallback((acceptedFiles) => {
     console.log('DEBUG: Files dropped:', acceptedFiles)
     if (acceptedFiles.length > 0) {
@@ -38,42 +40,22 @@ const DocumentUpload = ({ onFileUpload, isProcessing, uploadedFile, downloadUrl,
     }
   }, [onFileUpload])
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
     accept: {
       'application/pdf': ['.pdf'],
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
       'text/plain': ['.txt']
     },
-    multiple: false
+    multiple: false,
+    noClick: true, // We will use the paperclip button for click
+    noKeyboard: true
   })
 
-  const handleDownload = () => {
-    if (downloadUrl) {
-      // Use absolute URL if downloadUrl is relative
-      const url = downloadUrl.startsWith('http') ? downloadUrl : backendBase + downloadUrl;
-      console.log('DEBUG: Opening download URL in new tab:', url)
-      window.open(url, '_blank');
-      toast.success('Opened PDF in new tab!')
-    } else {
-      console.log('DEBUG: No downloadUrl available')
-    }
-  }
-
-  const handleViewSummary = () => {
-    if (downloadUrl) {
-      // Use absolute URL if downloadUrl is relative
-      const url = downloadUrl.startsWith('http') ? downloadUrl : backendBase + downloadUrl;
-      window.open(url, '_blank'); // This will render the file in a new tab if possible
-      toast.success('Opened summary in new tab!');
-    } else {
-      toast.error('No summary available to view.');
-    }
-  }
-
+  // Handle Download (same logic as before)
   const handleViewAndDownloadSummary = async () => {
     if (downloadUrl) {
-      const url = backendBase.replace(/\/$/, '') + downloadUrl;
+      const url = downloadUrl.startsWith('http') ? downloadUrl : backendBase.replace(/\/$/, '') + downloadUrl;
       // Open in new tab for viewing
       window.open(url, '_blank');
       // Download in current tab using Blob
@@ -90,6 +72,7 @@ const DocumentUpload = ({ onFileUpload, isProcessing, uploadedFile, downloadUrl,
         window.URL.revokeObjectURL(blobUrl);
         toast.success('Opened summary in new tab and started download!');
       } catch (err) {
+        console.error('Download error:', err);
         toast.error('Failed to download summary.');
       }
     } else {
@@ -97,113 +80,135 @@ const DocumentUpload = ({ onFileUpload, isProcessing, uploadedFile, downloadUrl,
     }
   }
 
-  return (
-    <div className="document-upload">
-      <div className="upload-container">
-        {!uploadedFile ? (
-          <div
-            {...getRootProps()}
-            className={`dropzone ${isDragActive ? 'drag-active' : ''} text-sm`}
-          >
-            <input {...getInputProps()} />
-            <div className="upload-content">
-              <div className="upload-icon">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7,10 12,15 17,10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-              </div>
-              <h3 className="upload-title text-base">
-                {isDragActive ? 'Drop your document here' : 'Upload your document'}
-              </h3>
-              <p className="upload-subtitle text-xs">
-                Drag and drop your PDF, and get notes, Asssistant and Quizzes
-              </p>
-              <p className="upload-info text-xs">
-                Supported formats: PDF, DOCX (Max {MAX_FILE_SIZE_MB}MB)
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="file-info">
-            <div className="file-details">
-              <div className="file-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                  <polyline points="14,2 14,8 20,8" />
-                  <line x1="16" y1="13" x2="8" y2="13" />
-                  <line x1="16" y1="17" x2="8" y2="17" />
-                  <polyline points="10,9 9,9 8,9" />
-                </svg>
-              </div>
-              <div className="file-text">
-                <h4 className="file-name">{uploadedFile.name}</h4>
-                <p className="file-size">{(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</p>
-              </div>
-            </div>
+  const handleSubmit = () => {
+    if (!inputValue.trim()) return;
+    if (onLinkSubmit) {
+      onLinkSubmit(inputValue.trim());
+      setInputValue('');
+    }
+  }
 
-            {isProcessing ? (
-              <div className="processing">
-                <div className="spinner"></div>
-                <p>Processing your document...</p>
-                {console.log('DEBUG: Processing document...')}
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
+  }
+
+  return (
+    <div className="w-full max-w-3xl mx-auto px-4">
+      {/* Upload/Input Area */}
+      {!uploadedFile ? (
+        <div
+          {...getRootProps()}
+          className={`relative group bg-[#1a1a1e]/80 backdrop-blur-xl border transition-all duration-300 rounded-3xl p-2
+            ${isDragActive ? 'border-violet-500/50 ring-4 ring-violet-500/10' : 'border-white/10 hover:border-white/20 shadow-2xl shadow-black/50'}
+          `}
+        >
+          <input {...getInputProps()} />
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={open}
+              className="p-3 text-gray-400 hover:text-white hover:bg-white/10 rounded-full transition-colors"
+              title="Upload file"
+            >
+              <FiPaperclip size={20} />
+            </button>
+
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={isDragActive ? "Drop file here..." : "Paste a Google Drive link or upload a document..."}
+              className="flex-1 bg-transparent border-none outline-none text-white placeholder-gray-500 px-2 py-3 text-lg font-light"
+            />
+
+            <button
+              onClick={handleSubmit}
+              disabled={!inputValue.trim()}
+              className={`p-3 rounded-full transition-all duration-300 
+                ${inputValue.trim()
+                  ? 'bg-white text-black hover:scale-105 active:scale-95 shadow-lg shadow-white/10'
+                  : 'bg-white/5 text-gray-500 cursor-not-allowed'}
+              `}
+            >
+              <FiArrowUp size={20} className={inputValue.trim() ? "stroke-[3]" : ""} />
+            </button>
+          </div>
+
+          {/* Overlay for drag active */}
+          {isDragActive && (
+            <div className="absolute inset-0 bg-violet-600/10 backdrop-blur-sm rounded-3xl flex items-center justify-center border-2 border-violet-500 border-dashed z-10">
+              <div className="text-violet-200 font-medium flex items-center gap-2">
+                <FiFile size={24} />
+                Drop to upload
               </div>
-            ) : downloadUrl ? (
-              <div className="download-section">
-                <button onClick={handleViewAndDownloadSummary} className="btn btn-primary">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7,10 12,15 17,10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                  View & Download Notes
-                </button>
-                <button
-                  onClick={typeof onOpenChat === 'function' ? onOpenChat : undefined}
-                  style={{
-                    background: 'rgba(139, 92, 246, 0.25)',
-                    backdropFilter: 'blur(12px)',
-                    WebkitBackdropFilter: 'blur(12px)',
-                    color: '#fff',
-                    fontWeight: 600,
-                    padding: '0.75rem 2rem',
-                    border: '1px solid rgba(139, 92, 246, 0.4)',
-                    borderRadius: '1.5rem',
-                    fontSize: '1.1rem',
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 20px rgba(139, 92, 246, 0.2)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    transition: 'all 0.3s ease',
-                    fontFamily: 'Inter Tight, Inter, sans-serif',
-                  }}
-                >
-                  Open Chat
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginLeft: 8 }}>
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12,5 19,12 12,19" />
-                  </svg>
-                </button>
-              </div>
-            ) : (
-              <div className="error-message">
-                <p>Failed to process document. Please try again.</p>
-                {console.log('DEBUG: Failed to process document, downloadUrl:', downloadUrl, 'isProcessing:', isProcessing)}
-                <button
-                  onClick={() => { console.log('DEBUG: Try Again clicked'); window.location.reload(); }}
-                  className="btn btn-secondary"
-                >
-                  Try Again
-                </button>
+            </div>
+          )}
+
+          <div className="absolute -bottom-8 left-0 right-0 text-center">
+            <p className="text-xs text-gray-500">Supported: PDF, DOCX, TXT (Max {MAX_FILE_SIZE_MB}MB)</p>
+          </div>
+        </div>
+      ) : (
+        /* Processing / Result State */
+        <div className="bg-[#1a1a1e]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl max-w-2xl mx-auto">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 rounded-xl bg-violet-500/20 flex items-center justify-center text-violet-300">
+              {uploadedFile.name === 'Google Drive Link' ? <FiLink size={24} /> : <FiFile size={24} />}
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <h3 className="text-white font-medium truncate">{uploadedFile.name}</h3>
+              <p className="text-sm text-gray-400">
+                {uploadedFile.size ? `${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB` : 'Remote Resource'}
+              </p>
+            </div>
+            {isProcessing && (
+              <div className="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+            )}
+            {!isProcessing && downloadUrl && (
+              <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                <FiCheck size={16} />
               </div>
             )}
           </div>
-        )}
-      </div>
+
+          {!isProcessing && downloadUrl && (
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={handleViewAndDownloadSummary}
+                className="flex-1 flex items-center justify-center gap-2 bg-white text-black px-6 py-3 rounded-xl font-medium hover:bg-gray-100 transition-colors"
+              >
+                <FiDownload size={18} />
+                Download Notes
+              </button>
+              <button
+                onClick={typeof onOpenChat === 'function' ? onOpenChat : undefined}
+                className="flex-1 flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-xl font-medium transition-colors shadow-lg shadow-violet-900/20"
+              >
+                Open Chat
+                <FiMessageSquare size={18} />
+              </button>
+            </div>
+          )}
+
+          {!isProcessing && !downloadUrl && (
+            <div className="text-center">
+              <p className="text-red-400 mb-4">Processing failed. Please try again.</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
 
-export default DocumentUpload 
+export default DocumentUpload
