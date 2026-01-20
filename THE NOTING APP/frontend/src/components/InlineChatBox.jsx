@@ -10,11 +10,12 @@ import { TextShimmer } from './ui/text-shimmer';
 import { FiPaperclip, FiMessageSquare, FiChevronUp } from 'react-icons/fi';
 import { HiOutlineSparkles } from 'react-icons/hi';
 import { ProgressiveBlur } from './ui/ProgressiveBlur';
+import remarkGfm from 'remark-gfm';
 
 const InlineChatBox = ({ isExpanded, onToggle }) => {
     const { documentText } = useDocumentText();
-    const contextText = (documentText || '').slice(0, 4000);
-    const isTruncated = (documentText || '').length > 4000;
+    const contextText = (documentText || '');
+    const isTruncated = false;
 
     const [messages, setMessages] = useState([
         {
@@ -177,11 +178,35 @@ const InlineChatBox = ({ isExpanded, onToggle }) => {
                                 }}>
                                     {message.type === 'bot' ? (
                                         <ReactMarkdown
-                                            remarkPlugins={[remarkMath]}
+                                            remarkPlugins={[remarkMath, remarkGfm]}
                                             rehypePlugins={[rehypeKatex]}
                                             components={{
                                                 p({ children }) {
                                                     return <p style={{ margin: '0.5rem 0', textAlign: 'left' }}>{children}</p>
+                                                },
+                                                table({ children }) {
+                                                    return (
+                                                        <div style={{ overflowX: 'auto', margin: '1rem 0', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                                            <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: '0.85rem' }}>
+                                                                {children}
+                                                            </table>
+                                                        </div>
+                                                    )
+                                                },
+                                                thead({ children }) {
+                                                    return <thead style={{ background: 'rgba(139, 92, 246, 0.1)' }}>{children}</thead>
+                                                },
+                                                th({ children }) {
+                                                    return <th style={{ border: '1px solid rgba(255,255,255,0.1)', padding: '8px 12px', textAlign: 'left', fontWeight: 'bold', color: '#8b5cf6' }}>{children}</th>
+                                                },
+                                                td({ children }) {
+                                                    return <td style={{ border: '1px solid rgba(255,255,255,0.1)', padding: '8px 12px', textAlign: 'left' }}>{children}</td>
+                                                },
+                                                hr() {
+                                                    return <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.1)', margin: '1.5rem 0' }} />
+                                                },
+                                                blockquote({ children }) {
+                                                    return <blockquote style={{ borderLeft: '4px solid #8b5cf6', paddingLeft: '1rem', margin: '1rem 0', color: '#a1a1aa', fontStyle: 'italic' }}>{children}</blockquote>
                                                 },
                                                 code({ node, inline, className, children, ...props }) {
                                                     const match = /language-(\w+)/.exec(className || '')
@@ -223,18 +248,7 @@ const InlineChatBox = ({ isExpanded, onToggle }) => {
                         <div ref={messagesEndRef} />
                     </div>
 
-                    {isTruncated && (
-                        <div style={{
-                            color: '#fbbf24',
-                            background: '#18181b',
-                            padding: '0.5rem 1rem',
-                            fontSize: '0.8rem',
-                            textAlign: 'center',
-                            borderTop: '1px solid rgba(255, 255, 255, 0.06)'
-                        }}>
-                            Note: Using first 4000 characters of your document.
-                        </div>
-                    )}
+                    {/* No longer showing truncation message */}
                     <ProgressiveBlur
                         position="bottom"
                         backgroundColor="#1e1432"

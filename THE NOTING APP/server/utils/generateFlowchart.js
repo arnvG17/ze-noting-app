@@ -60,7 +60,7 @@ Extract the REAL structure from the document below. Use SPECIFIC terms from the 
 
     const llmPrompt = [
         { role: "system", content: systemPrompt },
-        { role: "user", content: `Analyze this document and create a flowchart:\n\n${textContent.slice(0, 30000)}` }
+        { role: "user", content: `Analyze this document and create a flowchart:\n\n${textContent}` }
     ];
 
     try {

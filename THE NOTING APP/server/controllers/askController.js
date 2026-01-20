@@ -106,7 +106,7 @@ Example:
 ]
 
 **Text:**
-${text.slice(0, 20000)}
+${text}
 
 Generate the quiz now in the exact JSON format shown above.`;
 
