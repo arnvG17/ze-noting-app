@@ -3,7 +3,7 @@ require('dotenv').config();
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
-const GROQ_MODEL = 'llama-3.1-70b-versatile'; // Fast, powerful, and FREE
+const GROQ_MODEL = 'llama-3.3-70b-versatile'; // Updated to current model
 
 async function groqChat(messages) {
     try {
