@@ -1,6 +1,6 @@
 const fs = require('fs');
 const PDFDocument = require('pdfkit');
-const chat = require('../utils/llm');
+const chat = require('../utils/groqLLM');
 const path = require('path');
 const marked = require('marked');
 
@@ -302,6 +302,9 @@ async function processContent(textContent, filenameBase) {
 
         writeStream.on('finish', () => {
             console.log('[DEBUG] PDF generation finished');
+            console.log('[DEBUG] Summary length:', summary.length);
+            console.log('[DEBUG] Summary preview:', summary.substring(0, 200));
+            console.log('[DEBUG] Returning result with summary included');
             resolve({ downloadUrl: `/uploads/${notesFileName}`, textContent, summary });
         });
 

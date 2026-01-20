@@ -1,5 +1,5 @@
 // server/utils/generateFlowchart.js
-const chat = require('./llm');
+const chat = require('./groqLLM');
 
 /**
  * Generate a ReactFlow-compatible flowchart structure from document text.

@@ -56,6 +56,9 @@ const LandingPage = () => {
 
       const data = await response.json();
       console.log('data from upload', data);
+      console.log('[DEBUG] Summary received:', data.summary ? 'YES' : 'NO');
+      console.log('[DEBUG] Summary length:', data.summary?.length || 0);
+      console.log('[DEBUG] Summary preview:', data.summary?.substring(0, 100) || 'EMPTY');
       console.log('[DEBUG] Flowchart data received:', data.flowchartData);
       setDownloadUrl(data.downloadUrl);
       setDocumentText(data.textContent || '');
