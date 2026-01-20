@@ -104,10 +104,21 @@ const scrapeController = async (req, res) => {
 
             // Launch Puppeteer to scrape file IDs
             // Use --no-sandbox for some environments
-            const browser = await puppeteer.launch({
-                headless: 'new',
-                args: ['--no-sandbox', '--disable-setuid-sandbox']
-            });
+            // Launch Puppeteer to scrape file IDs
+            // Use --no-sandbox for some environments
+            let browser;
+            try {
+                browser = await puppeteer.launch({
+                    headless: 'new',
+                    args: ['--no-sandbox', '--disable-setuid-sandbox']
+                });
+            } catch (pLaunchError) {
+                console.error('[DEBUG] Puppeteer launch failed:', pLaunchError);
+                return res.status(500).json({
+                    error: 'Failed to initialize scraper browser.',
+                    details: pLaunchError.message
+                });
+            }
             const page = await browser.newPage();
 
             try {
@@ -193,7 +204,12 @@ const scrapeController = async (req, res) => {
 
     } catch (err) {
         console.error('[DEBUG] Scrape controller error:', err);
-        res.status(500).json({ error: 'Server error during scraping processing' });
+        // Respond with the actual error message for debugging
+        res.status(500).json({
+            error: 'Server error during scraping processing',
+            details: err.message, // expose the internal error message
+            stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+        });
     }
 };
 
