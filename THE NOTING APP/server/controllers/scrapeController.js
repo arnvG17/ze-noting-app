@@ -2,8 +2,10 @@
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
+const chromium = require('@sparticuz/chromium');
 const { processContent } = require('../utils/processContent');
+const { generateFlowchart } = require('../utils/generateFlowchart');
 const parsePDF = require('../utils/parsePDF');
 const parseDOCX = require('../utils/parseDOCX');
 
@@ -68,8 +70,6 @@ async function fetchFileContent(fileId) {
                 // Try PDF fallback
                 textContent = await parsePDF(tempFilePath);
             }
-            // Clean up
-            // fs.unlinkSync(tempFilePath);
             console.log(`[DEBUG] Processed ${fileId} as Drive File (${extension})`);
             return { text: textContent, type: 'file' };
         } catch (e) {
@@ -102,15 +102,14 @@ const scrapeController = async (req, res) => {
             }
             mainFilenameBase = `folder_${folderId}`;
 
-            // Launch Puppeteer to scrape file IDs
-            // Use --no-sandbox for some environments
-            // Launch Puppeteer to scrape file IDs
-            // Use --no-sandbox for some environments
+            // Launch Puppeteer with serverless Chromium
             let browser;
             try {
                 browser = await puppeteer.launch({
-                    headless: 'new',
-                    args: ['--no-sandbox', '--disable-setuid-sandbox']
+                    args: chromium.args,
+                    defaultViewport: chromium.defaultViewport,
+                    executablePath: await chromium.executablePath(),
+                    headless: chromium.headless,
                 });
             } catch (pLaunchError) {
                 console.error('[DEBUG] Puppeteer launch failed:', pLaunchError);
@@ -171,7 +170,10 @@ const scrapeController = async (req, res) => {
 
             } catch (pError) {
                 console.error('[DEBUG] Puppeteer error:', pError);
-                return res.status(500).json({ error: 'Failed to scrape folder structure.' });
+                return res.status(500).json({
+                    error: 'Failed to scrape folder structure.',
+                    details: pError.message
+                });
             } finally {
                 await browser.close();
             }
@@ -198,19 +200,27 @@ const scrapeController = async (req, res) => {
             });
         }
 
-        // Process final content
+        // Process final content (generates summary PDF)
         const result = await processContent(combinedTextContent, mainFilenameBase);
-        res.json(result);
+
+        // Generate flowchart data for ReactFlow visualization
+        console.log('[DEBUG] Generating flowchart for scraped content...');
+        const flowchartData = await generateFlowchart(combinedTextContent);
+
+        res.json({
+            ...result,
+            flowchartData
+        });
 
     } catch (err) {
         console.error('[DEBUG] Scrape controller error:', err);
-        // Respond with the actual error message for debugging
         res.status(500).json({
             error: 'Server error during scraping processing',
-            details: err.message, // expose the internal error message
+            details: err.message,
             stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
         });
     }
 };
 
 module.exports = scrapeController;
+

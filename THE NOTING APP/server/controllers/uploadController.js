@@ -4,6 +4,7 @@ const parsePDF = require('../utils/parsePDF');
 const parseDOCX = require('../utils/parseDOCX');
 const path = require('path');
 const { processContent } = require('../utils/processContent');
+const { generateFlowchart } = require('../utils/generateFlowchart');
 
 const uploadController = async (req, res) => {
   try {
@@ -39,13 +40,20 @@ const uploadController = async (req, res) => {
       return res.status(400).json({ error: 'Unsupported file type' });
     }
 
-    // Process content using shared utility
+    // Process content using shared utility (generates summary PDF)
     const result = await processContent(textContent, path.basename(filePath, ext));
+
+    // Generate flowchart data for ReactFlow visualization
+    console.log('[DEBUG] Generating flowchart...');
+    const flowchartData = await generateFlowchart(textContent);
 
     // Clean up uploaded file? Maybe keep it for reference or delete it.
     // For now, we keep it as per original behavior.
 
-    res.json(result);
+    res.json({
+      ...result,
+      flowchartData
+    });
 
   } catch (err) {
     console.error('[DEBUG] Server error:', err);
@@ -54,3 +62,4 @@ const uploadController = async (req, res) => {
 };
 
 module.exports = uploadController;
+

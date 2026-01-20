@@ -5,6 +5,7 @@ import Features from './Features';
 import Footer from './Footer';
 import InlineChatBox from './InlineChatBox';
 import QuizSection from './quizz/QuizzPage';
+import FlowchartViewer from './FlowchartViewer';
 import { useDocumentText } from './DocumentTextContext';
 import { FiDownload } from 'react-icons/fi';
 import AnimatedBackground from './ui/AnimatedBackground';
@@ -20,6 +21,7 @@ const LandingPage = () => {
   const [isChatExpanded, setIsChatExpanded] = useState(false);
   const { documentText, setDocumentText } = useDocumentText();
   const [showUploader, setShowUploader] = useState(false);
+  const [flowchartData, setFlowchartData] = useState(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,6 +37,7 @@ const LandingPage = () => {
     setIsProcessing(true);
     setDownloadUrl(null);
     setDocumentText('');
+    setFlowchartData(null);
 
     try {
       const formData = new FormData();
@@ -52,6 +55,7 @@ const LandingPage = () => {
       console.log('data from upload', data);
       setDownloadUrl(data.downloadUrl);
       setDocumentText(data.textContent || '');
+      setFlowchartData(data.flowchartData || null);
 
     } catch (error) {
       console.error('Upload error:', error);
@@ -66,6 +70,7 @@ const LandingPage = () => {
     setIsProcessing(true);
     setDownloadUrl(null);
     setDocumentText('');
+    setFlowchartData(null);
 
     try {
       const response = await fetch('https://the-noting-app.onrender.com/api/scrape', {
@@ -82,6 +87,7 @@ const LandingPage = () => {
       const data = await response.json();
       setDownloadUrl(data.downloadUrl);
       setDocumentText(data.textContent || '');
+      setFlowchartData(data.flowchartData || null);
       toast.success('Link processed successfully!');
 
     } catch (error) {
@@ -141,6 +147,14 @@ const LandingPage = () => {
                   onOpenChat={() => setIsChatExpanded(true)}
                 />
               </div>
+
+              {/* Flowchart Viewer - appears after document upload */}
+              {(flowchartData || isProcessing) && (
+                <FlowchartViewer
+                  flowchartData={flowchartData}
+                  isLoading={isProcessing && !flowchartData}
+                />
+              )}
 
               {/* Inline Expandable Chat - appears after document upload */}
               {documentText && (

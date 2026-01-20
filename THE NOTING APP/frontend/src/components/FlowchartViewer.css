@@ -1,0 +1,133 @@
+/* FlowchartViewer.css - Dark theme styles for ReactFlow */
+
+.flowchart-wrapper {
+    width: 100%;
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.flowchart-header {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.flowchart-header h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #f3f4f6;
+    margin: 0 0 0.5rem 0;
+}
+
+.flowchart-header p {
+    font-size: 0.875rem;
+    color: #9ca3af;
+    margin: 0;
+}
+
+.flowchart-container {
+    width: 100%;
+    height: 500px;
+    background: linear-gradient(135deg, #0f0f12 0%, #1a1a1e 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.flowchart-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+.flowchart-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(139, 92, 246, 0.2);
+    border-top-color: #8b5cf6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ReactFlow customizations */
+.react-flow__node {
+    cursor: grab;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.react-flow__node:hover {
+    transform: translateY(-2px);
+}
+
+.react-flow__node.selected {
+    outline: 2px solid #a78bfa !important;
+    outline-offset: 2px;
+}
+
+.react-flow__edge-path {
+    stroke-linecap: round;
+}
+
+.react-flow__edge.animated path {
+    stroke-dasharray: 5;
+    animation: flowDash 0.5s linear infinite;
+}
+
+@keyframes flowDash {
+    to {
+        stroke-dashoffset: -10;
+    }
+}
+
+/* Controls styling */
+.react-flow__controls {
+    background: rgba(31, 41, 55, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.react-flow__controls-button {
+    background: transparent !important;
+    border: none !important;
+    color: #9ca3af !important;
+    width: 28px !important;
+    height: 28px !important;
+}
+
+.react-flow__controls-button:hover {
+    background: rgba(139, 92, 246, 0.2) !important;
+    color: #fff !important;
+}
+
+.react-flow__controls-button svg {
+    fill: currentColor !important;
+}
+
+/* Attribution */
+.react-flow__attribution {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border-radius: 4px !important;
+    padding: 2px 6px !important;
+}
+
+.react-flow__attribution a {
+    color: #6b7280 !important;
+    font-size: 10px !important;
+}
+
+/* Background dots */
+.react-flow__background {
+    background-color: transparent !important;
+}
