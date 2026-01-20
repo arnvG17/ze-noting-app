@@ -88,75 +88,96 @@ const NotesViewer = ({ notes }) => {
                         remarkPlugins={[remarkMath]}
                         rehypePlugins={[rehypeKatex]}
                         components={{
+                            table: ({ children }) => (
+                                <div style={{ overflowX: 'auto', marginBottom: '1.5rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: 'rgba(255,255,255,0.02)' }}>{children}</table>
+                                </div>
+                            ),
+                            thead: ({ children }) => <thead style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>{children}</thead>,
+                            th: ({ children }) => <th style={{ padding: '0.75rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', fontWeight: '600', color: '#fff' }}>{children}</th>,
+                            td: ({ children }) => <td style={{ padding: '0.75rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#d4d4d8' }}>{children}</td>,
+                            hr: () => <hr style={{ border: 'none', height: '1px', background: 'linear-gradient(to right, transparent, rgba(139, 92, 246, 0.5), transparent)', margin: '2.5rem 0' }} />,
                             h1: ({ children }) => (
                                 <h1 style={{
-                                    fontSize: '2rem',
-                                    fontWeight: '700',
-                                    marginTop: '2rem',
-                                    marginBottom: '1rem',
+                                    fontSize: '2.25rem',
+                                    fontWeight: '800',
+                                    marginTop: '2.5rem',
+                                    marginBottom: '1.25rem',
                                     color: '#fff',
-                                    paddingBottom: '0.5rem',
-                                    borderBottom: '1px solid rgba(255,255,255,0.1)'
+                                    paddingBottom: '0.75rem',
+                                    borderBottom: '2px solid rgba(139, 92, 246, 0.3)',
+                                    letterSpacing: '-0.02em'
                                 }}>{children}</h1>
                             ),
                             h2: ({ children }) => (
                                 <h2 style={{
-                                    fontSize: '1.5rem',
-                                    fontWeight: '600',
+                                    fontSize: '1.75rem',
+                                    fontWeight: '700',
                                     marginTop: '2rem',
                                     marginBottom: '1rem',
-                                    color: '#fff'
-                                }}>{children}</h2>
+                                    color: '#fff',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem'
+                                }}>
+                                    <span style={{ width: '4px', height: '1.5rem', background: '#8b5cf6', borderRadius: '2px', display: 'inline-block' }}></span>
+                                    {children}
+                                </h2>
                             ),
                             h3: ({ children }) => (
                                 <h3 style={{
-                                    fontSize: '1.25rem',
+                                    fontSize: '1.35rem',
                                     fontWeight: '600',
                                     marginTop: '1.5rem',
                                     marginBottom: '0.75rem',
-                                    color: '#e4e4e7'
+                                    color: '#f4f4f5'
                                 }}>{children}</h3>
                             ),
                             p: ({ children }) => (
-                                <p style={{ marginBottom: '1rem', color: '#d4d4d8' }}>{children}</p>
+                                <p style={{ marginBottom: '1.25rem', color: '#d4d4d8', fontSize: '1.05rem', fontWeight: '400', lineHeight: '1.7' }}>{children}</p>
                             ),
                             ul: ({ children }) => (
-                                <ul style={{ marginBottom: '1rem', paddingLeft: '1.5rem', listStyleType: 'disc' }}>{children}</ul>
+                                <ul style={{ marginBottom: '1.25rem', paddingLeft: '0', listStyleType: 'none' }}>{children}</ul>
                             ),
                             ol: ({ children }) => (
-                                <ol style={{ marginBottom: '1rem', paddingLeft: '1.5rem', listStyleType: 'decimal' }}>{children}</ol>
+                                <ol style={{ marginBottom: '1.25rem', paddingLeft: '1.5rem', listStyleType: 'decimal', color: '#d4d4d8' }}>{children}</ol>
                             ),
-                            li: ({ children }) => (
-                                <li style={{ marginBottom: '0.5rem', paddingLeft: '0.5rem' }}>{children}</li>
+                            li: ({ children, ordered }) => (
+                                <li style={{ marginBottom: '0.625rem', position: 'relative', display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                                    {!ordered && <span style={{ color: '#8b5cf6', marginTop: '0.35rem', fontSize: '1.2em', flexShrink: 0 }}>•</span>}
+                                    <div style={{ flex: 1 }}>{children}</div>
+                                </li>
                             ),
                             blockquote: ({ children }) => (
                                 <blockquote style={{
                                     borderLeft: '4px solid #8b5cf6',
-                                    paddingLeft: '1rem',
-                                    marginLeft: 0,
-                                    marginRight: 0,
+                                    paddingLeft: '1.5rem',
+                                    margin: '1.5rem 0',
                                     fontStyle: 'italic',
                                     color: '#a1a1aa',
-                                    background: 'rgba(139, 92, 246, 0.1)',
-                                    padding: '1rem',
-                                    borderRadius: '0 8px 8px 0'
+                                    background: 'linear-gradient(to right, rgba(139, 92, 246, 0.15), transparent)',
+                                    padding: '1.25rem 1.5rem',
+                                    borderRadius: '0 12px 12px 0'
                                 }}>{children}</blockquote>
                             ),
                             code({ node, inline, className, children, ...props }) {
                                 const match = /language-(\w+)/.exec(className || '')
                                 return !inline ? (
-                                    <CodeBlock
-                                        language={match ? match[1] : 'text'}
-                                        code={String(children).replace(/\n$/, '')}
-                                    />
+                                    <div style={{ margin: '1.5rem 0' }}>
+                                        <CodeBlock
+                                            language={match ? match[1] : 'text'}
+                                            code={String(children).replace(/\n$/, '')}
+                                        />
+                                    </div>
                                 ) : (
                                     <code style={{
-                                        background: 'rgba(139, 92, 246, 0.2)',
-                                        padding: '0.2rem 0.4rem',
-                                        borderRadius: 4,
+                                        background: 'rgba(139, 92, 246, 0.15)',
+                                        padding: '0.25rem 0.5rem',
+                                        borderRadius: 6,
                                         fontSize: '0.9em',
-                                        fontFamily: 'Consolas, Monaco, "Courier New", monospace',
-                                        color: '#e9d5ff'
+                                        fontFamily: 'JetBrains Mono, Fira Code, Consolas, Monaco, monospace',
+                                        color: '#c084fc',
+                                        border: '1px solid rgba(139, 92, 246, 0.2)'
                                     }} {...props}>{children}</code>
                                 )
                             },

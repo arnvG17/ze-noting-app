@@ -9,49 +9,54 @@ const chat = require('./llm');
  * @returns {Promise<{nodes: Array, edges: Array}>} - ReactFlow-compatible data
  */
 async function generateFlowchart(textContent) {
-    const systemPrompt = `You are an expert at analyzing documents and extracting their logical structure as a flowchart.
+    const systemPrompt = `You are an expert at analyzing documents and creating visual flowcharts that represent the ACTUAL content and structure.
 
-Your task is to analyze the provided document and create a flowchart that represents:
-1. Main topics/sections as primary nodes
-2. Subtopics/key points as secondary nodes
-3. Logical flow and relationships between concepts
+**CRITICAL:** DO NOT use generic placeholders. Extract REAL topics and concepts from the document.
+
+Your task:
+1. READ the document and identify its SPECIFIC main topic
+2. Find the ACTUAL sections, steps, or themes mentioned
+3. Extract REAL key points and concepts
+4. Show the logical flow between these ACTUAL elements
 
 **OUTPUT FORMAT:**
-You MUST respond with ONLY valid JSON (no markdown, no explanation, no code blocks). The JSON must have this exact structure:
+Respond with ONLY valid JSON (no markdown, no code blocks, no explanation).
 
+Structure:
 {
   "nodes": [
-    { "id": "1", "type": "input", "position": { "x": 250, "y": 0 }, "data": { "label": "Main Title" } },
-    { "id": "2", "type": "default", "position": { "x": 250, "y": 100 }, "data": { "label": "Section 1" } }
+    { "id": "1", "type": "input", "position": { "x": 250, "y": 0 }, "data": { "label": "REAL Document Title/Topic" } },
+    { "id": "2", "type": "default", "position": { "x": 150, "y": 120 }, "data": { "label": "Actual Section 1" } },
+    { "id": "3", "type": "default", "position": { "x": 350, "y": 120 }, "data": { "label": "Actual Section 2" } },
+    { "id": "4", "type": "default", "position": { "x": 250, "y": 240 }, "data": { "label": "Real Key Concept" } },
+    { "id": "5", "type": "output", "position": { "x": 250, "y": 360 }, "data": { "label": "Actual Goal/Outcome" } }
   ],
   "edges": [
-    { "id": "e1-2", "source": "1", "target": "2", "animated": true }
+    { "id": "e1-2", "source": "1", "target": "2", "animated": true },
+    { "id": "e1-3", "source": "1", "target": "3", "animated": true },
+    { "id": "e2-4", "source": "2", "target": "4", "animated": false },
+    { "id": "e3-4", "source": "3", "target": "4", "animated": false },
+    { "id": "e4-5", "source": "4", "target": "5", "animated": true }
   ]
 }
 
-**NODE RULES:**
-- The first node should have type "input" (represents the document title/main topic)
-- Middle nodes should have type "default"
-- Final conclusion nodes should have type "output"
-- Position nodes in a logical top-to-bottom or left-to-right flow
-- Use x: 250 as center, adjust x for parallel branches (x: 100, x: 400 for side branches)
-- Increment y by ~100-120 for each level down
-- Keep labels concise (max 50 characters)
-- Create 5-15 nodes depending on document complexity
+**RULES:**
+- First node (type "input"): Document's main topic (from the actual doc)
+- Middle nodes (type "default"): Specific sections, requirements, steps, or components
+- Last node (type "output"): Final goal, conclusion, or deliverable
+- Labels: Max 40 chars, use ACTUAL content from document
+- Create 6-12 nodes based on document complexity
+- Positioning: center x:250, left branch x:100-150, right branch x:350-400
+- Increment y by 100-140 per level
 
-**EDGE RULES:**
-- Connect nodes that have logical relationships
-- Use "animated": true for main flow, false for secondary connections
-- Edge id format: "e{source}-{target}"
+**EXAMPLES:**
+❌ WRONG: "Document Overview" → "Content Analysis" → "Key Points"
+✅ RIGHT: "Python Gmail-Sheets Automation" → "Gmail API Setup" → "OAuth Authentication" → "Email Processing" → "Sheet Logging" → "Duplicate Prevention"
 
-**ANALYSIS APPROACH:**
-1. Identify the main topic/title
-2. Find major sections or themes
-3. Extract key concepts within each section
-4. Determine relationships and flow between concepts
-5. Create a hierarchical but connected structure
+❌ WRONG: "Introduction" → "Main Content" → "Conclusion"  
+✅ RIGHT: "Photosynthesis" → "Light Absorption" → "Water Splitting" → "CO₂ Fixation" → "Glucose Output"
 
-Respond with ONLY the JSON object, nothing else.`;
+Extract the REAL structure from the document below. Use SPECIFIC terms from the text.`;
 
     const llmPrompt = [
         { role: "system", content: systemPrompt },

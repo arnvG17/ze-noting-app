@@ -161,13 +161,7 @@ const LandingPage = () => {
                 <NotesViewer notes={summaryText} />
               )}
 
-              {/* Flowchart Viewer - appears after document upload */}
-              {(flowchartData || isProcessing) && (
-                <FlowchartViewer
-                  flowchartData={flowchartData}
-                  isLoading={isProcessing && !flowchartData}
-                />
-              )}
+
 
               {/* Inline Expandable Chat - appears after document upload */}
               {documentText && (
@@ -178,9 +172,19 @@ const LandingPage = () => {
                   />
                 </div>
               )}
+
+
             </div>
           </div>
         </section>
+
+        {/* Flowchart Viewer - appears after document upload */}
+        {(flowchartData || isProcessing) && (
+          <FlowchartViewer
+            flowchartData={flowchartData}
+            isLoading={isProcessing && !flowchartData}
+          />
+        )}
 
         {documentText && <QuizSection docText={documentText} />}
         <Features />
