@@ -109,7 +109,7 @@ const FlowchartViewer = ({ flowchartData, isLoading = false }) => {
     return (
         <div className="flowchart-wrapper" style={{ width: '100%', marginBottom: '2rem' }}>
             <div className="flowchart-header">
-                <h3>📊 Document Flowchart</h3>
+                <h3>Document Flowchart</h3>
                 <p>Visual overview of your document structure</p>
             </div>
             <div className="flowchart-container" style={{ width: '100%', height: '500px', background: '#1a1a1e', border: '1px solid #333', borderRadius: '12px' }}>

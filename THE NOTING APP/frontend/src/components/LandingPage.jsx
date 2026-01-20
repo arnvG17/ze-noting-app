@@ -190,6 +190,11 @@ const LandingPage = () => {
         )}
 
         {documentText && <QuizSection docText={documentText} />}
+
+        {/* Notes Viewer - appears after document upload/scrape */}
+        {summaryText && (
+          <NotesViewer notes={summaryText} />
+        )}
         <Features />
       </main>
 

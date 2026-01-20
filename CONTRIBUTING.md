@@ -4,9 +4,10 @@
 
 The **Noting App** is a backend-heavy application designed to ingest documents (PDF/DOCX), summarize them, and allow users to interact with the content through Q&A and Quizzes.
 
-The system uses a dual-LLM architecture:
-1.  **Google Gemini 2.0 Flash**: Latest model with 1M token context window, responsible for initial document summarization and notes generation upon upload.
+The system uses a **multi-LLM architecture**:
+1.  **Groq (Llama 3.3 70B)**: FREE, fast inference. Responsible for document summarization and flowchart generation upon upload.
 2.  **Together AI (Llama 3.3 70B Instruct)**: High-performance model with 128K context window, responsible for interactive Q&A and generating quizzes from the document content.
+3.  **Google Gemini 2.0 Flash** (Legacy): Available as backup. 1M token context window.
 
 Currently, the system is **stateless regarding vector storage**. It does not persist embeddings in a vector database. Instead, the raw text content of the document is returned to the frontend after upload and passed back to the server for every Q&A or Quiz request.
 
@@ -294,8 +295,12 @@ Generate the quiz in the exact JSON format shown above. Do not include any expla
 | Quiz Route | `server/routes/ask.js` | `router.post('/quiz', handleQuizGeneration)` |
 | Q&A Controller | `server/controllers/askController.js` | `exports.handleAsk` |
 | Quiz Controller | `server/controllers/askController.js` | `exports.handleQuizGeneration` |
-| Gemini LLM | `server/utils/llm.js` | `geminiChat` (exported as `call`) |
+| Process Content | `server/utils/processContent.js` | `processContent` |
+| Flowchart Gen | `server/utils/generateFlowchart.js` | `generateFlowchart` |
+| Groq LLM | `server/utils/groqLLM.js` | `groqChat` (exported as `call`) |
 | Together AI LLM | `server/utils/llm3.js` | `TogetherAIClient.chat` (exported as `call`) |
+| Together AI (alt) | `server/utils/togetherLLM.js` | `togetherChat` (exported as `call`) |
+| Gemini LLM | `server/utils/llm.js` | `geminiChat` (exported as `call`) |
 | PDF Parser | `server/utils/parsePDF.js` | `parsePDF` |
 | DOCX Parser | `server/utils/parseDOCX.js` | `parseDOCX` |
 | Text Chunking | `server/utils/chunker.js` | `chunkText` |
@@ -304,31 +309,44 @@ Generate the quiz in the exact JSON format shown above. Do not include any expla
 
 ## LLM & Prompt Registry
 
-### Model 1: Google Gemini 2.0 Flash
+### Complete LLM Usage Reference
 
-**Location**: [`server/utils/llm.js`](file:///c:/Users/Arnv/The%20NothingApp/ze-noting-app/THE%20NOTING%20APP/server/utils/llm.js)
+| **LLM Provider** | **File** | **Model** | **Used For** | **Env Variable** |
+|---|---|---|---|---|
+| **Groq** | `server/utils/groqLLM.js` | `llama-3.3-70b-versatile` | Document Summary + Flowchart | `GROQ_API_KEY` |
+| **Together AI** | `server/utils/llm3.js` | `Meta-Llama-3.3-70B-Instruct-Turbo` | Q&A + Quiz Generation | `TOGETHER_API_KEY` |
+| **Together AI** | `server/utils/togetherLLM.js` | `Meta-Llama-3.1-70B-Instruct-Turbo` | (Available for other features) | `TOGETHER_API_KEY` |
+| **Google Gemini** | `server/utils/llm.js` | `gemini-2.0-flash-exp` | (Backup/Legacy) | `GEMINI_API_KEY` |
+
+---
+
+### Model 1: Groq (Document Summary & Flowchart)
+
+**Location**: [`server/utils/groqLLM.js`](file:///c:/Users/Arnv/The%20NothingApp/ze-noting-app/THE%20NOTING%20APP/server/utils/groqLLM.js)
 
 **Configuration**:
 ```js
 {
-  temperature: 0.7,   // Balanced creativity
-  topP: 0.95,
-  topK: 40,
-  maxOutputTokens: 8192
+  model: "llama-3.3-70b-versatile",
+  temperature: 0.7,
+  max_tokens: 8000,
+  top_p: 0.9
 }
 ```
 
-**Context Window**: 1,000,000 tokens
+**API Endpoint**: `https://api.groq.com/openai/v1/chat/completions`
 
-**API Endpoint**: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent`
+**Usage**: 
+- Document Summary generation (called in `processContent.js`)
+- Flowchart generation (called in `generateFlowchart.js`)
 
-**Usage**: Document Summarization only (called in `uploadController.js`)
+**Environment Variable Required**: `GROQ_API_KEY`
 
-**Environment Variable Required**: `GEMINI_API_KEY`
+**Free Tier**: 14,400 requests/day
 
 ---
 
-### Model 2: Llama 3.3 70B Instruct Turbo (Together AI)
+### Model 2: Together AI (Q&A & Quiz)
 
 **Location**: [`server/utils/llm3.js`](file:///c:/Users/Arnv/The%20NothingApp/ze-noting-app/THE%20NOTING%20APP/server/utils/llm3.js)
 
@@ -351,6 +369,30 @@ Generate the quiz in the exact JSON format shown above. Do not include any expla
 - Quiz Generation (called in `askController.handleQuizGeneration`)
 
 **Environment Variable Required**: `TOGETHER_API_KEY`
+
+---
+
+### Model 3: Google Gemini (Legacy/Backup)
+
+**Location**: [`server/utils/llm.js`](file:///c:/Users/Arnv/The%20NothingApp/ze-noting-app/THE%20NOTING%20APP/server/utils/llm.js)
+
+**Configuration**:
+```js
+{
+  temperature: 0.7,
+  topP: 0.95,
+  topK: 40,
+  maxOutputTokens: 8192
+}
+```
+
+**Context Window**: 1,000,000 tokens
+
+**API Endpoint**: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent`
+
+**Usage**: Currently not in active use (available as backup)
+
+**Environment Variable Required**: `GEMINI_API_KEY`
 
 ---
 
@@ -401,8 +443,9 @@ const context = relevantChunks.join('\n\n');
 2. Install dependencies: `npm install`
 3. Create `.env` file with:
    ```
-   GEMINI_API_KEY=your_gemini_key
-   TOGETHER_API_KEY=your_together_key
+   GROQ_API_KEY=your_groq_key          # Required (free at console.groq.com)
+   TOGETHER_API_KEY=your_together_key  # Required for Q&A/Quiz
+   GEMINI_API_KEY=your_gemini_key      # Optional (backup)
    ```
 4. Start server: `npm start` (or `node server/server.js`)
 
