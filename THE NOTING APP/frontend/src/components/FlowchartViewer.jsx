@@ -73,7 +73,9 @@ const FlowchartViewer = ({ flowchartData, isLoading = false }) => {
 
     // Update nodes/edges when flowchartData changes
     React.useEffect(() => {
+        console.log('[DEBUG] FlowchartViewer received data:', flowchartData);
         if (flowchartData?.nodes) {
+            console.log('[DEBUG] Setting nodes:', flowchartData.nodes.length);
             setNodes(flowchartData.nodes.map((node) => ({
                 ...node,
                 style: nodeStyles[node.type] || nodeStyles.default,
@@ -105,12 +107,12 @@ const FlowchartViewer = ({ flowchartData, isLoading = false }) => {
     }
 
     return (
-        <div className="flowchart-wrapper">
+        <div className="flowchart-wrapper" style={{ width: '100%', marginBottom: '2rem' }}>
             <div className="flowchart-header">
                 <h3>📊 Document Flowchart</h3>
                 <p>Visual overview of your document structure</p>
             </div>
-            <div className="flowchart-container">
+            <div className="flowchart-container" style={{ width: '100%', height: '500px', background: '#1a1a1e', border: '1px solid #333', borderRadius: '12px' }}>
                 <ReactFlow
                     nodes={nodes}
                     edges={edges}

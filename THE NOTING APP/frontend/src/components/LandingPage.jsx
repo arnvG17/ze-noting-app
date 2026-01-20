@@ -5,6 +5,7 @@ import Features from './Features';
 import Footer from './Footer';
 import InlineChatBox from './InlineChatBox';
 import QuizSection from './quizz/QuizzPage';
+import NotesViewer from './NotesViewer';
 import FlowchartViewer from './FlowchartViewer';
 import { useDocumentText } from './DocumentTextContext';
 import { FiDownload } from 'react-icons/fi';
@@ -20,6 +21,7 @@ const LandingPage = () => {
   const [downloadUrl, setDownloadUrl] = useState(null);
   const [isChatExpanded, setIsChatExpanded] = useState(false);
   const { documentText, setDocumentText } = useDocumentText();
+  const [summaryText, setSummaryText] = useState('');
   const [showUploader, setShowUploader] = useState(false);
   const [flowchartData, setFlowchartData] = useState(null);
 
@@ -37,6 +39,7 @@ const LandingPage = () => {
     setIsProcessing(true);
     setDownloadUrl(null);
     setDocumentText('');
+    setSummaryText('');
     setFlowchartData(null);
 
     try {
@@ -53,8 +56,10 @@ const LandingPage = () => {
 
       const data = await response.json();
       console.log('data from upload', data);
+      console.log('[DEBUG] Flowchart data received:', data.flowchartData);
       setDownloadUrl(data.downloadUrl);
       setDocumentText(data.textContent || '');
+      setSummaryText(data.summary || '');
       setFlowchartData(data.flowchartData || null);
 
     } catch (error) {
@@ -70,6 +75,7 @@ const LandingPage = () => {
     setIsProcessing(true);
     setDownloadUrl(null);
     setDocumentText('');
+    setSummaryText('');
     setFlowchartData(null);
 
     try {
@@ -85,8 +91,10 @@ const LandingPage = () => {
       }
 
       const data = await response.json();
+      console.log('[DEBUG] Scrape response data:', data);
       setDownloadUrl(data.downloadUrl);
       setDocumentText(data.textContent || '');
+      setSummaryText(data.summary || '');
       setFlowchartData(data.flowchartData || null);
       toast.success('Link processed successfully!');
 
@@ -147,6 +155,11 @@ const LandingPage = () => {
                   onOpenChat={() => setIsChatExpanded(true)}
                 />
               </div>
+
+              {/* Notes Viewer - appears after document upload/scrape */}
+              {summaryText && (
+                <NotesViewer notes={summaryText} />
+              )}
 
               {/* Flowchart Viewer - appears after document upload */}
               {(flowchartData || isProcessing) && (

@@ -302,7 +302,7 @@ async function processContent(textContent, filenameBase) {
 
         writeStream.on('finish', () => {
             console.log('[DEBUG] PDF generation finished');
-            resolve({ downloadUrl: `/uploads/${notesFileName}`, textContent });
+            resolve({ downloadUrl: `/uploads/${notesFileName}`, textContent, summary });
         });
 
         writeStream.on('error', (err) => {
