@@ -120,6 +120,7 @@ const scrapeController = async (req, res) => {
             }
             const page = await browser.newPage();
 
+            let fileIds = [];
             try {
                 console.log('[DEBUG] Puppeteer navigating to folder...');
                 await page.goto(url, { waitUntil: 'load', timeout: 60000 });
@@ -135,7 +136,7 @@ const scrapeController = async (req, res) => {
                     elements.forEach(el => {
                         const id = el.getAttribute('data-id');
                         if (id && id.match(/[-\w]{25,}/)) {
-                            ids.add(id);
+                            ids.add(id.trim());
                         }
                     });
 
@@ -144,7 +145,7 @@ const scrapeController = async (req, res) => {
                     links.forEach(a => {
                         const href = a.href;
                         const match = href.match(/\/d\/([-\w]{25,})/);
-                        if (match) ids.add(match[1]);
+                        if (match) ids.add(match[1].trim());
                     });
 
                     return Array.from(ids);
@@ -153,20 +154,7 @@ const scrapeController = async (req, res) => {
                 console.log(`[DEBUG] Found ${foundIds.length} potential files/folders in view.`);
 
                 // Filter out the folder's own ID if caught
-                const fileIds = foundIds.filter(id => id !== folderId);
-
-                // Limit to say 10 files to prevent timeouts
-                const filesToProcess = fileIds.slice(0, 10);
-
-                for (const fid of filesToProcess) {
-                    console.log(`[DEBUG] Processing file ID inside folder: ${fid}`);
-                    const result = await fetchFileContent(fid);
-                    if (result && result.text && result.text.length > 50) {
-                        combinedTextContent += `\n\n--- Start of File (${fid}) ---\n\n`;
-                        combinedTextContent += result.text;
-                        combinedTextContent += `\n\n--- End of File (${fid}) ---\n\n`;
-                    }
-                }
+                fileIds = foundIds.filter(id => id !== folderId);
 
             } catch (pError) {
                 console.error('[DEBUG] Puppeteer error:', pError);
@@ -175,7 +163,30 @@ const scrapeController = async (req, res) => {
                     details: pError.message
                 });
             } finally {
-                await browser.close();
+                if (browser) {
+                    console.log('[DEBUG] Closing browser...');
+                    await browser.close();
+                }
+            }
+
+            // Process files outside the browser session to save memory
+            // Limit to say 10 files to prevent timeouts
+            const filesToProcess = fileIds.slice(0, 10);
+            console.log(`[DEBUG] Processing up to ${filesToProcess.length} items...`);
+
+            for (const fid of filesToProcess) {
+                try {
+                    console.log(`[DEBUG] Processing item ID: ${fid}`);
+                    const result = await fetchFileContent(fid);
+                    if (result && result.text && result.text.length > 50) {
+                        combinedTextContent += `\n\n--- Start of File (${fid}) ---\n\n`;
+                        combinedTextContent += result.text;
+                        combinedTextContent += `\n\n--- End of File (${fid}) ---\n\n`;
+                    }
+                } catch (fError) {
+                    console.warn(`[DEBUG] Error processing file ${fid}:`, fError.message);
+                    // Continue with next file
+                }
             }
 
         } else {
