@@ -122,7 +122,7 @@ const scrapeController = async (req, res) => {
 
             try {
                 console.log('[DEBUG] Puppeteer navigating to folder...');
-                await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+                await page.goto(url, { waitUntil: 'load', timeout: 60000 });
 
                 // Wait a bit for JS to render list
                 await new Promise(r => setTimeout(r, 3000));
