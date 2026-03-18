@@ -125,7 +125,16 @@ Extract the REAL structure from the document below. Use SPECIFIC terms from the 
             console.error('[DEBUG] Both Groq and Together AI failed:', fallbackError.message);
             return {
                 isMindmap: true,
-                markdown: "# ⚠️ Setup Required\n## Connection Error\n- Unable to connect to LLM services (Groq/Together AI).\n- **Action Required:** Please check your `.env` file and ensure `GROQ_API_KEY` or `TOGETHER_API_KEY` is set correctly.\n\n### Document Summary\n- You can still read the summarized notes below."
+                markdown: "# ⚠️ Setup Required\n## Connection Error\n- Unable to connect to LLM services (Groq/Together AI).\n- **Action Required:** Please check your `.env` file and ensure `GROQ_API_KEY` or `TOGETHER_API_KEY` is set correctly.\n\n### Document Summary\n- You can still read the summarized notes below.",
+                nodes: [
+                    {
+                        id: 'setup-node',
+                        data: { label: '⚠️ API Key Setup Required' },
+                        position: { x: 0, y: 0 },
+                        type: 'input'
+                    }
+                ],
+                edges: []
             };
         }
     }

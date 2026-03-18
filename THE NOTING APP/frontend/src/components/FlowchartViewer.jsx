@@ -109,6 +109,28 @@ const FlowchartViewer = ({ flowchartData, isLoading = false }) => {
         );
     }
 
+    if ((!flowchartData?.nodes || flowchartData.nodes.length === 0) && flowchartData?.markdown) {
+        return (
+            <div className="flowchart-wrapper">
+                <div className="flowchart-fallback-card" style={{ 
+                    background: 'rgba(30, 41, 59, 0.4)', 
+                    padding: '2rem', 
+                    borderRadius: '16px', 
+                    border: '1px solid rgba(139, 92, 246, 0.2)',
+                    color: '#f8fafc',
+                    textAlign: 'center'
+                }}>
+                    <h3>{flowchartData.markdown.split('\n')[0].replace('# ', '')}</h3>
+                    <div className="fallback-content" style={{ marginTop: '1rem', opacity: 0.8 }}>
+                        {flowchartData.markdown.split('\n').slice(1, 5).map((line, i) => (
+                            <p key={i}>{line.replace(/^-\s+/, '')}</p>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     if (!flowchartData || !flowchartData.nodes || flowchartData.nodes.length === 0) {
         return null;
     }
