@@ -1,5 +1,6 @@
 // server/utils/generateFlowchart.js
 const chat = require('./groqLLM');
+const fallbackChat = require('./llm3');
 
 /**
  * Generate a Markdown-based mind map structure from document text.
@@ -98,23 +99,94 @@ Extract the REAL structure from the document below. Use SPECIFIC terms from the 
 
         console.log(`[DEBUG] Mind Map Markdown generated: ${content.length} characters`);
         
-        // We return an object with mindmapMarkdown to keep compatibility if some parts expect an object,
-        // but we'll also include a flag to tell the frontend it's new format.
+        const { nodes, edges } = convertToFlowchart(content);
+
+        console.log(`[DEBUG] Mind Map & Flowchart generated: ${nodes.length} nodes, ${edges.length} edges`);
+        
         return {
             isMindmap: true,
-            markdown: content
+            markdown: content,
+            nodes,
+            edges
         };
 
     } catch (error) {
-        console.error('[DEBUG] Mind Map generation error:', error.message);
-
-        // Return a fallback Markdown structure
-        return {
-            isMindmap: true,
-            markdown: "# Document Overview\n## Content Analysis\n- Unable to generate visual structure\n- Please check the summary for details"
-        };
+        console.warn('[DEBUG] Groq Mind Map generation failed, trying Together AI fallback...');
+        try {
+            const response = await fallbackChat.call(llmPrompt);
+            let content = response.content || '';
+            content = content.trim();
+            // Cleanup logic repeated for fallback
+            if (content.startsWith('```')) {
+                content = content.replace(/^```(markdown)?\n?/, '').replace(/\n?```$/, '');
+            }
+            return { isMindmap: true, markdown: content.trim() };
+        } catch (fallbackError) {
+            console.error('[DEBUG] Both Groq and Together AI failed:', fallbackError.message);
+            return {
+                isMindmap: true,
+                markdown: "# ⚠️ Setup Required\n## Connection Error\n- Unable to connect to LLM services (Groq/Together AI).\n- **Action Required:** Please check your `.env` file and ensure `GROQ_API_KEY` or `TOGETHER_API_KEY` is set correctly.\n\n### Document Summary\n- You can still read the summarized notes below."
+            };
+        }
     }
 }
 
-module.exports = { generateFlowchart };
+/**
+ * Helper to convert Markdown hierarchy to React Flow nodes and edges.
+ */
+function convertToFlowchart(markdown) {
+    const lines = markdown.split('\n').filter(line => line.trim());
+    const nodes = [];
+    const edges = [];
+    let id = 0;
+
+    const stack = [];
+
+    lines.forEach((line, index) => {
+        const hMatch = line.match(/^(#+)\s+(.*)/);
+        const lMatch = line.match(/^(\s*)([-*])\s+(.*)/);
+
+        let level = 0;
+        let text = '';
+
+        if (hMatch) {
+            level = hMatch[1].length - 1;
+            text = hMatch[2];
+        } else if (lMatch) {
+            level = (lMatch[1].length / 2) + 2; // Approximate level based on indentation
+            text = lMatch[3];
+        } else {
+            return;
+        }
+
+        const nodeId = `node-${id++}`;
+        const node = {
+            id: nodeId,
+            data: { label: text },
+            position: { x: level * 250, y: nodes.length * 80 },
+            type: level === 0 ? 'input' : (index === lines.length - 1 ? 'output' : 'default'),
+        };
+
+        nodes.push(node);
+
+        // Find parent in stack
+        while (stack.length > 0 && stack[stack.length - 1].level >= level) {
+            stack.pop();
+        }
+
+        if (stack.length > 0) {
+            edges.push({
+                id: `e-${stack[stack.length - 1].id}-${nodeId}`,
+                source: stack[stack.length - 1].id,
+                target: nodeId,
+            });
+        }
+
+        stack.push({ level, id: nodeId });
+    });
+
+    return { nodes, edges };
+}
+
+module.exports = { generateFlowchart, convertToFlowchart };
 

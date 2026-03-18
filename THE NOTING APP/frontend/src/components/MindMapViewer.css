@@ -65,30 +65,72 @@
 
 /* Custom Markmap node and link styles */
 .markmap-svg g {
-    transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .markmap-svg .markmap-node {
     cursor: pointer;
 }
 
-.markmap-svg .markmap-node-text {
-    fill: #f3f4f6;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    font-weight: 500;
-    font-size: 14px;
-    filter: drop-shadow(0 0 8px rgba(0,0,0,0.5));
+/* Base node styling - the "Box" */
+.markmap-svg .markmap-node rect {
+    rx: 12px;
+    ry: 12px;
+    stroke-width: 2px;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
 }
 
+/* Root node (Level 0) */
+.markmap-svg .markmap-node[data-depth="0"] rect {
+    fill: #7c3aed !important;
+    stroke: #8b5cf6 !important;
+}
+
+/* Level 1 nodes */
+.markmap-svg .markmap-node[data-depth="1"] rect {
+    fill: #1e1b4b !important;
+    stroke: #312e81 !important;
+}
+
+/* Level 2+ nodes */
+.markmap-svg .markmap-node[data-depth="2"] rect {
+    fill: #111827 !important;
+    stroke: #374151 !important;
+}
+
+.markmap-svg .markmap-node-text {
+    fill: #ffffff !important;
+    font-family: 'Satoshi-Bold', 'Inter', system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: -0.01em;
+}
+
+/* Link styling */
 .markmap-svg .markmap-link {
-    stroke-opacity: 0.4;
-    stroke-width: 2px;
-    transition: stroke-opacity 0.3s ease;
+    stroke-opacity: 0.6;
+    stroke-width: 2.5px;
+    stroke: #4b5563;
+    transition: all 0.3s ease;
+}
+
+/* Hover effects */
+.markmap-svg .markmap-node:hover rect {
+    filter: drop-shadow(0 8px 12px rgba(139, 92, 246, 0.3));
+    stroke: #a78bfa !important;
+    transform: translateY(-2px);
 }
 
 .markmap-svg .markmap-node:hover .markmap-node-text {
-    fill: #fff;
-    font-weight: 600;
+    fill: #fff !important;
+}
+
+/* Circle marker for folding */
+.markmap-svg .markmap-node circle {
+    fill: #1f2937 !important;
+    stroke: #8b5cf6 !important;
+    stroke-width: 2px;
 }
 
 /* Loading state */

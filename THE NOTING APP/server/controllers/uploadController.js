@@ -50,6 +50,13 @@ const uploadController = async (req, res) => {
     // Clean up uploaded file? Maybe keep it for reference or delete it.
     // For now, we keep it as per original behavior.
 
+    // Log results for debugging
+    console.log('[DEBUG] ProcessContent result:', result ? 'SUCCESS' : 'FAILED');
+    console.log('[DEBUG] FlowchartData received:', flowchartData ? 'YES' : 'NO');
+    if (flowchartData?.nodes) {
+      console.log(`[DEBUG] Flowchart Nodes: ${flowchartData.nodes.length}, Edges: ${flowchartData.edges?.length || 0}`);
+    }
+
     res.json({
       ...result,
       flowchartData

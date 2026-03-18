@@ -21,10 +21,14 @@ const MindMapViewer = ({ flowchartData, isLoading = false }) => {
                 autoFit: true,
                 paddingX: 32,
                 color: (node) => {
-                    // Custom color logic for premium look
                     const colors = ['#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe'];
                     return colors[node.depth % colors.length];
                 },
+                nodeMinHeight: 16,
+                spacingVertical: 10,
+                spacingHorizontal: 80,
+                // Custom style for boxed look
+                embedGlobalCSS: false,
             }, root);
 
             // Set initial state - expand to level 1
