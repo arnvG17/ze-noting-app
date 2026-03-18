@@ -2,76 +2,78 @@
 const chat = require('./groqLLM');
 
 /**
- * Generate a ReactFlow-compatible flowchart structure from document text.
- * Uses LLM to analyze document structure and create nodes/edges.
+ * Generate a Markdown-based mind map structure from document text.
+ * Uses LLM to analyze document structure and create a hierarchical Markdown tree.
  * 
  * @param {string} textContent - The parsed document text
- * @returns {Promise<{nodes: Array, edges: Array}>} - ReactFlow-compatible data
+ * @returns {Promise<string>} - Markdown string for Markmap
  */
 async function generateFlowchart(textContent) {
-    const systemPrompt = `You are an expert at analyzing documents and creating visual flowcharts that represent the ACTUAL content and structure.
+    const systemPrompt = `You are an expert at analyzing documents and creating visual Mind Maps (hierarchical structures) that represent the ACTUAL content and structure.
 
 **CRITICAL:** DO NOT use generic placeholders. Extract REAL topics and concepts from the document.
 
 Your task:
-1. READ the document and identify its SPECIFIC main topic
-2. Find the ACTUAL sections, steps, or themes mentioned
-3. Extract REAL key points and concepts
-4. Show the logical flow between these ACTUAL elements
+1. READ the document and identify its SPECIFIC main topic (this will be the root # heading)
+2. Find the ACTUAL sections, steps, or themes mentioned (these will be ## headings)
+3. Extract REAL key points and sub-concepts (these will be bullet points - or --)
+4. Create a CLEAR hierarchy that shows how concepts are related.
 
 **OUTPUT FORMAT:**
-Respond with ONLY valid JSON (no markdown, no code blocks, no explanation).
-
-Structure:
-{
-  "nodes": [
-    { "id": "1", "type": "input", "position": { "x": 250, "y": 0 }, "data": { "label": "REAL Document Title/Topic" } },
-    { "id": "2", "type": "default", "position": { "x": 150, "y": 120 }, "data": { "label": "Actual Section 1" } },
-    { "id": "3", "type": "default", "position": { "x": 350, "y": 120 }, "data": { "label": "Actual Section 2" } },
-    { "id": "4", "type": "default", "position": { "x": 250, "y": 240 }, "data": { "label": "Real Key Concept" } },
-    { "id": "5", "type": "output", "position": { "x": 250, "y": 360 }, "data": { "label": "Actual Goal/Outcome" } }
-  ],
-  "edges": [
-    { "id": "e1-2", "source": "1", "target": "2", "animated": true },
-    { "id": "e1-3", "source": "1", "target": "3", "animated": true },
-    { "id": "e2-4", "source": "2", "target": "4", "animated": false },
-    { "id": "e3-4", "source": "3", "target": "4", "animated": false },
-    { "id": "e4-5", "source": "4", "target": "5", "animated": true }
-  ]
-}
+Respond with ONLY valid Markdown (no JSON, no explanation, no code blocks).
+The Markdown must use standard heading and list syntax:
+# Main Topic
+## Section 1
+- Key Point 1.1
+- Key Point 1.2
+  - Sub-detail 1.2.1
+## Section 2
+- Key Point 2.1
+- Key Point 2.2
 
 **RULES:**
-- First node (type "input"): Document's main topic (from the actual doc)
-- Middle nodes (type "default"): Specific sections, requirements, steps, or components
-- Last node (type "output"): Final goal, conclusion, or deliverable
-- Labels: Max 40 chars, use ACTUAL content from document
-- Create 6-12 nodes based on document complexity
-- Positioning: center x:250, left branch x:100-150, right branch x:350-400
-- Increment y by 100-140 per level
+- Root (#): Document's main topic
+- Level 1 (##): Main sections / categories
+- Level 2 (-): Sub-points / details
+- Level 3 (  -): Further refinements
+- Labels: Max 50 chars, use ACTUAL content from document
+- Aim for a balanced tree with 4-8 main sections and 2-4 sub-points each.
 
 **EXAMPLES:**
-❌ WRONG: "Document Overview" → "Content Analysis" → "Key Points"
-✅ RIGHT: "Python Gmail-Sheets Automation" → "Gmail API Setup" → "OAuth Authentication" → "Email Processing" → "Sheet Logging" → "Duplicate Prevention"
+❌ WRONG:
+# Document Overview
+## Content Analysis
+- Key Points
 
-❌ WRONG: "Introduction" → "Main Content" → "Conclusion"  
-✅ RIGHT: "Photosynthesis" → "Light Absorption" → "Water Splitting" → "CO₂ Fixation" → "Glucose Output"
+✅ RIGHT:
+# Python Gmail-Sheets Automation
+## Gmail API Setup
+- Create Project in Google Console
+- Enable Gmail API
+- Download credentials.json
+## OAuth Authentication
+- Install google-auth-library
+- Implement Token Refresh logic
+## Sheet Logging
+- Connect to Google Sheets API
+- Append row with Timestamp and Subject
 
 Extract the REAL structure from the document below. Use SPECIFIC terms from the text.`;
 
     const llmPrompt = [
         { role: "system", content: systemPrompt },
-        { role: "user", content: `Analyze this document and create a flowchart:\n\n${textContent}` }
+        { role: "user", content: `Analyze this document and create a Mind Map hierarchy in Markdown:\n\n${textContent}` }
     ];
 
     try {
-        console.log('[DEBUG] Generating flowchart from document...');
+        console.log('[DEBUG] Generating Mind Map Markdown from document...');
         const response = await chat.call(llmPrompt);
         let content = response.content || '';
 
         // Clean up the response - remove any markdown code blocks if present
         content = content.trim();
-        if (content.startsWith('```json')) {
-            content = content.slice(7);
+        if (content.startsWith('```markdown')) {
+            content = content.slice(11);
         } else if (content.startsWith('```')) {
             content = content.slice(3);
         }
@@ -80,54 +82,39 @@ Extract the REAL structure from the document below. Use SPECIFIC terms from the 
         }
         content = content.trim();
 
-        // Parse the JSON
-        const flowchartData = JSON.parse(content);
-
-        // Validate structure
-        if (!flowchartData.nodes || !Array.isArray(flowchartData.nodes)) {
-            throw new Error('Invalid flowchart: missing nodes array');
+        // If for some reason requested JSON (fallback safety)
+        if (content.startsWith('{')) {
+             try {
+                 const data = JSON.parse(content);
+                 // Convert basic JSON to Markdown if possible, or just use a default
+                 content = `# ${data.nodes?.[0]?.data?.label || 'Document Summary'}\n`;
+                 data.nodes?.slice(1).forEach(node => {
+                     content += `## ${node.data?.label}\n`;
+                 });
+             } catch (e) {
+                 content = "# Document Summary\n## Content Analysis\n- Unable to parse structure correctly";
+             }
         }
-        if (!flowchartData.edges || !Array.isArray(flowchartData.edges)) {
-            flowchartData.edges = [];
-        }
 
-        // Ensure all nodes have required fields
-        flowchartData.nodes = flowchartData.nodes.map((node, index) => ({
-            id: node.id || String(index + 1),
-            type: node.type || 'default',
-            position: node.position || { x: 250, y: index * 100 },
-            data: {
-                label: node.data?.label || `Node ${index + 1}`
-            }
-        }));
-
-        // Ensure all edges have required fields
-        flowchartData.edges = flowchartData.edges.map((edge, index) => ({
-            id: edge.id || `e${index}`,
-            source: String(edge.source),
-            target: String(edge.target),
-            animated: edge.animated !== false
-        }));
-
-        console.log(`[DEBUG] Flowchart generated: ${flowchartData.nodes.length} nodes, ${flowchartData.edges.length} edges`);
-        return flowchartData;
+        console.log(`[DEBUG] Mind Map Markdown generated: ${content.length} characters`);
+        
+        // We return an object with mindmapMarkdown to keep compatibility if some parts expect an object,
+        // but we'll also include a flag to tell the frontend it's new format.
+        return {
+            isMindmap: true,
+            markdown: content
+        };
 
     } catch (error) {
-        console.error('[DEBUG] Flowchart generation error:', error.message);
+        console.error('[DEBUG] Mind Map generation error:', error.message);
 
-        // Return a fallback flowchart structure
+        // Return a fallback Markdown structure
         return {
-            nodes: [
-                { id: '1', type: 'input', position: { x: 250, y: 0 }, data: { label: 'Document Overview' } },
-                { id: '2', type: 'default', position: { x: 250, y: 100 }, data: { label: 'Content Analysis' } },
-                { id: '3', type: 'output', position: { x: 250, y: 200 }, data: { label: 'Key Points' } }
-            ],
-            edges: [
-                { id: 'e1-2', source: '1', target: '2', animated: true },
-                { id: 'e2-3', source: '2', target: '3', animated: true }
-            ]
+            isMindmap: true,
+            markdown: "# Document Overview\n## Content Analysis\n- Unable to generate visual structure\n- Please check the summary for details"
         };
     }
 }
 
 module.exports = { generateFlowchart };
+

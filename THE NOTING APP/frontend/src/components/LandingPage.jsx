@@ -6,7 +6,7 @@ import Footer from './Footer';
 import InlineChatBox from './InlineChatBox';
 import QuizSection from './quizz/QuizzPage';
 import NotesViewer from './NotesViewer';
-import FlowchartViewer from './FlowchartViewer';
+import MindMapViewer from './MindMapViewer';
 import { useDocumentText } from './DocumentTextContext';
 import { FiDownload } from 'react-icons/fi';
 import AnimatedBackground from './ui/AnimatedBackground';
@@ -181,9 +181,9 @@ const LandingPage = () => {
           </div>
         </section>
 
-        {/* Flowchart Viewer - appears after document upload */}
+        {/* Mind Map Viewer - appears after document upload */}
         {(flowchartData || isProcessing) && (
-          <FlowchartViewer
+          <MindMapViewer
             flowchartData={flowchartData}
             isLoading={isProcessing && !flowchartData}
           />

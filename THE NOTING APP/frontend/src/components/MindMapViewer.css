@@ -1,0 +1,129 @@
+.mindmap-section {
+    width: 100%;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: rgba(26, 26, 30, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.mindmap-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.mindmap-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
+}
+
+.mindmap-controls-hint {
+    display: flex;
+    gap: 12px;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 6px 14px;
+    border-radius: 99px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mindmap-controls-hint .separator {
+    opacity: 0.3;
+}
+
+.mindmap-container {
+    width: 100%;
+    height: 600px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    position: relative;
+    cursor: grab;
+}
+
+.mindmap-container:active {
+    cursor: grabbing;
+}
+
+.markmap-svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Custom Markmap node and link styles */
+.markmap-svg g {
+    transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.markmap-svg .markmap-node {
+    cursor: pointer;
+}
+
+.markmap-svg .markmap-node-text {
+    fill: #f3f4f6;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    filter: drop-shadow(0 0 8px rgba(0,0,0,0.5));
+}
+
+.markmap-svg .markmap-link {
+    stroke-opacity: 0.4;
+    stroke-width: 2px;
+    transition: stroke-opacity 0.3s ease;
+}
+
+.markmap-svg .markmap-node:hover .markmap-node-text {
+    fill: #fff;
+    font-weight: 600;
+}
+
+/* Loading state */
+.mindmap-wrapper.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    background: rgba(26, 26, 30, 0.6);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.flowchart-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(139, 92, 246, 0.1);
+    border-top-color: #8b5cf6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+    .mindmap-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .mindmap-container {
+        height: 400px;
+    }
+}
