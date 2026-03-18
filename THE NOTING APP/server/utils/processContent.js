@@ -271,10 +271,16 @@ async function processContent(textContent, filenameBase) {
         { role: "user", content: textContent } // Using full text for summary
     ];
 
-    console.log('[DEBUG] Sending prompt to LLM');
-    const llmResponse = await chat.call(llmPrompt);
-    const summary = llmResponse.content || 'No summary available.';
-    console.log('[DEBUG] LLM summary received');
+    let summary = '';
+    try {
+        console.log('[DEBUG] Sending prompt to LLM');
+        const llmResponse = await chat.call(llmPrompt);
+        summary = llmResponse.content || 'No summary available.';
+        console.log('[DEBUG] LLM summary received');
+    } catch (llmError) {
+        console.error('[DEBUG] LLM summary generation failed:', llmError.message);
+        summary = `## ⚠️ Summary Generation Unavailable\n\n**Error:** ${llmError.message}\n\n**Please check your API key configuration in the .env file.**\n\n---\n\n### Document Content Preview\n${textContent.substring(0, 500)}...`;
+    }
 
     // Generate PDF with markdown rendering
     const notesFileName = `notes_${filenameBase}.pdf`;

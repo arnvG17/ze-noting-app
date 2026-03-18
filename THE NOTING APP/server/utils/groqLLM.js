@@ -6,6 +6,11 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GROQ_MODEL = 'llama-3.3-70b-versatile'; // Updated to current model
 
 async function groqChat(messages) {
+    if (!GROQ_API_KEY || GROQ_API_KEY === 'your_groq_api_key_here') {
+        const error = new Error('Groq API Key is missing. Please add it to your .env file.');
+        error.status = 401;
+        throw error;
+    }
     try {
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',

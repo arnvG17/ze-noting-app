@@ -27,7 +27,7 @@ const AnimatedBackground = () => {
         data[i] = noise;     // R
         data[i + 1] = noise; // G
         data[i + 2] = noise; // B
-        data[i + 3] = 35;    // Alpha - controls grain intensity
+        data[i + 3] = 15;    // Alpha - controls grain intensity
       }
 
       ctx.putImageData(imageData, 0, 0);
