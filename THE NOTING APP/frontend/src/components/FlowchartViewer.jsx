@@ -1,104 +1,186 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import ReactFlow, {
     Controls,
     Background,
     useNodesState,
     useEdgesState,
     MarkerType,
+    Handle,
+    Position,
 } from 'reactflow';
+import { hierarchy, tree } from 'd3-hierarchy';
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import 'reactflow/dist/style.css';
 import './FlowchartViewer.css';
 
-// Custom node styles for dark theme
-const nodeStyles = {
-    input: {
-        background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
-        color: '#ffffff',
-        border: 'none',
-        borderRadius: '16px',
-        padding: '14px 24px',
-        fontSize: '15px',
-        fontWeight: '700',
-        boxShadow: '0 8px 30px rgba(139, 92, 246, 0.4)',
-        textAlign: 'center',
-        minWidth: '180px',
-    },
-    default: {
-        background: 'rgba(30, 41, 59, 0.8)',
-        color: '#f8fafc',
-        border: '1px solid rgba(148, 163, 184, 0.2)',
-        borderRadius: '12px',
-        padding: '12px 20px',
-        fontSize: '14px',
-        fontWeight: '500',
-        boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)',
-        backdropFilter: 'blur(8px)',
-        textAlign: 'center',
-        minWidth: '160px',
-    },
-    output: {
-        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-        color: '#ffffff',
-        border: 'none',
-        borderRadius: '16px',
-        padding: '14px 24px',
-        fontSize: '15px',
-        fontWeight: '700',
-        boxShadow: '0 8px 30px rgba(16, 185, 129, 0.4)',
-        textAlign: 'center',
-        minWidth: '180px',
-    },
+// Custom Node Component
+const CustomNode = ({ data }) => {
+    return (
+        <div className={`custom-node ${data.type || 'default'} ${data.isExpanded ? 'expanded' : ''}`}>
+            <Handle type="target" position={Position.Top} className="handle" />
+            <div className="node-content">
+                <span className="node-label">{data.label}</span>
+                {data.hasChildren && (
+                    <button 
+                        className="expand-btn" 
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if(data.onToggle) data.onToggle(data.id);
+                        }}
+                    >
+                        {data.isExpanded ? <FiChevronUp /> : <FiChevronDown />}
+                    </button>
+                )}
+            </div>
+            <Handle type="source" position={Position.Bottom} className="handle" />
+        </div>
+    );
 };
 
+const nodeTypes = { custom: CustomNode };
+
 const FlowchartViewer = ({ flowchartData, isLoading = false }) => {
-    // Process nodes with custom styling
-    const initialNodes = useMemo(() => {
-        if (!flowchartData?.nodes) return [];
+    const [expandedIds, setExpandedIds] = useState(new Set());
+    const [nodes, setNodes, onNodesChange] = useNodesState([]);
+    const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-        return flowchartData.nodes.map((node) => ({
-            ...node,
-            style: nodeStyles[node.type] || nodeStyles.default,
-        }));
+    // Reset expanded state if flowchartData changes
+    useEffect(() => {
+        setExpandedIds(new Set());
     }, [flowchartData]);
 
-    // Process edges with styling
-    const initialEdges = useMemo(() => {
-        if (!flowchartData?.edges) return [];
+    useEffect(() => {
+        if (!flowchartData?.nodes || flowchartData.nodes.length === 0) return;
 
-        return flowchartData.edges.map((edge) => ({
-            ...edge,
-            style: { stroke: '#8b5cf6', strokeWidth: 2 },
-            markerEnd: {
-                type: MarkerType.ArrowClosed,
-                color: '#8b5cf6',
-            },
-        }));
-    }, [flowchartData]);
+        let currentExpanded = expandedIds;
 
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+        // Determine hierarchy maps
+        const childMap = {};
+        const parentMap = {};
+        flowchartData.edges.forEach(edge => {
+            if (!childMap[edge.source]) childMap[edge.source] = [];
+            childMap[edge.source].push(edge.target);
+            parentMap[edge.target] = edge.source;
+        });
 
-    // Update nodes/edges when flowchartData changes
-    React.useEffect(() => {
-        console.log('[DEBUG] FlowchartViewer received data:', flowchartData);
-        if (flowchartData?.nodes) {
-            console.log('[DEBUG] Setting nodes:', flowchartData.nodes.length);
-            setNodes(flowchartData.nodes.map((node) => ({
-                ...node,
-                style: nodeStyles[node.type] || nodeStyles.default,
-            })));
+        // Initialize expandedIds correctly on first run
+        if (currentExpanded.size === 0) {
+            const initialSet = new Set();
+            const rootNodes = flowchartData.nodes.filter(n => !parentMap[n.id]);
+            
+            rootNodes.forEach(root => {
+                initialSet.add(root.id);
+                // Expand immediate children
+                if (childMap[root.id]) {
+                    childMap[root.id].forEach(childId => {
+                        initialSet.add(childId);
+                    });
+                }
+            });
+            
+            if(initialSet.size > 0) {
+                setExpandedIds(initialSet);
+                currentExpanded = initialSet;
+            }
         }
-        if (flowchartData?.edges) {
-            setEdges(flowchartData.edges.map((edge) => ({
-                ...edge,
-                style: { stroke: '#8b5cf6', strokeWidth: 2 },
-                markerEnd: {
-                    type: MarkerType.ArrowClosed,
-                    color: '#8b5cf6',
-                },
-            })));
+
+        const handleToggle = (id) => {
+            setExpandedIds(prev => {
+                const next = new Set(prev);
+                if (next.has(id)) {
+                    next.delete(id);
+                } else {
+                    next.add(id);
+                }
+                return next;
+            });
+        };
+
+        const roots = flowchartData.nodes.filter(n => !parentMap[n.id]);
+        let rootId = roots[0]?.id;
+
+        if (rootId) {
+            // Determine visible nodes using BFS
+            const visibleNodeIds = new Set([rootId]);
+            const queue = [rootId];
+            
+            while (queue.length > 0) {
+                const curr = queue.shift();
+                if (currentExpanded.has(curr) && childMap[curr]) {
+                    childMap[curr].forEach(child => {
+                        visibleNodeIds.add(child);
+                        queue.push(child);
+                    });
+                }
+            }
+
+            // Build hierarchy payload for d3
+            const buildHierarchy = (id) => {
+                const node = flowchartData.nodes.find(n => n.id === id);
+                if (!node) return null;
+                
+                const isVisible = visibleNodeIds.has(id);
+                const childrenIds = childMap[id] || [];
+                
+                return {
+                    id,
+                    ...node,
+                    children: (currentExpanded.has(id) && isVisible) 
+                        ? childrenIds.map(buildHierarchy).filter(Boolean) 
+                        : []
+                };
+            };
+
+            const hierarchyData = buildHierarchy(rootId);
+            const root = hierarchy(hierarchyData);
+            
+            // Adjust nodeSize [width padding, height padding] depending on text amount
+            const treeLayout = tree().nodeSize([280, 160]); 
+            treeLayout(root);
+
+            const layoutedNodes = [];
+            const layoutedEdges = [];
+            
+            root.each(d => {
+                const origNode = flowchartData.nodes.find(n => n.id === d.data.id);
+                const hasChildren = (childMap[d.data.id] && childMap[d.data.id].length > 0);
+                
+                layoutedNodes.push({
+                    id: origNode.id,
+                    position: { x: d.x, y: d.y },
+                    type: 'custom',
+                    data: { 
+                        ...origNode.data, 
+                        id: origNode.id,
+                        type: origNode.type || 'default',
+                        hasChildren: hasChildren,
+                        isExpanded: currentExpanded.has(origNode.id),
+                        onToggle: handleToggle
+                    },
+                });
+            });
+
+            flowchartData.edges.forEach(edge => {
+                if (visibleNodeIds.has(edge.source) && visibleNodeIds.has(edge.target)) {
+                     layoutedEdges.push({
+                        ...edge,
+                        type: 'smoothstep',
+                        animated: true,
+                        style: { stroke: '#8b5cf6', strokeWidth: 2 },
+                        markerEnd: { type: MarkerType.ArrowClosed, color: '#8b5cf6' },
+                     });
+                }
+            });
+
+            setNodes(layoutedNodes);
+            setEdges(layoutedEdges);
+        } else {
+            // Fallback for non-tree structures
+            setNodes(flowchartData.nodes.map(n => ({...n, type: 'custom', data: {...n.data, type: n.type}})));
+            setEdges(flowchartData.edges);
         }
-    }, [flowchartData, setNodes, setEdges]);
+
+    }, [flowchartData, expandedIds, setNodes, setEdges]);
 
     if (isLoading) {
         return (
@@ -112,16 +194,9 @@ const FlowchartViewer = ({ flowchartData, isLoading = false }) => {
     if ((!flowchartData?.nodes || flowchartData.nodes.length === 0) && flowchartData?.markdown) {
         return (
             <div className="flowchart-wrapper">
-                <div className="flowchart-fallback-card" style={{ 
-                    background: 'rgba(30, 41, 59, 0.4)', 
-                    padding: '2rem', 
-                    borderRadius: '16px', 
-                    border: '1px solid rgba(139, 92, 246, 0.2)',
-                    color: '#f8fafc',
-                    textAlign: 'center'
-                }}>
+                <div className="flowchart-fallback-card">
                     <h3>{flowchartData.markdown.split('\n')[0].replace('# ', '')}</h3>
-                    <div className="fallback-content" style={{ marginTop: '1rem', opacity: 0.8 }}>
+                    <div className="fallback-content">
                         {flowchartData.markdown.split('\n').slice(1, 5).map((line, i) => (
                             <p key={i}>{line.replace(/^-\s+/, '')}</p>
                         ))}
@@ -136,34 +211,29 @@ const FlowchartViewer = ({ flowchartData, isLoading = false }) => {
     }
 
     return (
-        <div className="flowchart-wrapper" style={{ width: '100%', marginBottom: '2rem' }}>
+        <div className="flowchart-wrapper">
             <div className="flowchart-header">
                 <h3>Document Flowchart</h3>
-                <p>Visual overview of your document structure</p>
+                <p>Visual overview of your document structure. Click nodes to expand or collapse.</p>
             </div>
-            <div className="flowchart-container" style={{ width: '100%', height: '500px', background: '#1a1a1e', border: '1px solid #333', borderRadius: '12px' }}>
+            <div className="flowchart-container reactflow-custom-wrapper">
                 <ReactFlow
                     nodes={nodes}
                     edges={edges}
+                    nodeTypes={nodeTypes}
                     onNodesChange={onNodesChange}
                     onEdgesChange={onEdgesChange}
                     fitView
                     fitViewOptions={{ padding: 0.3 }}
-                    minZoom={0.3}
-                    maxZoom={1.5}
+                    minZoom={0.2}
+                    maxZoom={2}
                     attributionPosition="bottom-left"
+                    nodesConnectable={false}
+                    nodesDraggable={true}
+                    elementsSelectable={true}
                 >
-                    <Controls
-                        showZoom={true}
-                        showFitView={true}
-                        showInteractive={false}
-                    />
-                    <Background
-                        variant="dots"
-                        gap={20}
-                        size={1}
-                        color="#374151"
-                    />
+                    <Controls showInteractive={false} />
+                    <Background variant="dots" gap={24} size={1} color="#374151" />
                 </ReactFlow>
             </div>
         </div>
