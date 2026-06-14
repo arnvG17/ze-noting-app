@@ -3,6 +3,8 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export default function ReportViewer({ notebookId, documents = [] }) {
   const [tone, setTone] = useState('Formal');
   const [focus, setFocus] = useState('Business');
@@ -22,7 +24,7 @@ export default function ReportViewer({ notebookId, documents = [] }) {
     const loadingToast = toast.loading("Researches are compiling. Generating detailed report from document context...");
 
     try {
-      const response = await axios.post('/api/report/generate', {
+      const response = await axios.post(`${API_BASE}/api/report/generate`, {
         notebookId,
         tone,
         focus,

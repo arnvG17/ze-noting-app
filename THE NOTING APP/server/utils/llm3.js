@@ -1,17 +1,19 @@
 // server/utils/llm3.js — Multi-LLM client (Groq / Together AI)
 const { OpenAI } = require('openai');
+const { getNextGroqKey, hasGroqKeys } = require('./groqKeys');
 require('dotenv').config();
 
 class TogetherAIClient {
   constructor() {
-    const apiKey = process.env.GROQ_API_KEY || process.env.TOGETHER_API_KEY;
+    const hasGroq = hasGroqKeys();
+    const apiKey = hasGroq ? getNextGroqKey() : process.env.TOGETHER_API_KEY;
     if (!apiKey) {
-      throw new Error('API Key (GROQ_API_KEY or TOGETHER_API_KEY) is required. Please set it in your environment variables or .env file');
+      throw new Error('API Key (Groq or TOGETHER_API_KEY) is required. Please set it in your environment variables or .env file');
     }
 
-    if (process.env.GROQ_API_KEY) {
+    if (hasGroq) {
       this.client = new OpenAI({
-        apiKey: process.env.GROQ_API_KEY,
+        apiKey: apiKey,
         baseURL: 'https://api.groq.com/openai/v1'
       });
       this.defaultConfig = {
@@ -61,34 +63,53 @@ class TogetherAIClient {
 
     // Merge default config with provided options
     const config = { ...this.defaultConfig, ...options };
+    const isGroq = this.client.baseURL.includes('groq');
+    let attempts = 0;
+    const maxAttempts = isGroq ? 3 : 1;
 
-    try {
-      console.log('🤖 Sending request to LLM...');
+    while (attempts < maxAttempts) {
+      try {
+        console.log('🤖 Sending request to LLM...');
 
-      const response = await this.client.chat.completions.create({
-        messages,
-        ...config
-      });
+        if (isGroq) {
+          const nextKey = getNextGroqKey();
+          if (nextKey) {
+            this.client.apiKey = nextKey;
+            console.log(`🤖 Using Groq API Key (attempt ${attempts + 1}): ...${nextKey.slice(-6)}`);
+          }
+        }
 
-      if (!response?.choices?.[0]?.message?.content) {
-        throw new Error('Invalid response format from LLM');
+        const response = await this.client.chat.completions.create({
+          messages,
+          ...config
+        });
+
+        if (!response?.choices?.[0]?.message?.content) {
+          throw new Error('Invalid response format from LLM');
+        }
+
+        const result = {
+          content: response.choices[0].message.content,
+          model: response.model,
+          usage: response.usage,
+          finish_reason: response.choices[0].finish_reason,
+          created: response.created,
+          id: response.id
+        };
+
+        console.log('✅ LLM response received');
+        return result;
+
+      } catch (error) {
+        attempts++;
+        console.error(`❌ LLM attempt ${attempts} failed:`, error.message);
+        
+        if (attempts >= maxAttempts) {
+          throw new Error(`LLM request failed after ${attempts} attempts: ${error.message}`);
+        }
+        
+        console.log('🔄 Retrying with next Groq API key...');
       }
-
-      const result = {
-        content: response.choices[0].message.content,
-        model: response.model,
-        usage: response.usage,
-        finish_reason: response.choices[0].finish_reason,
-        created: response.created,
-        id: response.id
-      };
-
-      console.log('✅ LLM response received');
-      return result;
-
-    } catch (error) {
-      console.error('❌ LLM error:', error.message);
-      throw new Error(`LLM request failed: ${error.message}`);
     }
   }
 
@@ -112,25 +133,46 @@ class TogetherAIClient {
    */
   async *streamChat(messages, options = {}) {
     const config = { ...this.defaultConfig, ...options, stream: true };
+    const isGroq = this.client.baseURL.includes('groq');
+    let attempts = 0;
+    const maxAttempts = isGroq ? 3 : 1;
 
-    try {
-      const stream = await this.client.chat.completions.create({
-        messages,
-        ...config
-      });
-
-      for await (const chunk of stream) {
-        if (chunk.choices?.[0]?.delta?.content) {
-          yield {
-            content: chunk.choices[0].delta.content,
-            finish_reason: chunk.choices[0].finish_reason,
-            id: chunk.id
-          };
+    while (attempts < maxAttempts) {
+      try {
+        if (isGroq) {
+          const nextKey = getNextGroqKey();
+          if (nextKey) {
+            this.client.apiKey = nextKey;
+            console.log(`🤖 Using Groq API Key for stream (attempt ${attempts + 1}): ...${nextKey.slice(-6)}`);
+          }
         }
+
+        const stream = await this.client.chat.completions.create({
+          messages,
+          ...config
+        });
+
+        for await (const chunk of stream) {
+          if (chunk.choices?.[0]?.delta?.content) {
+            yield {
+              content: chunk.choices[0].delta.content,
+              finish_reason: chunk.choices[0].finish_reason,
+              id: chunk.id
+            };
+          }
+        }
+        return;
+
+      } catch (error) {
+        attempts++;
+        console.error(`❌ Stream attempt ${attempts} failed:`, error.message);
+        
+        if (attempts >= maxAttempts) {
+          throw new Error(`Streaming failed after ${attempts} attempts: ${error.message}`);
+        }
+        
+        console.log('🔄 Retrying stream with next Groq API key...');
       }
-    } catch (error) {
-      console.error('❌ Stream error:', error.message);
-      throw new Error(`Streaming failed: ${error.message}`);
     }
   }
 }

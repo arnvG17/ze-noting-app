@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const PLACEHOLDER_SCRIPT = {
   productName: "Your Subject",
   hookText: "Generate a custom presentation for your own topic.",
@@ -61,7 +63,7 @@ export default function FlashcardViewer({ notebookId, documents = [] }) {
     const fetchScript = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.post('/api/pitch/generate', { 
+        const response = await axios.post(`${API_BASE}/api/pitch/generate`, { 
           notebookId,
           userInput: ''
         });

@@ -30,6 +30,8 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import pptxgen from 'pptxgenjs';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const PLACEHOLDER_SCRIPT = {
   productName: "Your Subject",
   hookText: "A compelling hook question about your subject matter will be generated here.",
@@ -112,7 +114,7 @@ export default function PitchDeckViewer({ notebookId, documents = [], selectedDo
     const loadingToast = toast.loading("Analyzing workspace documents to write customized pitch script & slides...");
 
     try {
-      const response = await axios.post('/api/pitch/generate', { 
+      const response = await axios.post(`${API_BASE}/api/pitch/generate`, { 
         notebookId,
         userInput 
       });
@@ -145,7 +147,7 @@ export default function PitchDeckViewer({ notebookId, documents = [], selectedDo
     const renderToast = toast.loading("Rendering high-quality 60-second video on server (takes about a minute)...", { duration: 10000 });
 
     try {
-      const response = await axios.post('/api/pitch/export', { 
+      const response = await axios.post(`${API_BASE}/api/pitch/export`, { 
         script,
         notebookId 
       });
