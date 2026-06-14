@@ -5,6 +5,8 @@ import { useDocumentText } from './DocumentTextContext';
 import CodeBlock from './ui/CodeBlock';
 import { TextShimmer } from './ui/text-shimmer';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const Chatbot = ({ onClose }) => {
   const { documentText } = useDocumentText();
   // Debug: log documentText every render
@@ -55,7 +57,7 @@ const Chatbot = ({ onClose }) => {
     setIsLoading(true)
 
     try {
-      const response = await fetch('https://the-noting-app.onrender.com/api/ask', {
+      const response = await fetch(`${API_BASE}/api/ask`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

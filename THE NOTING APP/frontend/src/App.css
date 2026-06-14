@@ -47,6 +47,13 @@ body {
 }
 
 #root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Landing page gets its own centered container */
+.landing-wrapper {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;

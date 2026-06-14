@@ -1,129 +1,227 @@
-// server/controllers/askController.js
-// const chunkText = require('../utils/chunker');
-// const createVectorStore = require('../vectorstores/inMemory');
-const chat = require('../utils/llm3'); // Changed to use Together AI
+// server/controllers/askController.js — RAG-powered chat with citations
+const chat = require('../utils/llm3');
+const { runRAG } = require('../services/ragPipeline');
+const { buildCitationMetadata, citationInstruction } = require('../services/citationService');
+const { query } = require('../db/pool');
 require('dotenv').config();
 
+/**
+ * Handle a RAG-powered chat question
+ * Uses: query rewriting → full-text search → fusion → LLM filtering → answer with citations
+ */
 exports.handleAsk = async (req, res) => {
-  try {
-    const { text, question } = req.body;
+    try {
+        const { question, notebookId, selectedDocIds, text } = req.body;
 
-    // Validate inputs
-    if (!text || typeof text !== 'string') {
-      return res.status(400).json({ error: "Text is required and must be a string" });
-    }
-    if (!question || typeof question !== 'string') {
-      return res.status(400).json({ error: "Question is required and must be a string" });
-    }
+        // Validate inputs
+        if (!question || typeof question !== 'string') {
+            return res.status(400).json({ error: "Question is required" });
+        }
 
-    // Use the full text as context (no chunking or embedding)
-    const context = text;
+        // ====== LEGACY MODE: If 'text' is provided, use old behavior ======
+        if (text && !notebookId) {
+            return handleLegacyAsk(req, res);
+        }
 
-    const response = await chat.call([
-      {
-        role: "system",
-        content: `You are an expert teaching assistant that provides beautifully formatted, clear explanations. Your responses should be as polished and readable as ChatGPT.
+        // ====== RAG MODE: Use vectorless RAG pipeline ======
+        if (!notebookId) {
+            return res.status(400).json({ error: "notebookId is required for RAG mode" });
+        }
+
+        // Get document IDs to search
+        let docIds = selectedDocIds;
+        if (!docIds || docIds.length === 0) {
+            // Default: search all documents in notebook
+            const docsResult = await query(
+                "SELECT id FROM documents WHERE notebook_id = $1 AND status = 'ready'",
+                [notebookId]
+            );
+            docIds = docsResult.rows.map(r => r.id);
+        }
+
+        if (docIds.length === 0) {
+            return res.json({
+                answer: "No documents are ready for searching yet. Please wait for document processing to complete.",
+                citations: []
+            });
+        }
+
+        // Run the full RAG pipeline
+        const { context, chunks, queryVariations } = await runRAG(question, docIds);
+
+        // Build citation metadata
+        const citations = buildCitationMetadata(chunks);
+        const citationInstr = citationInstruction(chunks);
+
+        // Generate answer with LLM
+        const response = await chat.call([
+            {
+                role: "system",
+                content: `You are an expert AI assistant for a knowledge workspace. You answer questions based ONLY on the provided context from the user's documents.
 
 📋 **FORMATTING GUIDELINES:**
-
-**Markdown Structure:**
 - Use ## for main sections and ### for subsections
-- Use **bold** for important terms, key concepts, and emphasis
-- Use *italics* for secondary emphasis or technical terms
-- Use > blockquotes for important notes, tips, or warnings
+- Use **bold** for important terms and key concepts
 - Use - for bullet lists and 1. for numbered lists
-- Use horizontal rules (---) to separate major sections when appropriate
+- Use > blockquotes for important notes
+- Use inline code for technical terms
 
-**Code Blocks - Use Intelligently:**
-- ONLY use code blocks (\`\`\`language) for:
-  • Programming/computer science topics (code, algorithms, syntax)
-  • Mathematical formulas or equations
-  • Command-line instructions or terminal commands
-  • Configuration files or structured data (JSON, YAML, etc.)
-- For general text, explanations, or non-technical content: DO NOT use code blocks
-- Use inline code (\`text\`) for technical terms, file names, or short references
+📌 **CITATION RULES:**
+- Cite ALL claims using [Source N] format
+- Every factual statement must have a citation
+- If the context doesn't contain the answer, say "I couldn't find this in your documents."
+${citationInstr}
 
-**Beautiful Presentation:**
-- Start with a clear, engaging introduction
-- Break complex topics into digestible sections
-- Use lists to organize information
-- Include examples when helpful (in appropriate format)
-- End with a summary or key takeaways when relevant
-- Make it visually scannable and easy to read
+Be clear, thorough, and well-organized.`
+            },
+            {
+                role: "user",
+                content: `Context from your documents:\n\n${context}\n\n---\n\nQuestion: ${question}\n\nProvide a comprehensive answer with citations.`
+            }
+        ]);
 
-**Tone:**
-- Clear, friendly, and educational
-- Explain concepts thoroughly but concisely
-- Adapt technical depth to the question's context
+        // Save messages to database
+        try {
+            await query(
+                "INSERT INTO messages (notebook_id, role, content) VALUES ($1, 'user', $2)",
+                [notebookId, question]
+            );
+            await query(
+                "INSERT INTO messages (notebook_id, role, content, citations, chunks_used) VALUES ($1, 'assistant', $2, $3, $4)",
+                [notebookId, response.content, JSON.stringify(citations), JSON.stringify(chunks.map(c => c.id))]
+            );
+        } catch (dbErr) {
+            console.warn('⚠️ Failed to save chat messages:', dbErr.message);
+        }
 
-Remember: Your output should look as polished as a well-written article or ChatGPT response!`
-      },
-      {
-        role: "user",
-        content: `Context:\n\n${context}\n\nQuestion: ${question}\n\nPlease provide a comprehensive, well-structured answer using beautiful markdown formatting. Include relevant examples and insights.`
-      }
-    ]);
-    console.log('DEBUG: LLM response received:', response);
+        res.json({
+            answer: response.content,
+            citations,
+            queryVariations,
+            chunksUsed: chunks.length
+        });
 
-    res.json({ answer: response.content });
-
-  } catch (err) {
-    console.error("Ask error:", err);
-    res.status(500).json({ error: "Failed to generate answer" });
-  }
+    } catch (err) {
+        console.error("Ask error:", err);
+        res.status(500).json({ error: "Failed to generate answer" });
+    }
 };
 
-// Specialized quiz generation function
-exports.handleQuizGeneration = async (req, res) => {
-  try {
-    const { text } = req.body;
+/**
+ * Legacy mode: send full text directly to LLM (backward compatible)
+ */
+async function handleLegacyAsk(req, res) {
+    try {
+        const { text, question } = req.body;
+        const context = text;
 
-    // Validate inputs
-    if (!text || typeof text !== 'string') {
-      return res.status(400).json({ error: "Text is required and must be a string" });
+        const response = await chat.call([
+            {
+                role: "system",
+                content: `You are an expert teaching assistant. Provide beautifully formatted, clear explanations using markdown.
+
+**Formatting:** Use ## headings, **bold**, *italics*, bullet lists, > blockquotes, and inline code where appropriate.`
+            },
+            {
+                role: "user",
+                content: `Context:\n\n${context}\n\nQuestion: ${question}\n\nProvide a comprehensive, well-structured answer.`
+            }
+        ]);
+
+        res.json({ answer: response.content });
+    } catch (err) {
+        console.error("Legacy ask error:", err);
+        res.status(500).json({ error: "Failed to generate answer" });
     }
+}
 
-    const quizPrompt = `Based on the following text, generate a quiz of 10 high-quality multiple-choice questions.
+/**
+ * Quiz generation using RAG pipeline
+ */
+exports.handleQuizGeneration = async (req, res) => {
+    try {
+        const { text, notebookId, selectedDocIds } = req.body;
+
+        let contentForQuiz = text;
+
+        // If notebookId provided, use RAG to get relevant content
+        if (notebookId && !text) {
+            let docIds = selectedDocIds;
+            if (!docIds || docIds.length === 0) {
+                const docsResult = await query(
+                    "SELECT id FROM documents WHERE notebook_id = $1 AND status = 'ready'",
+                    [notebookId]
+                );
+                docIds = docsResult.rows.map(r => r.id);
+            }
+
+            // Get chunks directly for quiz generation
+            const chunksResult = await query(
+                `SELECT content FROM chunks 
+                 WHERE document_id = ANY($1::uuid[])
+                 ORDER BY chunk_index
+                 LIMIT 15`,
+                [docIds]
+            );
+            contentForQuiz = chunksResult.rows.map(r => r.content).join('\n\n');
+        }
+
+        if (!contentForQuiz) {
+            return res.status(400).json({ error: "No content available for quiz generation" });
+        }
+
+        const quizPrompt = `Based on the following text, generate a quiz of 10 high-quality multiple-choice questions.
 
 **Requirements:**
 - Test understanding of key concepts, not just memorization
 - Each question must have exactly 4 options (A, B, C, D)
 - Only one correct answer per question
-- All options should be plausible to avoid obvious answers
-- Mix question types: factual recall, conceptual understanding, and application
-- Mark the correct answer clearly
+- All options should be plausible
 
 **Output Format:**
-Return ONLY a valid JSON array with no additional text or explanations.
-
-Example:
+Return ONLY a valid JSON array:
 [
   {
-    "question": "What is the main topic discussed in the text?",
-    "options": ["A) Technology", "B) Science", "C) History", "D) Literature"],
-    "answer": "B) Science"
+    "question": "...",
+    "options": ["A) ...", "B) ...", "C) ...", "D) ..."],
+    "answer": "A) ..."
   }
 ]
 
 **Text:**
-${text}
+${contentForQuiz.slice(0, 6000)}
 
-Generate the quiz now in the exact JSON format shown above.`;
+Generate the quiz now:`;
 
-    const response = await chat.call([
-      {
-        role: "system",
-        content: "You are an expert educational assessment designer. You create thoughtful, well-crafted multiple-choice questions that effectively test comprehension and understanding. Always respond with valid JSON arrays only."
-      },
-      { role: "user", content: quizPrompt }
-    ]);
+        const response = await chat.call([
+            {
+                role: "system",
+                content: "You are an expert educational assessment designer. Always respond with valid JSON arrays only."
+            },
+            { role: "user", content: quizPrompt }
+        ]);
 
-    console.log('DEBUG: Quiz generation response received:', response);
+        res.json({ answer: response.content });
 
-    res.json({ answer: response.content });
+    } catch (err) {
+        console.error("Quiz generation error:", err);
+        res.status(500).json({ error: "Failed to generate quiz" });
+    }
+};
 
-  } catch (err) {
-    console.error("Quiz generation error:", err);
-    res.status(500).json({ error: "Failed to generate quiz" });
-  }
+/**
+ * Get chat history for a notebook
+ */
+exports.getChatHistory = async (req, res) => {
+    try {
+        const { notebookId } = req.params;
+        const result = await query(
+            "SELECT id, role, content, citations, created_at FROM messages WHERE notebook_id = $1 ORDER BY created_at ASC",
+            [notebookId]
+        );
+        res.json({ messages: result.rows });
+    } catch (err) {
+        console.error("Chat history error:", err);
+        res.status(500).json({ error: "Failed to fetch chat history" });
+    }
 };

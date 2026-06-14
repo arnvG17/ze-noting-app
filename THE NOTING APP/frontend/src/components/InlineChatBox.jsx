@@ -11,6 +11,7 @@ import { FiPaperclip, FiMessageSquare, FiChevronUp } from 'react-icons/fi';
 import { HiOutlineSparkles } from 'react-icons/hi';
 import { ProgressiveBlur } from './ui/ProgressiveBlur';
 import remarkGfm from 'remark-gfm';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const InlineChatBox = ({ isExpanded, onToggle }) => {
     const { documentText } = useDocumentText();
@@ -54,7 +55,7 @@ const InlineChatBox = ({ isExpanded, onToggle }) => {
         setIsLoading(true);
 
         try {
-            const response = await fetch('https://the-noting-app.onrender.com/api/ask', {
+            const response = await fetch(`${API_BASE}/api/ask`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

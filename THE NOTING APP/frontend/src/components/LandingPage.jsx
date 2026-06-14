@@ -1,216 +1,176 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DocumentUpload from './DocumentUpload';
 import Header from './Header';
 import Features from './Features';
 import Footer from './Footer';
-import InlineChatBox from './InlineChatBox';
-import QuizSection from './quizz/QuizzPage';
-import NotesViewer from './NotesViewer';
-import MindMapViewer from './MindMapViewer';
-import FlowchartViewer from './FlowchartViewer';
 import { useDocumentText } from './DocumentTextContext';
-import { FiDownload } from 'react-icons/fi';
 import AnimatedBackground from './ui/AnimatedBackground';
-import { exportMarkdownToPdf } from '../lib/exportMarkdownToPdf';
 import toast from 'react-hot-toast';
 import { ProgressiveBlur } from './ui/ProgressiveBlur';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const LandingPage = () => {
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [downloadUrl, setDownloadUrl] = useState(null);
-  const [isChatExpanded, setIsChatExpanded] = useState(false);
-  const { documentText, setDocumentText } = useDocumentText();
-  const [summaryText, setSummaryText] = useState('');
-  const [showUploader, setShowUploader] = useState(false);
-  const [flowchartData, setFlowchartData] = useState(null);
+    const navigate = useNavigate();
+    const [uploadedFile, setUploadedFile] = useState(null);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [showUploader, setShowUploader] = useState(false);
+    const { setDocumentText, setNotebookId, setSummaryText, setFlowchartData } = useDocumentText();
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowUploader(window.scrollY > 100);
+    useEffect(() => {
+        const handleScroll = () => {
+            setShowUploader(window.scrollY > 100);
+        };
+        window.addEventListener('scroll', handleScroll);
+        handleScroll();
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    const handleFileUpload = async (file) => {
+        setUploadedFile(file);
+        setIsProcessing(true);
+
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await fetch(`${API_BASE}/api/upload`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) throw new Error('Upload failed');
+
+            const data = await response.json();
+            console.log('[DEBUG] Upload response:', data);
+
+            // Store in context for workspace
+            setDocumentText(data.textContent || '');
+            setSummaryText(data.summary || '');
+            setFlowchartData(data.flowchartData || null);
+
+            // Navigate to workspace if we got a notebookId
+            if (data.notebookId) {
+                setNotebookId(data.notebookId);
+                toast.success('Document processed! Opening workspace...');
+                navigate(`/workspace/${data.notebookId}`);
+            } else {
+                // Legacy fallback — no DB, show content inline
+                toast.success('Document processed!');
+            }
+
+        } catch (error) {
+            console.error('Upload error:', error);
+            toast.error('Upload failed. Please try again.');
+            setUploadedFile(null);
+        } finally {
+            setIsProcessing(false);
+        }
     };
-    window.addEventListener('scroll', handleScroll);
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
-  const handleFileUpload = async (file) => {
-    setUploadedFile(file);
-    setIsProcessing(true);
-    setDownloadUrl(null);
-    setDocumentText('');
-    setSummaryText('');
-    setFlowchartData(null);
+    const handleLinkSubmit = async (url) => {
+        setUploadedFile({ name: 'Google Drive Link' });
+        setIsProcessing(true);
 
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
+        try {
+            const response = await fetch(`${API_BASE}/api/scrape`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url }),
+            });
 
-      // Production URL
-      const response = await fetch('https://the-noting-app.onrender.com/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || 'Scraping failed');
+            }
 
-      if (!response.ok) throw new Error('Upload failed');
+            const data = await response.json();
+            console.log('[DEBUG] Scrape response:', data);
 
-      const data = await response.json();
-      console.log('data from upload', data);
-      console.log('[DEBUG] Summary received:', data.summary ? 'YES' : 'NO');
-      console.log('[DEBUG] Summary length:', data.summary?.length || 0);
-      console.log('[DEBUG] Summary preview:', data.summary?.substring(0, 100) || 'EMPTY');
-      console.log('[DEBUG] Flowchart data received:', data.flowchartData);
-      setDownloadUrl(data.downloadUrl);
-      setDocumentText(data.textContent || '');
-      setSummaryText(data.summary || '');
-      setFlowchartData(data.flowchartData || null);
+            setDocumentText(data.textContent || '');
+            setSummaryText(data.summary || '');
+            setFlowchartData(data.flowchartData || null);
 
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Upload failed. Please try again.');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+            if (data.notebookId) {
+                setNotebookId(data.notebookId);
+                toast.success('Link processed! Opening workspace...');
+                navigate(`/workspace/${data.notebookId}`);
+            } else {
+                toast.success('Link processed!');
+            }
 
-  const handleLinkSubmit = async (url) => {
-    setUploadedFile({ name: 'Google Drive Link' });
-    setIsProcessing(true);
-    setDownloadUrl(null);
-    setDocumentText('');
-    setSummaryText('');
-    setFlowchartData(null);
+        } catch (error) {
+            console.error('Link processing error:', error);
+            toast.error(error.message || 'Failed to process link.');
+            setUploadedFile(null);
+        } finally {
+            setIsProcessing(false);
+        }
+    };
 
-    try {
-      const response = await fetch('https://the-noting-app.onrender.com/api/scrape', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
-      });
+    return (
+        <div className="App">
+            <AnimatedBackground />
+            <Header />
 
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || 'Scraping failed');
-      }
+            <main className="main-content">
+                <section className="hero-section">
+                    <div className="container">
+                        <div className="hero-content">
 
-      const data = await response.json();
-      console.log('[DEBUG] Scrape response data:', data);
-      setDownloadUrl(data.downloadUrl);
-      setDocumentText(data.textContent || '');
-      setSummaryText(data.summary || '');
-      setFlowchartData(data.flowchartData || null);
-      toast.success('Link processed successfully!');
+                            <h1 className="hero-title swoop-in-blur swoop-delay-1 leading-[0.9]">
+                                <span className="font-bold text-[5rem] normal-case leading-[0.9]" style={{ fontFamily: "'Satoshi-Bold', sans-serif" }}>
+                                    Transform your Documents
+                                </span>
+                                <br />
+                                <span className="font-bold text-[5rem] normal-case leading-[0.9]" style={{ fontFamily: "'Satoshi-Bold', sans-serif" }}>
+                                    into Smart Notes;
+                                </span>
+                            </h1>
 
-    } catch (error) {
-      console.error('Link processing error:', error);
-      toast.error(error.message || 'Failed to process link.');
-      setUploadedFile(null); // Reset if failed
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+                            <p className="hero-subtitle swoop-in-blur swoop-delay-2">
+                                ;
+                            </p>
 
-  const handleDownload = (e) => {
-    e.preventDefault();
-    if (!documentText) return;
-    exportMarkdownToPdf(documentText, uploadedFile ? `${uploadedFile.name.split('.')[0]}-summary.pdf` : 'summary.pdf');
-  };
+                            <div
+                                style={{
+                                    transition: 'all 0.7s',
+                                    opacity: showUploader ? 1 : 0,
+                                    filter: showUploader ? 'blur(0px)' : 'blur(8px)',
+                                    pointerEvents: showUploader ? 'auto' : 'none',
+                                    marginBottom: 20,
+                                }}
+                            >
+                                <DocumentUpload
+                                    onFileUpload={handleFileUpload}
+                                    onLinkSubmit={handleLinkSubmit}
+                                    isProcessing={isProcessing}
+                                    uploadedFile={uploadedFile}
+                                    downloadUrl={null}
+                                    onOpenChat={() => {}}
+                                />
+                            </div>
 
-  return (
-    <div className="App">
-      <AnimatedBackground />
-      <Header />
+                        </div>
+                    </div>
+                </section>
 
-      <main className="main-content">
-        <section className="hero-section">
-          <div className="container">
-            <div className="hero-content">
+                <Features />
+            </main>
 
-              <h1 className="hero-title swoop-in-blur swoop-delay-1 leading-[0.9]">
-                <span className="font-bold text-[5rem] normal-case leading-[0.9]" style={{ fontFamily: "'Satoshi-Bold', sans-serif" }}>
-                  Transform your Documents
-                </span>
-                <br />
-                <span className="font-bold text-[5rem] normal-case leading-[0.9]" style={{ fontFamily: "'Satoshi-Bold', sans-serif" }}>
-                  into Smart Notes;
-                </span>
-              </h1>
+            <Footer />
 
-              <p className="hero-subtitle swoop-in-blur swoop-delay-2">
-                ;
-              </p>
-
-              <div
-                style={{
-                  transition: 'all 0.7s',
-                  opacity: showUploader ? 1 : 0,
-                  filter: showUploader ? 'blur(0px)' : 'blur(8px)',
-                  pointerEvents: showUploader ? 'auto' : 'none',
-                  marginBottom: 20,
-                }}
-              >
-                <DocumentUpload
-                  onFileUpload={handleFileUpload}
-                  onLinkSubmit={handleLinkSubmit}
-                  isProcessing={isProcessing}
-                  uploadedFile={uploadedFile}
-                  downloadUrl={downloadUrl}
-                  onOpenChat={() => setIsChatExpanded(true)}
+            <div className="fixed bottom-0 left-0 w-full z-10 pointer-events-none">
+                <ProgressiveBlur
+                    position="bottom"
+                    height="80px"
+                    blurAmount="4px"
+                    backgroundColor="#1a1a1e"
                 />
-              </div>
-
-              {/* Notes Viewer - appears after document upload/scrape */}
-              {summaryText && (
-                <NotesViewer notes={summaryText} />
-              )}
-
-
-
-              {/* Inline Expandable Chat - appears after document upload */}
-              {documentText && (
-                <div style={{ marginTop: '2rem' }}>
-                  <InlineChatBox
-                    isExpanded={isChatExpanded}
-                    onToggle={() => setIsChatExpanded(!isChatExpanded)}
-                  />
-                </div>
-              )}
-
-
             </div>
-          </div>
-        </section>
-
-        {/* Interactive Flowchart - Premium Boxed Look */}
-        {(flowchartData || isProcessing) && (
-          <FlowchartViewer
-            flowchartData={flowchartData}
-            isLoading={isProcessing && !flowchartData}
-          />
-        )}
-
-        {documentText && <QuizSection docText={documentText} />}
-
-        {/* Notes Viewer - appears after document upload/scrape */}
-        {summaryText && (
-          <NotesViewer notes={summaryText} />
-        )}
-        <Features />
-      </main>
-
-      <Footer />
-
-      <div className="fixed bottom-0 left-0 w-full z-10 pointer-events-none">
-        <ProgressiveBlur
-          position="bottom"
-          height="80px"
-          blurAmount="4px"
-          backgroundColor="#1a1a1e"
-        />
-      </div>
-    </div>
-  );
+        </div>
+    );
 };
 
 export default LandingPage;

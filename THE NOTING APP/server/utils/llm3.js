@@ -1,25 +1,43 @@
-const Together = require('together-ai');
+// server/utils/llm3.js — Multi-LLM client (Groq / Together AI)
+const { OpenAI } = require('openai');
 require('dotenv').config();
 
 class TogetherAIClient {
-  constructor(apiKey = process.env.TOGETHER_API_KEY) {
+  constructor() {
+    const apiKey = process.env.GROQ_API_KEY || process.env.TOGETHER_API_KEY;
     if (!apiKey) {
-      throw new Error('TOGETHER_API_KEY is required. Please set it in your environment variables or .env file');
+      throw new Error('API Key (GROQ_API_KEY or TOGETHER_API_KEY) is required. Please set it in your environment variables or .env file');
     }
 
-    this.client = new Together(apiKey);
-    this.defaultConfig = {
-      model: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
-      temperature: 0.7,
-      max_tokens: 16000,
-      top_p: 0.95,
-      frequency_penalty: 0,
-      presence_penalty: 0
-    };
+    if (process.env.GROQ_API_KEY) {
+      this.client = new OpenAI({
+        apiKey: process.env.GROQ_API_KEY,
+        baseURL: 'https://api.groq.com/openai/v1'
+      });
+      this.defaultConfig = {
+        model: "llama-3.3-70b-versatile",
+        temperature: 0.7,
+        max_tokens: 4000,
+        top_p: 0.95
+      };
+      console.log('🤖 LLM Client Initialized: Groq (llama-3.3-70b-versatile)');
+    } else {
+      this.client = new OpenAI({
+        apiKey: process.env.TOGETHER_API_KEY,
+        baseURL: 'https://api.together.xyz/v1'
+      });
+      this.defaultConfig = {
+        model: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+        temperature: 0.7,
+        max_tokens: 4000,
+        top_p: 0.95
+      };
+      console.log('🤖 LLM Client Initialized: Together AI (Llama-3.3-70B-Instruct-Turbo)');
+    }
   }
 
   /**
-   * Generate a chat completion using Together AI
+   * Generate a chat completion
    * @param {Array} messages - Array of message objects with role and content
    * @param {Object} options - Optional configuration overrides
    * @returns {Promise<Object>} Response object with content and metadata
@@ -45,7 +63,7 @@ class TogetherAIClient {
     const config = { ...this.defaultConfig, ...options };
 
     try {
-      console.log('🤖 Sending request to Together AI...');
+      console.log('🤖 Sending request to LLM...');
 
       const response = await this.client.chat.completions.create({
         messages,
@@ -53,7 +71,7 @@ class TogetherAIClient {
       });
 
       if (!response?.choices?.[0]?.message?.content) {
-        throw new Error('Invalid response format from Together AI');
+        throw new Error('Invalid response format from LLM');
       }
 
       const result = {
@@ -65,34 +83,12 @@ class TogetherAIClient {
         id: response.id
       };
 
-      console.log('✅ Together AI response received');
-      console.log('📊 Usage:', result.usage);
-
+      console.log('✅ LLM response received');
       return result;
 
     } catch (error) {
-      console.error('❌ Together AI error:', error.message);
-
-      // Handle specific error types
-      if (error.response) {
-        const status = error.response.status;
-        const message = error.response.data?.error?.message || error.message;
-
-        switch (status) {
-          case 400:
-            throw new Error(`Bad Request: ${message}`);
-          case 401:
-            throw new Error('Unauthorized: Invalid API key');
-          case 429:
-            throw new Error('Rate limit exceeded. Please try again later');
-          case 500:
-            throw new Error('Together AI server error. Please try again later');
-          default:
-            throw new Error(`API Error (${status}): ${message}`);
-        }
-      }
-
-      throw new Error(`Together AI request failed: ${error.message}`);
+      console.error('❌ LLM error:', error.message);
+      throw new Error(`LLM request failed: ${error.message}`);
     }
   }
 
@@ -109,7 +105,7 @@ class TogetherAIClient {
   }
 
   /**
-   * Stream chat completion (if supported by the model)
+   * Stream chat completion
    * @param {Array} messages - Array of message objects
    * @param {Object} options - Optional configuration overrides
    * @returns {Promise<AsyncGenerator>} Stream of response chunks
@@ -137,39 +133,28 @@ class TogetherAIClient {
       throw new Error(`Streaming failed: ${error.message}`);
     }
   }
-
-  /**
-   * Get available models
-   * @returns {Promise<Array>} List of available models
-   */
-  async getModels() {
-    try {
-      const response = await this.client.models.list();
-      return response.data || [];
-    } catch (error) {
-      console.error('❌ Failed to fetch models:', error.message);
-      throw new Error(`Failed to fetch models: ${error.message}`);
-    }
-  }
-
-  /**
-   * Update default configuration
-   * @param {Object} config - New default configuration
-   */
-  updateDefaults(config) {
-    this.defaultConfig = { ...this.defaultConfig, ...config };
-  }
 }
 
-// Create default instance
-const defaultClient = new TogetherAIClient();
+// Create default instance lazily so env can load
+let defaultClient = null;
+function getClientInstance() {
+  if (!defaultClient) {
+    defaultClient = new TogetherAIClient();
+  }
+  return defaultClient;
+}
 
 // Export both class and convenience function for backward compatibility
 module.exports = {
   TogetherAIClient,
-  call: (messages, options) => defaultClient.chat(messages, options),
-  complete: (prompt, options) => defaultClient.complete(prompt, options),
-  stream: (messages, options) => defaultClient.streamChat(messages, options),
-  getModels: () => defaultClient.getModels(),
-  client: defaultClient
+  call: (messages, options) => getClientInstance().chat(messages, options),
+  complete: (prompt, options) => getClientInstance().complete(prompt, options),
+  stream: (messages, options) => getClientInstance().streamChat(messages, options),
+  client: {
+    chat: {
+      completions: {
+        create: (args) => getClientInstance().client.chat.completions.create(args)
+      }
+    }
+  }
 };

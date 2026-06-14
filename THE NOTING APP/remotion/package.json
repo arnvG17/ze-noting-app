@@ -1,0 +1,17 @@
+{
+  "name": "pitch-deck-remotion",
+  "version": "1.0.0",
+  "description": "Remotion video project for startup pitch decks",
+  "main": "index.jsx",
+  "scripts": {
+    "build": "remotion bundle index.jsx out/video.mp4"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "remotion": "^4.0.0"
+  },
+  "devDependencies": {
+    "@remotion/cli": "^4.0.0"
+  }
+}

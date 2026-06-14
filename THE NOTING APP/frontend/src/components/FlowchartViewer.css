@@ -1,42 +1,384 @@
-/* FlowchartViewer.css - Dark theme styles for ReactFlow */
+/* FlowchartViewer.css - Premium dark theme styles for ReactFlow Editor */
 
 .flowchart-wrapper {
     width: 100%;
-    max-width: 1000px;
-    margin: 2rem auto;
-    padding: 0 1rem;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 1.5rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    animation: fadeIn 0.4s ease-out;
+    overflow: hidden;
 }
 
 .flowchart-header {
-    text-align: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.25rem;
 }
 
 .flowchart-header h3 {
-    font-size: 1.75rem;
+    font-size: 1.4rem;
     font-weight: 700;
-    color: #f3f4f6;
-    margin: 0 0 0.5rem 0;
+    color: #f4f4f5;
+    margin: 0 0 0.25rem 0;
+    background: linear-gradient(135deg, #f4f4f5 0%, #a1a1aa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .flowchart-header p {
-    font-size: 0.95rem;
-    color: #9ca3af;
+    font-size: 0.8rem;
+    color: #71717a;
     margin: 0;
 }
 
-.flowchart-container {
+/* Flex Grid Layout for Canvas + Sidebar */
+.flowchart-layout-container {
+    display: flex;
+    gap: 1.25rem;
     width: 100%;
-    height: 600px;
-    background: linear-gradient(135deg, #0f0f12 0%, #1a1a1e 100%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    flex: 1;
+    min-height: 0;
+    align-items: stretch;
+    padding-bottom: 0.5rem;
 }
 
+/* ReactFlow Canvas Wrapper */
+.flowchart-container {
+    flex: 1;
+    height: 100%;
+    background: #09090b !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(63, 63, 70, 0.4) !important;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    position: relative;
+}
 
+/* Sidebar Styles */
+.flowchart-sidebar {
+    width: 250px;
+    background: rgba(10, 10, 12, 0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    overflow-y: auto;
+    max-height: 100%;
+    box-sizing: border-box;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+}
 
+.sidebar-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.sidebar-section h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #e4e4e7;
+    margin: 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(63, 63, 70, 0.5);
+}
+
+/* Toolbar Buttons */
+.toolbar-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.toolbar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toolbar-btn.primary {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+}
+
+.toolbar-btn.primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+}
+
+.toolbar-btn.secondary {
+    background: rgba(39, 39, 42, 0.6);
+    color: #d4d4d8;
+    border: 1px solid rgba(63, 63, 70, 0.5);
+}
+
+.toolbar-btn.secondary:hover {
+    background: rgba(63, 63, 70, 0.8);
+    color: #fff;
+    border-color: rgba(139, 92, 246, 0.4);
+}
+
+/* Edit Panel Section */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.delete-btn {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.delete-btn:hover {
+    background: #ef4444;
+    color: #fff;
+    border-color: #ef4444;
+}
+
+/* Forms */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.form-group label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #a1a1aa;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.form-group textarea,
+.form-group input,
+.form-group select {
+    background: rgba(9, 9, 11, 0.6);
+    border: 1px solid rgba(63, 63, 70, 0.6);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 0.85rem;
+    color: #f4f4f5;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.form-group textarea:focus,
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.25);
+}
+
+.form-group textarea {
+    resize: none;
+}
+
+/* Sidebar Help */
+.sidebar-help {
+    margin-top: auto;
+    background: rgba(39, 39, 42, 0.3);
+    border: 1px dashed rgba(63, 63, 70, 0.5);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.help-icon {
+    font-size: 1.2rem;
+    color: #a78bfa;
+}
+
+.sidebar-help p {
+    font-size: 0.8rem;
+    color: #e4e4e7;
+    margin: 0;
+}
+
+.sidebar-help ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.sidebar-help li {
+    font-size: 0.75rem;
+    color: #a1a1aa;
+    line-height: 1.35;
+}
+
+/* Custom Node Styles in ReactFlow */
+.custom-node {
+    background: rgba(24, 24, 27, 0.9);
+    border-radius: 12px;
+    padding: 12px 18px;
+    min-width: 170px;
+    max-width: 230px;
+    min-height: 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 1.5px solid rgba(113, 113, 122, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: visible;
+}
+
+.custom-node:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Node Types Specific Styling */
+.custom-node.start {
+    border-color: #10b981;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.15), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.custom-node.start:hover {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.35), 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.custom-node.process {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.15), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.custom-node.process:hover {
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.35), 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.custom-node.decision {
+    border-color: #f59e0b;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.15), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.custom-node.decision:hover {
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.35), 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.custom-node.end {
+    border-color: #f43f5e;
+    box-shadow: 0 0 10px rgba(244, 63, 94, 0.15), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.custom-node.end:hover {
+    box-shadow: 0 0 15px rgba(244, 63, 94, 0.35), 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* ReactFlow Selection Accent */
+.custom-node.selected {
+    outline: 2px solid #a78bfa;
+    outline-offset: 4px;
+}
+
+/* Node Contents */
+.node-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+}
+
+.node-type-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #71717a;
+}
+.custom-node.start .node-type-label { color: #34d399; }
+.custom-node.process .node-type-label { color: #a78bfa; }
+.custom-node.decision .node-type-label { color: #fbbf24; }
+.custom-node.end .node-type-label { color: #f87171; }
+
+.node-label-text {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #f4f4f5;
+    line-height: 1.35;
+    word-break: break-word;
+}
+
+/* Decision Diamond BG Overlay */
+.decision-diamond {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(100% + 10px);
+    height: calc(100% + 10px);
+    border: 1px dashed rgba(245, 158, 11, 0.3);
+    transform: translate(-50%, -50%) rotate(4deg);
+    border-radius: 16px;
+    pointer-events: none;
+}
+
+/* Handles styling */
+.custom-node .handle {
+    opacity: 0;
+    background: #a78bfa;
+    border: 2px solid #18181b;
+    width: 10px;
+    height: 10px;
+    transition: opacity 0.2s, background-color 0.2s;
+    z-index: 10;
+}
+
+.custom-node:hover .handle {
+    opacity: 1;
+}
+
+.custom-node .handle:hover {
+    background-color: #34d399;
+    transform: scale(1.2);
+}
+
+/* Edge Styles */
+.react-flow__edge-path {
+    stroke-linecap: round;
+}
+
+.react-flow__edge-text {
+    fill: #a78bfa !important;
+    font-weight: 600 !important;
+    font-size: 11px !important;
+    background: #09090b !important;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+    stroke: #d4d4d8 !important;
+    stroke-width: 3px !important;
+}
+
+/* Spinner & Loading */
 .flowchart-loading {
     display: flex;
     flex-direction: column;
@@ -45,212 +387,98 @@
     gap: 1rem;
     color: #9ca3af;
     font-size: 0.875rem;
+    height: 100%;
 }
 
 .flowchart-spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid rgba(139, 92, 246, 0.2);
+    width: 36px;
+    height: 36px;
+    border: 3.5px solid rgba(139, 92, 246, 0.15);
     border-top-color: #8b5cf6;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
 
 .flowchart-fallback-card {
-    background: rgba(30, 41, 59, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
     padding: 2.5rem;
-    border-radius: 16px;
-    border: 1px solid rgba(139, 92, 246, 0.2);
-    color: #f8fafc;
+    color: #71717a;
     text-align: center;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
 }
 
 .flowchart-fallback-card h3 {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 600;
-    margin-bottom: 1rem;
-    color: #fff;
+    margin-bottom: 0.5rem;
+    color: #e4e4e7;
 }
 
-.fallback-content {
-    opacity: 0.8;
-    line-height: 1.6;
+.flowchart-fallback-card p {
+    font-size: 0.85rem;
+    max-width: 320px;
+    line-height: 1.5;
 }
 
+/* Animations */
 @keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+    to { transform: rotate(360deg); }
 }
 
-/* Custom Node Styles */
-.custom-node {
-    background: rgba(30, 41, 59, 0.85);
-    color: #f8fafc;
-    border: 1px solid rgba(148, 163, 184, 0.2);
-    border-radius: 12px;
-    padding: 16px 24px;
-    font-size: 14px;
-    font-weight: 500;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(12px);
-    text-align: center;
-    min-width: 180px;
-    max-width: 260px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.custom-node:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.25);
-    border-color: rgba(139, 92, 246, 0.5);
+.animate-slide-in {
+    animation: slideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.custom-node.expanded {
-    border-color: rgba(139, 92, 246, 0.4);
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(12px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 
-.custom-node.input {
-    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
-    color: #ffffff;
-    border: none;
-    font-weight: 700;
-    font-size: 15px;
-    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.4);
+/* ============================================
+   CENTER PANEL BLACK TEXT OVERRIDES
+   ============================================ */
+.chat-notebook-title {
+    color: #000000 !important;
 }
-
-.custom-node.output {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: #ffffff;
-    border: none;
-    font-weight: 700;
-    font-size: 15px;
-    box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4);
+.chat-source-indicator {
+    color: #000000 !important;
+    border-color: rgba(0, 0, 0, 0.25) !important;
+    background: rgba(255, 255, 255, 0.6) !important;
 }
-
-.node-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
+.chat-tab {
+    color: #000000 !important;
+    font-weight: 800 !important;
+    opacity: 0.85 !important;
 }
-
-.node-label {
-    line-height: 1.4;
-    word-break: break-word;
+.chat-tab:hover {
+    background: rgba(0, 0, 0, 0.08) !important;
+    color: #000000 !important;
 }
-
-.expand-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    padding: 0;
-    margin-top: 4px;
+.chat-tab.active {
+    background: rgba(255, 255, 255, 0.25) !important;
+    border-color: rgba(0, 0, 0, 0.3) !important;
+    color: #000000 !important;
 }
+.chat-tab.active:nth-child(1) { color: #000000 !important; border-color: rgba(0, 0, 0, 0.4) !important; }
+.chat-tab.active:nth-child(2) { color: #000000 !important; border-color: rgba(0, 0, 0, 0.4) !important; }
+.chat-tab.active:nth-child(3) { color: #000000 !important; border-color: rgba(0, 0, 0, 0.4) !important; }
 
-.expand-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: scale(1.1);
+.flowchart-header h3 {
+    color: #000000 !important;
+    background: none !important;
+    -webkit-text-fill-color: initial !important;
+    font-weight: 800 !important;
 }
-
-/* ReactFlow customizations */
-.react-flow__node {
-    cursor: grab;
-    transition: opacity 0.3s ease;
-}
-
-.react-flow__node.selected .custom-node {
-    outline: 2px solid #a78bfa;
-    outline-offset: 4px;
-}
-
-/* Handles */
-.custom-node .handle {
-    opacity: 0;
-    transition: opacity 0.2s;
-    background: #a78bfa;
-    width: 8px;
-    height: 8px;
-}
-
-.custom-node:hover .handle {
-    opacity: 1;
-}
-
-.react-flow__edge-path {
-    stroke-linecap: round;
-}
-
-.react-flow__edge.animated path {
-    stroke-dasharray: 8;
-    animation: flowDash 1s linear infinite;
-}
-
-@keyframes flowDash {
-    to {
-        stroke-dashoffset: -16;
-    }
-}
-
-/* Controls styling */
-.react-flow__controls {
-    background: rgba(31, 41, 55, 0.9) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 8px !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-}
-
-.react-flow__controls-button {
-    background: transparent !important;
-    border: none !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #9ca3af !important;
-    width: 32px !important;
-    height: 32px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
-.react-flow__controls-button:last-child {
-    border-bottom: none !important;
-}
-
-.react-flow__controls-button:hover {
-    background: rgba(139, 92, 246, 0.2) !important;
-    color: #fff !important;
-}
-
-.react-flow__controls-button svg {
-    fill: currentColor !important;
-    width: 16px !important;
-    height: 16px !important;
-}
-
-/* Attribution */
-.react-flow__attribution {
-    background: rgba(0, 0, 0, 0.4) !important;
-    border-radius: 4px !important;
-    padding: 2px 8px !important;
-}
-
-.react-flow__attribution a {
-    color: #9ca3af !important;
-    font-size: 11px !important;
+.flowchart-header p {
+    color: #000000 !important;
+    opacity: 0.95 !important;
+    font-weight: 600 !important;
 }

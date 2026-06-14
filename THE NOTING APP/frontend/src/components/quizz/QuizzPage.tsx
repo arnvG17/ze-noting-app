@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { jsonrepair } from 'jsonrepair';
 import './QuizzPage.css';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 type QuizQuestion = {
   question: string;
   options: string[];
@@ -25,7 +27,7 @@ const QuizSection: React.FC<QuizSectionProps> = ({ docText }) => {
     if (!docText) return;
     setLoading(true);
     setError(null);
-    fetch('https://the-noting-app.onrender.com/api/ask/quiz', {
+    fetch(`${API_BASE}/api/ask/quiz`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: docText.slice(0, 4000) })

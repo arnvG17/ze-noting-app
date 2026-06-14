@@ -3,8 +3,10 @@ const multer = require('multer');
 const router = express.Router();
 const handleUpload = require('../controllers/uploadController.js');
 
+const path = require('path');
+
 const storage = multer.diskStorage({
-  destination: './uploads/',
+  destination: path.join(__dirname, '../uploads/'),
   filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname),
 });
 const upload = multer({ 
@@ -19,4 +21,3 @@ router.post('/', (req, res, next) => {
 
 
 module.exports = router;
-
