@@ -12,7 +12,7 @@ type QuizSidebarProps = {
   docText: string;
 };
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://the-noting-app.onrender.com' : 'http://localhost:5000');
 
 const QuizSidebar: React.FC<QuizSidebarProps> = ({ docText }) => {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);

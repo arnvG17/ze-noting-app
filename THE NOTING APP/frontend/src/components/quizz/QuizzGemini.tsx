@@ -13,7 +13,7 @@ type QuizSectionProps = {
 
 const QUIZ_PROMPT = `Generate a quiz of 10 multiple-choice questions (with 4 options each, and the correct answer marked) based on the following text. Format the output as a valid JSON array of objects, where each object has "question", "options", and "answer" keys. Do not include explanations or any text outside of the JSON array itself.\n\nText:\n`;
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://the-noting-app.onrender.com' : 'http://localhost:5000');
 
 const QuizSection: React.FC<QuizSectionProps> = ({ docText }) => {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);

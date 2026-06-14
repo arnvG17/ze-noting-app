@@ -24,6 +24,7 @@ Thumbs.db
 # Env files
 .env
 .env.*
+!frontend/.env.production
 frontend/.env
 server/.env
 

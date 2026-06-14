@@ -9,7 +9,7 @@ import AnimatedBackground from './ui/AnimatedBackground';
 import toast from 'react-hot-toast';
 import { ProgressiveBlur } from './ui/ProgressiveBlur';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://the-noting-app.onrender.com' : 'http://localhost:5000');
 
 const LandingPage = () => {
     const navigate = useNavigate();

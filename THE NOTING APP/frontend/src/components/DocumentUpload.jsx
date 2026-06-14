@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone'
 import toast from 'react-hot-toast'
 import { FiPaperclip, FiArrowUp, FiFile, FiCheck, FiDownload, FiMessageSquare, FiX, FiLink } from 'react-icons/fi'
 
-const backendBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const backendBase = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://the-noting-app.onrender.com' : 'http://localhost:5000');
 
 const MAX_FILE_SIZE_MB = 25;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;

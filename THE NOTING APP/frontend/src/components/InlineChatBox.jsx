@@ -11,7 +11,7 @@ import { FiPaperclip, FiMessageSquare, FiChevronUp } from 'react-icons/fi';
 import { HiOutlineSparkles } from 'react-icons/hi';
 import { ProgressiveBlur } from './ui/ProgressiveBlur';
 import remarkGfm from 'remark-gfm';
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://the-noting-app.onrender.com' : 'http://localhost:5000');
 
 const InlineChatBox = ({ isExpanded, onToggle }) => {
     const { documentText } = useDocumentText();
