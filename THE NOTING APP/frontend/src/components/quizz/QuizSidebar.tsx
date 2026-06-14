@@ -12,6 +12,8 @@ type QuizSidebarProps = {
   docText: string;
 };
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const QuizSidebar: React.FC<QuizSidebarProps> = ({ docText }) => {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [current, setCurrent] = useState(0);
@@ -25,7 +27,7 @@ const QuizSidebar: React.FC<QuizSidebarProps> = ({ docText }) => {
     if (!docText) return;
     setLoading(true);
     setError(null);
-    fetch('http://localhost:5000/api/ask/quiz', {
+    fetch(`${API_BASE}/api/ask/quiz`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: docText.slice(0, 4000) })
