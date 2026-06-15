@@ -16,6 +16,7 @@ const documentRoutes = require('./routes/documents');
 const pitchRoutes = require('./routes/pitch');
 const flowchartRoutes = require('./routes/flowchart');
 const reportRoutes = require('./routes/report');
+const podcastRoutes = require('./routes/podcast');
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use('/api/notebooks', notebookRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/pitch', pitchRoutes);
 app.use('/api/report', reportRoutes);
+app.use('/api/podcast', podcastRoutes);
 app.use('/api/generate-flowchart', flowchartRoutes);
 app.use('/generate-flowchart', flowchartRoutes);
 

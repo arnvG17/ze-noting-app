@@ -53,12 +53,12 @@ const STUDIO_ITEMS = [
         status: 'ready'
     },
     {
-        id: 'audio',
+        id: 'podcast',
         icon: Headphones,
-        title: 'Audio Overview',
-        description: 'Listen to a document summary',
-        type: 'audio',
-        status: 'soon'
+        title: 'Podcast',
+        description: 'Generate audio podcasts & overview',
+        type: 'podcast',
+        status: 'ready'
     },
     {
         id: 'flashcards',
@@ -115,6 +115,10 @@ const StudioPanel = ({ summaryText, flowchartData, documentText, notebookId, sel
         } else if (itemId === 'report') {
             if (onActiveCenterViewChange) {
                 onActiveCenterViewChange('report');
+            }
+        } else if (itemId === 'podcast' || itemId === 'audio') {
+            if (onActiveCenterViewChange) {
+                onActiveCenterViewChange('podcast');
             }
         } else {
             setActiveModal(itemId);

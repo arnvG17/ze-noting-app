@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, Sparkles, GitBranch, Presentation, Layers, ClipboardList } from 'lucide-react';
+import { MessageSquare, Sparkles, GitBranch, Presentation, Layers, ClipboardList, Headphones } from 'lucide-react';
 import ChatMessage from './ChatMessage';
 import FlowchartViewer from '../FlowchartViewer';
 import PitchDeckViewer from './PitchDeckViewer';
 import FlashcardViewer from './FlashcardViewer';
 import ReportViewer from './ReportViewer';
+import PodcastViewer from './PodcastViewer';
 import { PromptInputBox } from '../ui/ai-prompt-box';
 
 const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://the-noting-app.onrender.com' : 'http://localhost:5000');
@@ -220,6 +221,13 @@ const ChatPanel = ({
                     <ClipboardList size={14} />
                     <span>Report</span>
                 </button>
+                <button 
+                    className={`chat-tab ${activeCenterView === 'podcast' ? 'active' : ''}`}
+                    onClick={() => onActiveCenterViewChange('podcast')}
+                >
+                    <Headphones size={14} />
+                    <span>Podcast</span>
+                </button>
             </div>
 
             {/* View Content */}
@@ -286,6 +294,14 @@ const ChatPanel = ({
                     <ReportViewer 
                         notebookId={notebookId} 
                         documents={documents}
+                    />
+                </div>
+            ) : activeCenterView === 'podcast' ? (
+                <div className="center-panel-viewer-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
+                    <PodcastViewer 
+                        notebookId={notebookId} 
+                        documents={documents}
+                        selectedDocIds={selectedDocIds}
                     />
                 </div>
             ) : (
