@@ -6,6 +6,7 @@ import ChatPanel from './ChatPanel';
 import StudioPanel from './StudioPanel';
 import { useDocumentText } from '../DocumentTextContext';
 import './workspace.css';
+import PixelTrail from '../ui/PixelTrail';
 
 const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://the-noting-app.onrender.com' : 'http://localhost:5000');
 
@@ -188,25 +189,18 @@ const WorkspacePage = () => {
         return () => clearTimeout(timer);
     }, [notebookId]);
 
-    // Custom cursor trail interaction
-    useEffect(() => {
-        const trail = document.getElementById('cursor-trail');
-        if (!trail) return;
 
-        const handleMouseMove = (e) => {
-            trail.style.transform = `translate(${e.clientX - 20}px, ${e.clientY - 20}px)`;
-        };
-
-        document.addEventListener('mousemove', handleMouseMove);
-        return () => {
-            document.removeEventListener('mousemove', handleMouseMove);
-        };
-    }, []);
 
     if (loading) {
         return (
             <div className="workspace">
-                <div id="cursor-trail" className="cursor-trail"></div>
+                <PixelTrail
+                    gridSize={80}
+                    trailSize={0.03}
+                    maxAge={200}
+                    interpolate={5}
+                    color="#8b5cf6"
+                />
                 <div className="studio-panel">
                     <div className="studio-header"><h2>Studio</h2></div>
                 </div>
@@ -238,7 +232,13 @@ const WorkspacePage = () => {
 
     return (
         <div className="workspace" style={workspaceStyle}>
-            <div id="cursor-trail" className="cursor-trail"></div>
+            <PixelTrail
+                gridSize={80}
+                trailSize={0.03}
+                maxAge={200}
+                interpolate={5}
+                color="#8b5cf6"
+            />
             <StudioPanel
                 summaryText={summaryText}
                 flowchartData={flowchartData}

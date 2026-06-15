@@ -53,9 +53,9 @@ exports.generateScript = async (req, res) => {
 
     const docIds = docsResult.rows.map(r => r.id);
     
-    // Fetch up to 15 chunks for solid coverage
+    // Fetch up to 8 chunks for solid coverage (limited to avoid Groq 12k TPM rate limits)
     const chunksResult = await query(
-      "SELECT content FROM chunks WHERE document_id = ANY($1::uuid[]) ORDER BY chunk_index LIMIT 15",
+      "SELECT content FROM chunks WHERE document_id = ANY($1::uuid[]) ORDER BY chunk_index LIMIT 8",
       [docIds]
     );
     const chunksText = chunksResult.rows.map(r => r.content).join('\n\n');

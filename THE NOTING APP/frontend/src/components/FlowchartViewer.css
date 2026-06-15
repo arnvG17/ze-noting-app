@@ -463,13 +463,14 @@
     color: #000000 !important;
 }
 .chat-tab.active {
-    background: rgba(255, 255, 255, 0.25) !important;
-    border-color: rgba(0, 0, 0, 0.3) !important;
+    background: transparent !important;
+    border-color: transparent !important;
     color: #000000 !important;
 }
-.chat-tab.active:nth-child(1) { color: #000000 !important; border-color: rgba(0, 0, 0, 0.4) !important; }
-.chat-tab.active:nth-child(2) { color: #000000 !important; border-color: rgba(0, 0, 0, 0.4) !important; }
-.chat-tab.active:nth-child(3) { color: #000000 !important; border-color: rgba(0, 0, 0, 0.4) !important; }
+.chat-tab.active:nth-child(1) { color: #000000 !important; border-color: transparent !important; }
+.chat-tab.active:nth-child(2) { color: #000000 !important; border-color: transparent !important; }
+.chat-tab.active:nth-child(3) { color: #000000 !important; border-color: transparent !important; }
+
 
 .flowchart-header h3 {
     color: #000000 !important;

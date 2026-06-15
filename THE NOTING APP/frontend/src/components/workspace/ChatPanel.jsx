@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Sparkles, GitBranch, Presentation, Layers, ClipboardList, Headphones } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import ChatMessage from './ChatMessage';
 import FlowchartViewer from '../FlowchartViewer';
 import PitchDeckViewer from './PitchDeckViewer';
@@ -7,6 +8,7 @@ import FlashcardViewer from './FlashcardViewer';
 import ReportViewer from './ReportViewer';
 import PodcastViewer from './PodcastViewer';
 import { PromptInputBox } from '../ui/ai-prompt-box';
+
 
 const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://the-noting-app.onrender.com' : 'http://localhost:5000');
 
@@ -186,133 +188,186 @@ const ChatPanel = ({
 
             {/* View Tabs */}
             <div className="chat-tabs">
-                <button 
-                    className={`chat-tab ${activeCenterView === 'chat' ? 'active' : ''}`}
-                    onClick={() => onActiveCenterViewChange('chat')}
-                >
-                    <MessageSquare size={14} />
-                    <span>Chat</span>
-                </button>
-                <button 
-                    className={`chat-tab ${activeCenterView === 'flowchart' ? 'active' : ''}`}
-                    onClick={() => onActiveCenterViewChange('flowchart')}
-                >
-                    <GitBranch size={14} />
-                    <span>Flowchart</span>
-                </button>
-                <button 
-                    className={`chat-tab ${activeCenterView === 'slides' ? 'active' : ''}`}
-                    onClick={() => onActiveCenterViewChange('slides')}
-                >
-                    <Presentation size={14} />
-                    <span>Pitch Video</span>
-                </button>
-                <button 
-                    className={`chat-tab ${activeCenterView === 'flashcards' ? 'active' : ''}`}
-                    onClick={() => onActiveCenterViewChange('flashcards')}
-                >
-                    <Layers size={14} />
-                    <span>Flashcards</span>
-                </button>
-                <button 
-                    className={`chat-tab ${activeCenterView === 'report' ? 'active' : ''}`}
-                    onClick={() => onActiveCenterViewChange('report')}
-                >
-                    <ClipboardList size={14} />
-                    <span>Report</span>
-                </button>
-                <button 
-                    className={`chat-tab ${activeCenterView === 'podcast' ? 'active' : ''}`}
-                    onClick={() => onActiveCenterViewChange('podcast')}
-                >
-                    <Headphones size={14} />
-                    <span>Podcast</span>
-                </button>
+                {[
+                    { id: 'chat', label: 'Chat', icon: MessageSquare, activeBg: 'rgba(16, 158, 187, 0.12)', activeBorder: 'rgba(16, 158, 187, 0.45)' },
+                    { id: 'flowchart', label: 'Flowchart', icon: GitBranch, activeBg: 'rgba(186, 228, 69, 0.12)', activeBorder: 'rgba(186, 228, 69, 0.45)' },
+                    { id: 'slides', label: 'Pitch Video', icon: Presentation, activeBg: 'rgba(124, 58, 237, 0.12)', activeBorder: 'rgba(124, 58, 237, 0.45)' },
+                    { id: 'flashcards', label: 'Flashcards', icon: Layers, activeBg: 'rgba(20, 184, 166, 0.12)', activeBorder: 'rgba(20, 184, 166, 0.45)' },
+                    { id: 'report', label: 'Report', icon: ClipboardList, activeBg: 'rgba(99, 102, 241, 0.12)', activeBorder: 'rgba(99, 102, 241, 0.45)' },
+                    { id: 'podcast', label: 'Podcast', icon: Headphones, activeBg: 'rgba(236, 72, 153, 0.12)', activeBorder: 'rgba(236, 72, 153, 0.45)' }
+                ].map(tab => {
+                    const Icon = tab.icon;
+                    const isActive = activeCenterView === tab.id;
+                    return (
+                        <button 
+                            key={tab.id}
+                            className={`chat-tab ${isActive ? 'active' : ''}`}
+                            onClick={() => onActiveCenterViewChange(tab.id)}
+                            style={{ position: 'relative' }}
+                        >
+                            {isActive && (
+                                <motion.div
+                                    layoutId="activeTabPill"
+                                    className="active-tab-bg-pill"
+                                    style={{
+                                        position: 'absolute',
+                                        inset: 0,
+                                        background: tab.activeBg,
+                                        border: `1px solid ${tab.activeBorder}`,
+                                        borderRadius: '9999px',
+                                        zIndex: 0
+                                    }}
+                                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                                />
+                            )}
+                            <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <Icon size={14} />
+                                <span>{tab.label}</span>
+                            </span>
+                        </button>
+                    );
+                })}
             </div>
 
-            {/* View Content */}
-            {activeCenterView === 'chat' ? (
-                <>
+            {/* View Content with Transitions */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden', width: '100%' }}>
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={activeCenterView}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -15 }}
+                        transition={{ duration: 0.22, ease: 'easeInOut' }}
+                        style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden', height: '100%', width: '100%' }}
+                    >
+                        {activeCenterView === 'chat' ? (
+                            <div className="flowchart-wrapper chat-view-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
+                                <div className="flowchart-header chat-view-header">
+                                    <h3>AI Chat Assistant</h3>
+                                    <p>Ask questions about your documents. I'll find relevant information and answer with citations.</p>
+                                </div>
+                                
+                                <div className="flowchart-layout-container chat-layout-container" style={{ flex: 1, display: 'flex', gap: '1.25rem', width: '100%', minHeight: 0, overflow: 'hidden' }}>
+                                    <div className="flowchart-container chat-messages-container" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden', background: '#09090b', border: '1px solid rgba(63, 63, 70, 0.4)', borderRadius: '16px', position: 'relative' }}>
+                                        {messages.length === 0 ? (
+                                            <div className="chat-welcome" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '40px', textAlign: 'center' }}>
+                                                <div className="chat-welcome-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyCenter: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(255, 255, 255, 0.05)', color: '#a78bfa', marginBottom: '16px', justifyContent: 'center' }}><MessageSquare size={24} strokeWidth={1.5} /></div>
+                                                <h3 style={{ margin: '0 0 8px 0', fontSize: '1.1rem', fontWeight: '700', color: '#f4f4f5' }}>Start a conversation</h3>
+                                                <p style={{ margin: 0, fontSize: '0.82rem', color: '#71717a', maxWidth: '320px', lineHeight: '1.5' }}>Ask questions about your documents. I'll find relevant information and answer with citations.</p>
+                                            </div>
+                                        ) : (
+                                            <div className="chat-messages" style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
+                                                {messages.map((msg) => (
+                                                    <ChatMessage 
+                                                        key={msg.id} 
+                                                        message={msg} 
+                                                        onUpdateFlowchart={handleUpdateFlowchartInMessage}
+                                                    />
+                                                ))}
+                                                {isLoading && (
+                                                    <div className="chat-message assistant">
+                                                        <div className="chat-message-avatar">AI</div>
+                                                        <div className="chat-message-content">
+                                                            <div className="typing-indicator">
+                                                                <span /><span /><span />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                <div ref={messagesEndRef} />
+                                            </div>
+                                        )}
 
-                    {/* Messages */}
-                    {messages.length === 0 ? (
-                        <div className="chat-welcome">
-                            <div className="chat-welcome-icon"><MessageSquare size={24} strokeWidth={1.5} /></div>
-                            <h3>Start a conversation</h3>
-                            <p>Ask questions about your documents. I'll find relevant information and answer with citations.</p>
-                        </div>
-                    ) : (
-                        <div className="chat-messages">
-                            {messages.map((msg) => (
-                                <ChatMessage 
-                                    key={msg.id} 
-                                    message={msg} 
-                                    onUpdateFlowchart={handleUpdateFlowchartInMessage}
-                                />
-                            ))}
-                            {isLoading && (
-                                <div className="chat-message assistant">
-                                    <div className="chat-message-avatar">AI</div>
-                                    <div className="chat-message-content">
-                                        <div className="typing-indicator">
-                                            <span /><span /><span />
+                                        <div className="chat-input-container" style={{ padding: '16px', background: 'rgba(9, 9, 11, 0.6)', borderTop: '1px solid rgba(63, 63, 70, 0.4)', flexShrink: 0 }}>
+                                            <PromptInputBox 
+                                                onSend={handleSubmit}
+                                                isLoading={isLoading}
+                                                placeholder="Ask anything about your documents..."
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Sidebar */}
+                                    <div className="flowchart-sidebar chat-sidebar" style={{ width: '250px', background: 'rgba(10, 10, 12, 0.5)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', overflowY: 'auto' }}>
+                                        <div className="sidebar-section">
+                                            <h4>Session Details</h4>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.8rem', color: '#e4e4e7', lineHeight: '1.4' }}>
+                                                <div>
+                                                    <span style={{ color: '#71717a', display: 'block', fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: '600' }}>Notebook Name</span>
+                                                    <strong style={{ color: '#fff' }}>{notebookTitle || 'Untitled Notebook'}</strong>
+                                                </div>
+                                                <div>
+                                                    <span style={{ color: '#71717a', display: 'block', fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: '600' }}>Active Context</span>
+                                                    <strong style={{ color: '#fff' }}>{selectedCount} sources selected</strong>
+                                                </div>
+                                                {selectedCount > 0 && (
+                                                    <button 
+                                                        className="toolbar-btn secondary" 
+                                                        onClick={handleGenerateFlowchart}
+                                                        disabled={isLoading}
+                                                        style={{ marginTop: '6px', fontSize: '0.75rem', padding: '6px 12px', width: '100%' }}
+                                                    >
+                                                        <GitBranch size={12} /> Generate Flowchart
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="sidebar-help">
+                                            <MessageSquare className="help-icon" style={{ color: '#a78bfa', marginBottom: '8px' }} />
+                                            <p><strong>Chat Guidelines:</strong></p>
+                                            <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                                <li style={{ fontSize: '0.75rem', color: '#a1a1aa', lineHeight: '1.35' }}>Ask questions based on your loaded documents.</li>
+                                                <li style={{ fontSize: '0.75rem', color: '#a1a1aa', lineHeight: '1.35' }}>Click inline citations to highlight the text source.</li>
+                                                <li style={{ fontSize: '0.75rem', color: '#a1a1aa', lineHeight: '1.35' }}>Toggle selected files in the Sources panel to focus reasoning.</li>
+                                            </ul>
                                         </div>
                                     </div>
                                 </div>
-                            )}
-                            <div ref={messagesEndRef} />
-                        </div>
-                    )}
-
-                    {/* Input Container */}
-                    <div className="chat-input-container" style={{ padding: '16px 32px 24px', background: 'transparent' }}>
-                        <PromptInputBox 
-                            onSend={handleSubmit}
-                            isLoading={isLoading}
-                            placeholder="Ask anything about your documents..."
-                        />
-                    </div>
-                </>
-            ) : activeCenterView === 'flowchart' ? (
-                <div className="center-panel-viewer-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
-                    <FlowchartViewer 
-                        flowchartData={flowchartData} 
-                        onFlowchartUpdate={setFlowchartData} 
-                        notebookId={notebookId}
-                        selectedDocIds={selectedDocIds}
-                    />
-                </div>
-            ) : activeCenterView === 'flashcards' ? (
-                <div className="center-panel-viewer-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
-                    <FlashcardViewer 
-                        notebookId={notebookId} 
-                        documents={documents}
-                    />
-                </div>
-            ) : activeCenterView === 'report' ? (
-                <div className="center-panel-viewer-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
-                    <ReportViewer 
-                        notebookId={notebookId} 
-                        documents={documents}
-                    />
-                </div>
-            ) : activeCenterView === 'podcast' ? (
-                <div className="center-panel-viewer-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
-                    <PodcastViewer 
-                        notebookId={notebookId} 
-                        documents={documents}
-                        selectedDocIds={selectedDocIds}
-                    />
-                </div>
-            ) : (
-                <div className="center-panel-viewer-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
-                    <PitchDeckViewer 
-                        notebookId={notebookId} 
-                        documents={documents}
-                        selectedDocIds={selectedDocIds}
-                    />
-                </div>
-            )}
+                            </div>
+                        ) : activeCenterView === 'flowchart' ? (
+                            <div className="center-panel-viewer-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
+                                <FlowchartViewer 
+                                    flowchartData={flowchartData} 
+                                    onFlowchartUpdate={setFlowchartData} 
+                                    notebookId={notebookId}
+                                    selectedDocIds={selectedDocIds}
+                                />
+                            </div>
+                        ) : activeCenterView === 'flashcards' ? (
+                            <div className="center-panel-viewer-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
+                                <FlashcardViewer 
+                                    notebookId={notebookId} 
+                                    documents={documents}
+                                />
+                            </div>
+                        ) : activeCenterView === 'report' ? (
+                            <div className="center-panel-viewer-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
+                                <ReportViewer 
+                                    notebookId={notebookId} 
+                                    documents={documents}
+                                />
+                            </div>
+                        ) : activeCenterView === 'podcast' ? (
+                            <div className="center-panel-viewer-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
+                                <PodcastViewer 
+                                    notebookId={notebookId} 
+                                    documents={documents}
+                                    selectedDocIds={selectedDocIds}
+                                />
+                            </div>
+                        ) : (
+                            <div className="center-panel-viewer-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
+                                <PitchDeckViewer 
+                                    notebookId={notebookId} 
+                                    documents={documents}
+                                    selectedDocIds={selectedDocIds}
+                                />
+                            </div>
+                        )}
+                    </motion.div>
+                </AnimatePresence>
+            </div>
         </div>
     );
 };

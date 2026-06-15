@@ -1234,44 +1234,54 @@
 
 .chat-tab.active {
     opacity: 1;
-    background: rgba(0, 0, 0, 0.05);
+    background: transparent;
     color: #1f2023;
-    border-color: rgba(0, 0, 0, 0.08);
+    border-color: transparent;
 }
 
 /* Hover/active effects for specific tabs to match the theme */
 .chat-tab.active:nth-child(1) {
-    border-color: rgba(16, 158, 187, 0.4);
-    box-shadow: 0 0 10px rgba(16, 158, 187, 0.05);
+    border-color: transparent;
+    box-shadow: none;
     color: #0b687c;
 }
 
 .chat-tab.active:nth-child(2) {
-    border-color: rgba(186, 228, 69, 0.4);
-    box-shadow: 0 0 10px rgba(186, 228, 69, 0.05);
+    border-color: transparent;
+    box-shadow: none;
     color: #5d7412;
 }
 
 .chat-tab.active:nth-child(3) {
-    border-color: #7c3aed;
-    box-shadow: 0 0 10px rgba(124, 58, 237, 0.15);
+    border-color: transparent;
+    box-shadow: none;
     color: #a78bfa; /* Pitch Deck purple */
-    background: rgba(124, 58, 237, 0.1);
+    background: transparent;
 }
 
 .chat-tab.active:nth-child(4) {
-    border-color: rgba(20, 184, 166, 0.4);
-    box-shadow: 0 0 10px rgba(20, 184, 166, 0.15);
+    border-color: transparent;
+    box-shadow: none;
     color: #2dd4bf; /* Teal */
-    background: rgba(20, 184, 166, 0.1);
+    background: transparent;
 }
 
 .chat-tab.active:nth-child(5) {
-    border-color: rgba(99, 102, 241, 0.4);
-    box-shadow: 0 0 10px rgba(99, 102, 241, 0.15);
+    border-color: transparent;
+    box-shadow: none;
     color: #818cf8; /* Indigo */
-    background: rgba(99, 102, 241, 0.1);
+    background: transparent;
 }
+
+/* Custom sidebar widths to prevent controls from cramping */
+.pitch-sidebar {
+    width: 310px !important;
+}
+
+.podcast-sidebar {
+    width: 280px !important;
+}
+
 
 /* Override default flow wrapper margins for center piece layout */
 .center-panel-viewer-wrapper .flowchart-wrapper {
@@ -1291,10 +1301,10 @@
 
 /* Tab Active State for Podcast (6th Tab) */
 .chat-tab.active:nth-child(6) {
-    border-color: rgba(236, 72, 153, 0.4);
-    box-shadow: 0 0 10px rgba(236, 72, 153, 0.15);
+    border-color: transparent;
+    box-shadow: none;
     color: #f472b6; /* Hot Pink */
-    background: rgba(236, 72, 153, 0.1);
+    background: transparent;
 }
 
 .podcast-viewer {

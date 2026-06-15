@@ -14,15 +14,7 @@ const Footer = () => {
             </p>
           </div>
           
-          <div className="footer-section">
-            <h4>Features</h4>
-            <ul className="footer-links">
-              <li><a href="#features">Document Processing</a></li>
-              <li><a href="#features">AI Summaries</a></li>
-              <li><a href="#features">Chatbot Assistant</a></li>
-              <li><a href="#features">PDF Downloads</a></li>
-            </ul>
-          </div>
+          
           
           <div className="footer-section">
             <h4>Support</h4>

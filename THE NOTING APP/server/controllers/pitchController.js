@@ -22,9 +22,9 @@ exports.generateScript = async (req, res) => {
       if (docsResult.rows.length > 0) {
         const docIds = docsResult.rows.map(r => r.id);
         
-        // Fetch actual document text extracts from chunks
+        // Fetch actual document text extracts from chunks (limited to avoid Groq 12k TPM rate limits)
         const chunksResult = await query(
-          "SELECT content FROM chunks WHERE document_id = ANY($1::uuid[]) ORDER BY chunk_index LIMIT 15",
+          "SELECT content FROM chunks WHERE document_id = ANY($1::uuid[]) ORDER BY chunk_index LIMIT 8",
           [docIds]
         );
         const chunksText = chunksResult.rows.map(r => r.content).join('\n\n');

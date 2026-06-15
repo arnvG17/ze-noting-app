@@ -104,204 +104,149 @@ export default function ReportViewer({ notebookId, documents = [] }) {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'row',
-      height: '100%',
-      backgroundColor: '#0c0b10',
-      color: '#e4e4e7',
-      overflow: 'hidden'
-    }}>
-      {/* Left Column: Report configuration */}
-      <div style={{
-        flex: 1.2,
-        padding: '24px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '20px',
-        borderRight: '1px solid rgba(255, 255, 255, 0.08)',
-        height: '100%',
-        overflowY: 'auto'
-      }}>
-        <h3 style={{ fontSize: '15px', fontWeight: '800', margin: 0, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '1px' }}>
-          Report Customizer
-        </h3>
-
-        {/* Tone Selector */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <label style={{ fontSize: '11px', fontWeight: 'bold', color: '#a1a1aa' }}>Select Tone</label>
-          <select
-            value={tone}
-            onChange={(e) => setTone(e.target.value)}
-            style={{
-              height: '36px',
-              backgroundColor: 'rgba(0, 0, 0, 0.3)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '6px',
-              color: '#fff',
-              fontSize: '13px',
-              padding: '0 8px',
-              outline: 'none'
-            }}
-          >
-            <option value="Formal" style={{ backgroundColor: '#0c0b10' }}>Formal</option>
-            <option value="Semi-Formal" style={{ backgroundColor: '#0c0b10' }}>Semi-Formal</option>
-            <option value="Casual" style={{ backgroundColor: '#0c0b10' }}>Casual</option>
-          </select>
-        </div>
-
-        {/* Focus Selector */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <label style={{ fontSize: '11px', fontWeight: 'bold', color: '#a1a1aa' }}>Select Focus / Audience</label>
-          <select
-            value={focus}
-            onChange={(e) => setFocus(e.target.value)}
-            style={{
-              height: '36px',
-              backgroundColor: 'rgba(0, 0, 0, 0.3)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '6px',
-              color: '#fff',
-              fontSize: '13px',
-              padding: '0 8px',
-              outline: 'none'
-            }}
-          >
-            <option value="Academic" style={{ backgroundColor: '#0c0b10' }}>Academic</option>
-            <option value="Commercial" style={{ backgroundColor: '#0c0b10' }}>Commercial</option>
-            <option value="Business" style={{ backgroundColor: '#0c0b10' }}>Business</option>
-          </select>
-        </div>
-
-        {/* Extra Guideline Details */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <label style={{ fontSize: '11px', fontWeight: 'bold', color: '#a1a1aa' }}>Extra Context or Guidelines</label>
-          <textarea
-            rows={4}
-            value={extraInputs}
-            onChange={(e) => setExtraInputs(e.target.value)}
-            placeholder="E.g., Include detailed SWOT analysis, focus on financial projections, write in British English..."
-            style={{
-              borderRadius: '6px',
-              backgroundColor: 'rgba(0, 0, 0, 0.3)',
-              border: '1px solid rgba(255, 255, 255, 0.06)',
-              padding: '10px',
-              color: '#fff',
-              fontSize: '12px',
-              resize: 'none',
-              lineHeight: '1.4',
-              outline: 'none'
-            }}
-          />
-        </div>
-
-        {/* Generate Button (Text-only, Solid Purple) */}
-        <button
-          onClick={handleGenerateReport}
-          disabled={isGenerating}
-          onMouseOver={(e) => { if (!isGenerating) e.currentTarget.style.backgroundColor = '#6d28d9'; }}
-          onMouseOut={(e) => { if (!isGenerating) e.currentTarget.style.backgroundColor = '#7c3aed'; }}
-          style={{
-            height: '40px',
-            borderRadius: '8px',
-            backgroundColor: '#7c3aed',
-            color: '#ffffff',
-            fontWeight: '700',
-            fontSize: '13px',
-            border: 'none',
-            cursor: isGenerating ? 'not-allowed' : 'pointer',
-            transition: 'background-color 0.2s',
-            boxShadow: '0 4px 15px rgba(124, 58, 237, 0.2)',
-            marginTop: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          {isGenerating ? "Researching & Compiling..." : "Generate AI Research Report"}
-        </button>
+    <div className="flowchart-wrapper report-wrapper" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div className="flowchart-header report-header">
+        <h3>Research Report</h3>
+        <p>Generate, customize, and preview detailed research reports from your source documents.</p>
       </div>
 
-      {/* Right Column: Report Preview */}
-      <div style={{
-        flex: 2,
-        padding: '24px',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        backgroundColor: '#09080d'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '12px', marginBottom: '16px', flexShrink: 0 }}>
-          <h3 style={{ fontSize: '15px', fontWeight: '800', margin: 0, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '1px' }}>
-            Report Preview
-          </h3>
-          {reportMarkdown && (
-            <button
-              onClick={handleDownloadWord}
-              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#6d28d9'; }}
-              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#7c3aed'; }}
-              style={{
-                height: '32px',
-                padding: '0 16px',
-                borderRadius: '6px',
-                backgroundColor: '#7c3aed',
-                color: '#ffffff',
-                fontWeight: '700',
-                fontSize: '11px',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s',
-                boxShadow: '0 4px 10px rgba(124, 58, 237, 0.15)'
-              }}
-            >
-              Download Word Document
-            </button>
-          )}
+      <div className="flowchart-layout-container report-layout" style={{ flex: 1, display: 'flex', gap: '1.25rem', width: '100%', minHeight: 0, overflow: 'hidden' }}>
+        {/* Main Canvas Area: Report Preview (Left) */}
+        <div className="flowchart-container report-preview-container" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden', background: '#09090b', border: '1px solid rgba(63, 63, 70, 0.4)', borderRadius: '16px', padding: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '12px', marginBottom: '16px', flexShrink: 0 }}>
+            <h4 style={{ fontSize: '0.9rem', fontWeight: '800', margin: 0, color: '#ffffff', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              Report Preview
+            </h4>
+            {reportMarkdown && (
+              <button
+                onClick={handleDownloadWord}
+                onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#6d28d9'; }}
+                onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#7c3aed'; }}
+                style={{
+                  height: '32px',
+                  padding: '0 16px',
+                  borderRadius: '6px',
+                  backgroundColor: '#7c3aed',
+                  color: '#ffffff',
+                  fontWeight: '700',
+                  fontSize: '11px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s',
+                  boxShadow: '0 4px 10px rgba(124, 58, 237, 0.15)'
+                }}
+              >
+                Download Word Document
+              </button>
+            )}
+          </div>
+
+          {/* Preview Scrollable Box */}
+          <div style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '20px',
+            borderRadius: '12px',
+            backgroundColor: 'rgba(255, 255, 255, 0.01)',
+            border: '1px solid rgba(255, 255, 255, 0.04)',
+            lineHeight: '1.7',
+            fontSize: '14px',
+            color: '#e4e4e7',
+            textAlign: 'left'
+          }}>
+            {isGenerating ? (
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center', alignItems: 'center', gap: '15px' }}>
+                <div style={{ width: '32px', height: '32px', border: '3px solid #7c3aed', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                <div style={{ fontSize: '13px', color: '#a1a1aa' }}>Analyzing sources and writing report chunks...</div>
+              </div>
+            ) : reportMarkdown ? (
+              <div className="report-markdown-preview">
+                <style>{`
+                  .report-markdown-preview h1 { font-size: 20px; font-weight: bold; color: #fff; margin-top: 24px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px; }
+                  .report-markdown-preview h2 { font-size: 16px; font-weight: bold; color: #a78bfa; margin-top: 20px; margin-bottom: 10px; }
+                  .report-markdown-preview h3 { font-size: 14px; font-weight: bold; color: #ffffff; margin-top: 16px; margin-bottom: 8px; }
+                  .report-markdown-preview p { margin-bottom: 12px; }
+                  .report-markdown-preview ul, .report-markdown-preview ol { padding-left: 20px; margin-bottom: 12px; }
+                  .report-markdown-preview li { margin-bottom: 6px; }
+                  .report-markdown-preview strong { color: #fff; font-weight: bold; }
+                `}</style>
+                <ReactMarkdown>{reportMarkdown}</ReactMarkdown>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center', alignItems: 'center', color: '#71717a', gap: '8px' }}>
+                <div style={{ fontSize: '14px', fontWeight: 'bold' }}>No Report Generated Yet</div>
+                <div style={{ fontSize: '12px' }}>Configure your preferences in the right panel and click generate.</div>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Preview Container */}
-        <div style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '20px',
-          borderRadius: '12px',
-          backgroundColor: 'rgba(255, 255, 255, 0.01)',
-          border: '1px solid rgba(255, 255, 255, 0.04)',
-          lineHeight: '1.7',
-          fontSize: '14px',
-          color: '#e4e4e7',
-          textAlign: 'left'
-        }}>
-          {isGenerating ? (
-            <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center', alignItems: 'center', gap: '15px' }}>
-              <div style={{ width: '32px', height: '32px', border: '3px solid #7c3aed', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-              <div style={{ fontSize: '13px', color: '#a1a1aa' }}>Analyzing sources and writing report chunks...</div>
+        {/* Sidebar Controls: Report Customizer (Right) */}
+        <div className="flowchart-sidebar report-sidebar" style={{ width: '250px', background: 'rgba(10, 10, 12, 0.5)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', overflowY: 'auto' }}>
+          <div className="sidebar-section">
+            <h4>Report Customizer</h4>
+
+            {/* Tone Selector */}
+            <div className="form-group">
+              <label>Select Tone</label>
+              <select
+                value={tone}
+                onChange={(e) => setTone(e.target.value)}
+              >
+                <option value="Formal">Formal</option>
+                <option value="Semi-Formal">Semi-Formal</option>
+                <option value="Casual">Casual</option>
+              </select>
             </div>
-          ) : reportMarkdown ? (
-            <div className="report-markdown-preview">
-              <style>{`
-                .report-markdown-preview h1 { font-size: 20px; font-weight: bold; color: #fff; margin-top: 24px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px; }
-                .report-markdown-preview h2 { font-size: 16px; font-weight: bold; color: #a78bfa; margin-top: 20px; margin-bottom: 10px; }
-                .report-markdown-preview h3 { font-size: 14px; font-weight: bold; color: #ffffff; margin-top: 16px; margin-bottom: 8px; }
-                .report-markdown-preview p { margin-bottom: 12px; }
-                .report-markdown-preview ul, .report-markdown-preview ol { padding-left: 20px; margin-bottom: 12px; }
-                .report-markdown-preview li { margin-bottom: 6px; }
-                .report-markdown-preview strong { color: #fff; font-weight: bold; }
-                @keyframes spin {
-                  from { transform: rotate(0deg); }
-                  to { transform: rotate(360deg); }
-                }
-              `}</style>
-              <ReactMarkdown>{reportMarkdown}</ReactMarkdown>
+
+            {/* Focus Selector */}
+            <div className="form-group">
+              <label>Select Focus</label>
+              <select
+                value={focus}
+                onChange={(e) => setFocus(e.target.value)}
+              >
+                <option value="Academic">Academic</option>
+                <option value="Commercial">Commercial</option>
+                <option value="Business">Business</option>
+              </select>
             </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center', alignItems: 'center', color: '#71717a', gap: '8px' }}>
-              <div style={{ fontSize: '14px', fontWeight: 'bold' }}>No Report Generated Yet</div>
-              <div style={{ fontSize: '12px' }}>Configure your preferences in the left panel and click generate.</div>
+
+            {/* Extra Guidelines */}
+            <div className="form-group">
+              <label>Extra Guidelines</label>
+              <textarea
+                rows={4}
+                value={extraInputs}
+                onChange={(e) => setExtraInputs(e.target.value)}
+                placeholder="E.g., Include SWOT, focus on finances..."
+              />
             </div>
-          )}
+
+            {/* Generate button */}
+            <button
+              className="toolbar-btn primary"
+              onClick={handleGenerateReport}
+              disabled={isGenerating}
+              style={{ width: '100%' }}
+            >
+              {isGenerating ? "Compiling..." : "Generate Report"}
+            </button>
+          </div>
+
+          <div className="sidebar-help">
+            <span style={{ fontSize: '1.2rem', color: '#a78bfa', marginBottom: '8px' }}>📝</span>
+            <p><strong>Report Advice:</strong></p>
+            <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <li style={{ fontSize: '0.75rem', color: '#a1a1aa', lineHeight: '1.35' }}>Academic focuses on citations, data, and rigorous theory.</li>
+              <li style={{ fontSize: '0.75rem', color: '#a1a1aa', lineHeight: '1.35' }}>Commercial/Business highlights actionable market conclusions.</li>
+              <li style={{ fontSize: '0.75rem', color: '#a1a1aa', lineHeight: '1.35' }}>Once completed, download directly as a Word document.</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+
+

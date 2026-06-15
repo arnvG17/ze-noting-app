@@ -266,25 +266,20 @@ const PodcastViewer = ({ notebookId, documents, selectedDocIds }) => {
         }
         setIsPlaying(false);
         setAudioUrl('');
-        setScriptText('');
-        setStep(1);
     };
 
-    // Character counter metrics
-    const characterCount = scriptText.length;
-    const isOverLimit = characterCount > 2500;
-
     return (
-        <div className="podcast-viewer">
+
+        <div className="flowchart-wrapper podcast-viewer-wrapper" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             {/* Header */}
-            <div className="podcast-header">
-                <div className="podcast-title-area">
-                    <div className="podcast-icon-badge">
+            <div className="flowchart-header podcast-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <div className="podcast-title-area" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div className="podcast-icon-badge" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '38px', height: '38px', background: 'rgba(236, 72, 153, 0.12)', border: '1px solid rgba(236, 72, 153, 0.2)', borderRadius: '12px' }}>
                         <Headphones size={20} className="text-[#f472b6]" />
                     </div>
                     <div>
-                        <h3>Podcast Studio</h3>
-                        <p className="podcast-subtitle">
+                        <h3 style={{ margin: 0 }}>Podcast Studio</h3>
+                        <p style={{ margin: '2px 0 0 0', fontSize: '0.72rem', color: '#71717a' }}>
                             {step === 1 && "Configure voice, style and parameters"}
                             {step === 2 && "Review and refine your podcast script"}
                             {step === 3 && "Play, speed control or download podcast"}
@@ -292,7 +287,7 @@ const PodcastViewer = ({ notebookId, documents, selectedDocIds }) => {
                     </div>
                 </div>
                 {step > 1 && (
-                    <button className="podcast-reset-btn" onClick={handleStartOver}>
+                    <button className="podcast-reset-btn" onClick={handleStartOver} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '9999px', padding: '6px 14px', fontSize: '0.72rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s', color: '#fff' }}>
                         <RotateCcw size={14} />
                         <span>Start Over</span>
                     </button>
@@ -300,29 +295,121 @@ const PodcastViewer = ({ notebookId, documents, selectedDocIds }) => {
             </div>
 
             {errorMessage && (
-                <div className="podcast-error-alert">
+                <div className="podcast-error-alert" style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '0 0 16px 0', padding: '12px 18px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', borderRadius: '12px', color: '#fca5a5', fontSize: '0.78rem', fontWeight: '500' }}>
                     <AlertTriangle size={16} />
                     <span>{errorMessage}</span>
                 </div>
             )}
 
-            {/* Step 1: Configuration UI */}
-            {step === 1 && (
-                <div className="podcast-content-grid">
-                    <div className="podcast-config-form">
-                        <h4><Settings size={14} style={{ marginRight: 6 }} /> Configure Details</h4>
-                        
-                        {/* Language Selector */}
-                        <div className="config-group">
-                            <label className="config-label">
-                                <Languages size={14} />
-                                <span>Language</span>
-                            </label>
-                            <div className="select-wrapper">
+            <div className="flowchart-layout-container podcast-layout-container" style={{ flex: 1, display: 'flex', gap: '1.25rem', width: '100%', minHeight: 0, overflow: 'hidden' }}>
+                {/* Main Canvas Area (Left) */}
+                <div className="flowchart-container podcast-main-container" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden', background: '#09090b', border: '1px solid rgba(63, 63, 70, 0.4)', borderRadius: '16px', padding: '24px' }}>
+                    {step === 1 && (
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflowY: 'auto' }}>
+                            <h4 style={{ fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#a1a1aa', margin: '0 0 16px 0' }}>Select Script Style</h4>
+                            <div className="tone-cards-grid" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {TONES.map(t => (
+                                    <div 
+                                        key={t.code} 
+                                        onClick={() => setTone(t.code)}
+                                        className={`tone-card ${tone === t.code ? 'active' : ''}`}
+                                        style={{
+                                            background: tone === t.code ? 'rgba(236, 72, 153, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+                                            border: tone === t.code ? '1px solid rgba(236, 72, 153, 0.4)' : '1px solid rgba(255, 255, 255, 0.04)',
+                                            borderRadius: '12px',
+                                            padding: '16px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s'
+                                        }}
+                                    >
+                                        <h5 style={{ margin: '0 0 6px 0', fontSize: '0.85rem', fontWeight: '700', color: '#fff' }}>{t.label}</h5>
+                                        <p style={{ margin: 0, fontSize: '0.72rem', color: '#a1a1aa', lineHeight: '1.4' }}>{t.desc}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {step === 2 && (
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+                            <h4 style={{ fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#a1a1aa', margin: '0 0 12px 0' }}>Review and Edit Dialogue Script</h4>
+                            <textarea
+                                value={scriptText}
+                                onChange={(e) => setScriptText(e.target.value)}
+                                className={`script-editor-box ${isOverLimit ? 'border-warn' : ''}`}
+                                style={{
+                                    flex: 1,
+                                    background: 'rgba(0, 0, 0, 0.25)',
+                                    border: isOverLimit ? '1.5px solid rgba(239, 68, 68, 0.4)' : '1.5px solid rgba(255, 255, 255, 0.06)',
+                                    borderRadius: '12px',
+                                    padding: '16px',
+                                    color: '#fff',
+                                    fontSize: '0.85rem',
+                                    lineHeight: '1.6',
+                                    outline: 'none',
+                                    resize: 'none',
+                                    overflowY: 'auto'
+                                }}
+                                placeholder="Write or edit script here..."
+                            />
+                        </div>
+                    )}
+
+                    {step === 3 && (
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflowY: 'auto' }}>
+                            {/* Visualizer Waveform */}
+                            <div className="podcast-visualizer-wave" style={{ background: 'rgba(0, 0, 0, 0.15)', border: '1px solid rgba(255, 255, 255, 0.04)', borderRadius: '20px', padding: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', marginBottom: '24px', boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.2)' }}>
+                                <div className="visualizer-bars" style={{ display: 'flex', alignItems: 'center', gap: '5px', height: '48px', marginBottom: '16px' }}>
+                                    {visualizerBars.map((_, idx) => {
+                                        const baseHeight = 15 + Math.sin(idx * 0.4) * 15 + Math.cos(idx * 0.2) * 10;
+                                        const style = isPlaying ? {
+                                            height: `${Math.max(10, baseHeight)}px`,
+                                            animationDelay: `${idx * 0.05}s`,
+                                            animationDuration: `${0.6 + (idx % 3) * 0.15}s`
+                                        } : {
+                                            height: `${Math.max(6, baseHeight * 0.35)}px`
+                                        };
+                                        return (
+                                            <div 
+                                                key={idx} 
+                                                className={`visual-bar ${isPlaying ? 'animating' : ''}`}
+                                                style={style}
+                                            />
+                                        );
+                                    })}
+                                </div>
+                                <div className="visualizer-overlay-info" style={{ textAlign: 'center' }}>
+                                    <FileAudio size={42} className="text-[#f472b6] mb-3 opacity-80" style={{ color: '#f472b6', marginBottom: '12px' }} />
+                                    <h5 style={{ margin: 0, fontSize: '0.9rem', fontWeight: '800', color: '#fff' }}>Podcast Ready to Listen</h5>
+                                    <p style={{ margin: '4px 0 0 0', fontSize: '0.68rem', color: '#a1a1aa' }}>Speaker: {SPEAKERS.find(s => s.name === speaker)?.label || speaker} | Speed: {playbackSpeed}x</p>
+                                </div>
+                            </div>
+
+                            {/* Script Transcript Display */}
+                            <div className="transcript-box" style={{ background: 'rgba(0, 0, 0, 0.1)', border: '1px solid rgba(255, 255, 255, 0.03)', borderRadius: '16px', padding: '20px' }}>
+                                <h6 style={{ fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#a1a1aa', margin: '0 0 12px 0' }}>Dialogue Script Transcript</h6>
+                                <div className="transcript-text" style={{ fontSize: '0.8rem', lineHeight: '1.6', color: '#e4e4e7' }}>
+                                    {scriptText.split('\n\n').map((paragraph, index) => (
+                                        <p key={index} style={{ marginBottom: '10px' }}>{paragraph}</p>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Sidebar (Right) */}
+                <div className="flowchart-sidebar podcast-sidebar" style={{ width: '280px', background: 'rgba(10, 10, 12, 0.5)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', overflowY: 'auto' }}>
+                    {step === 1 && (
+                        <div className="sidebar-section">
+                            <h4>Configure Voice</h4>
+
+                            {/* Language Selector */}
+                            <div className="form-group">
+                                <label>Language</label>
                                 <select 
                                     value={language} 
                                     onChange={(e) => setLanguage(e.target.value)}
-                                    className="podcast-select"
                                 >
                                     {LANGUAGES.map(lang => (
                                         <option key={lang.code} value={lang.code}>
@@ -331,19 +418,13 @@ const PodcastViewer = ({ notebookId, documents, selectedDocIds }) => {
                                     ))}
                                 </select>
                             </div>
-                        </div>
 
-                        {/* Speaker Selector */}
-                        <div className="config-group">
-                            <label className="config-label">
-                                <Mic size={14} />
-                                <span>Voice Speaker (Indian Accent)</span>
-                            </label>
-                            <div className="select-wrapper">
+                            {/* Speaker Selector */}
+                            <div className="form-group">
+                                <label>Voice Speaker</label>
                                 <select 
                                     value={speaker} 
                                     onChange={(e) => setSpeaker(e.target.value)}
-                                    className="podcast-select"
                                 >
                                     {SPEAKERS.map(sp => (
                                         <option key={sp.name} value={sp.name}>
@@ -352,15 +433,10 @@ const PodcastViewer = ({ notebookId, documents, selectedDocIds }) => {
                                     ))}
                                 </select>
                             </div>
-                        </div>
 
-                        {/* Pace Slider */}
-                        <div className="config-group">
-                            <label className="config-label">
-                                <Gauge size={14} />
-                                <span>Voice Pace (Speed multiplier: {pace}x)</span>
-                            </label>
-                            <div className="range-container">
+                            {/* Pace Slider */}
+                            <div className="form-group">
+                                <label>Pace ({pace}x)</label>
                                 <input 
                                     type="range" 
                                     min="0.5" 
@@ -368,167 +444,125 @@ const PodcastViewer = ({ notebookId, documents, selectedDocIds }) => {
                                     step="0.1" 
                                     value={pace} 
                                     onChange={(e) => setPace(parseFloat(e.target.value))}
-                                    className="podcast-range"
+                                    style={{ width: '100%', accentColor: '#ec4899' }}
                                 />
-                                <div className="range-ticks">
-                                    <span>0.5x (Slow)</span>
-                                    <span>1.0x (Normal)</span>
-                                    <span>2.0x (Fast)</span>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.62rem', color: '#71717a', marginTop: '2px' }}>
+                                    <span>Slow</span>
+                                    <span>Normal</span>
+                                    <span>Fast</span>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Custom Instructions */}
-                        <div className="config-group">
-                            <label className="config-label">
-                                <span>Additional Guidelines (Optional)</span>
-                            </label>
-                            <textarea
-                                value={customGuidelines}
-                                onChange={(e) => setCustomGuidelines(e.target.value)}
-                                placeholder="E.g., focus on key statistics, explain like it's a debate, summarize details for a student..."
-                                className="podcast-textarea"
-                                rows={3}
-                            />
-                        </div>
-                    </div>
+                            {/* Custom Guidelines */}
+                            <div className="form-group">
+                                <label>Guidelines (Optional)</label>
+                                <textarea
+                                    value={customGuidelines}
+                                    onChange={(e) => setCustomGuidelines(e.target.value)}
+                                    placeholder="E.g., explain like a debate..."
+                                    rows={2}
+                                    style={{ fontSize: '0.75rem' }}
+                                />
+                            </div>
 
-                    <div className="podcast-tone-selector">
-                        <h4>Select Script Style</h4>
-                        <div className="tone-cards-grid">
-                            {TONES.map(t => (
-                                <div 
-                                    key={t.code} 
-                                    onClick={() => setTone(t.code)}
-                                    className={`tone-card ${tone === t.code ? 'active' : ''}`}
-                                >
-                                    <h5>{t.label}</h5>
-                                    <p>{t.desc}</p>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="podcast-generate-container">
                             <button 
-                                className={`podcast-action-btn ${isGeneratingScript ? 'loading' : ''}`}
+                                className="toolbar-btn primary"
                                 onClick={handleGenerateScript}
                                 disabled={isGeneratingScript || (documents && documents.length === 0)}
+                                style={{ width: '100%', background: 'linear-gradient(135deg, #ec4899, #d946ef)' }}
                             >
-                                <Wand2 size={16} />
-                                <span>{isGeneratingScript ? "Generating Script..." : "Generate Script"}</span>
+                                <Wand2 size={12} />
+                                <span>{isGeneratingScript ? "Generating..." : "Generate Script"}</span>
                             </button>
                             {documents && documents.length === 0 && (
-                                <p className="podcast-warning-text">⚠️ Please upload at least one ready source document to begin.</p>
+                                <p style={{ fontSize: '0.65rem', color: '#fbbf24', textAlign: 'center', marginTop: '4px' }}>⚠️ Upload ready source document to begin.</p>
                             )}
                         </div>
-                    </div>
-                </div>
-            )}
+                    )}
 
-            {/* Step 2: Script Review & Edit UI */}
-            {step === 2 && (
-                <div className="podcast-script-container">
-                    <div className="podcast-script-header">
-                        <h4>Review generated dialogue script:</h4>
-                        <div className="char-badge-container">
-                            <span className={`char-badge ${isOverLimit ? 'over-limit' : ''}`}>
-                                {characterCount} / 2500 characters
-                            </span>
-                            {isOverLimit && <span className="warning-pill">Too long</span>}
+                    {step === 2 && (
+                        <div className="sidebar-section">
+                            <h4>Dialogue Info</h4>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.8rem', color: '#e4e4e7' }}>
+                                <div>
+                                    <span style={{ color: '#71717a', display: 'block', fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: '600' }}>Character Count</span>
+                                    <strong style={{ color: isOverLimit ? '#ef4444' : '#fff' }}>{characterCount} / 2500</strong>
+                                </div>
+                                {isOverLimit && (
+                                    <div style={{ color: '#f87171', fontSize: '0.72rem', background: 'rgba(239, 68, 68, 0.1)', padding: '8px', borderRadius: '6px' }}>
+                                        ⚠️ Script exceeds Sarvam TTS limits. Please edit it shorter.
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="toolbar-buttons" style={{ marginTop: '8px' }}>
+                                <button
+                                    className="toolbar-btn primary"
+                                    onClick={handleSynthesizeAudio}
+                                    disabled={isSynthesizing || !scriptText.trim() || isOverLimit}
+                                    style={{ width: '100%', background: 'linear-gradient(135deg, #ec4899, #d946ef)' }}
+                                >
+                                    <Volume2 size={12} /> {isSynthesizing ? "Synthesizing..." : "Synthesize Audio"}
+                                </button>
+                                <button 
+                                    className="toolbar-btn secondary"
+                                    onClick={() => setStep(1)}
+                                    disabled={isSynthesizing}
+                                    style={{ width: '100%' }}
+                                >
+                                    Back to Config
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <p className="podcast-tip-text">
-                        💡 You can manually edit the text box below. Make sure it sounds natural, reads continuously, and does NOT contain speaker markers or bracketed sound effects.
-                    </p>
+                    )}
 
-                    <textarea
-                        value={scriptText}
-                        onChange={(e) => setScriptText(e.target.value)}
-                        className={`script-editor-box ${isOverLimit ? 'border-warn' : ''}`}
-                        rows={12}
-                        placeholder="Write or edit script here..."
-                    />
+                    {step === 3 && (
+                        <div className="sidebar-section">
+                            <h4>Audio Controls</h4>
+                            
+                            {/* Timeline Slider */}
+                            <div className="form-group">
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: '#a1a1aa', fontFamily: 'monospace' }}>
+                                    <span>{formatTime(currentTime)}</span>
+                                    <span>{formatTime(duration)}</span>
+                                </div>
+                                <input 
+                                    type="range" 
+                                    min="0" 
+                                    max={duration || 100} 
+                                    value={currentTime} 
+                                    onChange={handleSeek}
+                                    style={{ width: '100%', accentColor: '#ec4899' }}
+                                />
+                            </div>
 
-                    <div className="podcast-synthesis-actions">
-                        <button 
-                            className="podcast-back-btn"
-                            onClick={() => setStep(1)}
-                            disabled={isSynthesizing}
-                        >
-                            Back to Config
-                        </button>
-                        <button
-                            className={`podcast-action-btn pink-gradient ${isSynthesizing ? 'loading' : ''}`}
-                            onClick={handleSynthesizeAudio}
-                            disabled={isSynthesizing || !scriptText.trim() || isOverLimit}
-                        >
-                            <Volume2 size={16} />
-                            <span>{isSynthesizing ? "Synthesizing Voice..." : "Synthesize Audio"}</span>
-                        </button>
-                    </div>
-                </div>
-            )}
+                            {/* Main Play Button */}
+                            <button 
+                                className="toolbar-btn primary" 
+                                onClick={handlePlayPause}
+                                style={{ width: '100%', background: 'linear-gradient(135deg, #ec4899, #d946ef)' }}
+                            >
+                                {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
+                                <span>{isPlaying ? "Pause" : "Play"}</span>
+                            </button>
 
-            {/* Step 3: Audio Player & Visualization */}
-            {step === 3 && (
-                <div className="podcast-player-container">
-                    {/* Visualizer Waveform */}
-                    <div className="podcast-visualizer-wave">
-                        <div className="visualizer-bars">
-                            {visualizerBars.map((_, idx) => {
-                                // Dynamic height scale for styling
-                                const baseHeight = 15 + Math.sin(idx * 0.4) * 15 + Math.cos(idx * 0.2) * 10;
-                                const style = isPlaying ? {
-                                    height: `${Math.max(10, baseHeight)}px`,
-                                    animationDelay: `${idx * 0.05}s`,
-                                    animationDuration: `${0.6 + (idx % 3) * 0.15}s`
-                                } : {
-                                    height: `${Math.max(6, baseHeight * 0.35)}px`
-                                };
-                                return (
-                                    <div 
-                                        key={idx} 
-                                        className={`visual-bar ${isPlaying ? 'animating' : ''}`}
-                                        style={style}
-                                    />
-                                );
-                            })}
-                        </div>
-                        <div className="visualizer-overlay-info">
-                            <FileAudio size={42} className="text-[#f472b6] mb-3 opacity-80" />
-                            <h5>Podcast Ready to Listen</h5>
-                            <p>Speaker: {SPEAKERS.find(s => s.name === speaker)?.label || speaker} | Speed: {playbackSpeed}x</p>
-                        </div>
-                    </div>
-
-                    {/* Audio Controls */}
-                    <div className="custom-audio-player">
-                        {/* Timeline */}
-                        <div className="player-timeline">
-                            <span className="time-display">{formatTime(currentTime)}</span>
-                            <input 
-                                type="range" 
-                                min="0" 
-                                max={duration || 100} 
-                                value={currentTime} 
-                                onChange={handleSeek}
-                                className="timeline-slider"
-                            />
-                            <span className="time-display">{formatTime(duration)}</span>
-                        </div>
-
-                        {/* Control Buttons Grid */}
-                        <div className="player-controls-row">
-                            {/* Speed Control */}
-                            <div className="player-speed-selector">
-                                <span>Speed:</span>
-                                <div className="speed-buttons">
+                            {/* Speed Button Selectors */}
+                            <div className="form-group">
+                                <label>Playback Speed</label>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
                                     {[0.8, 1.0, 1.2, 1.5].map(speed => (
                                         <button
                                             key={speed}
-                                            className={`speed-btn ${playbackSpeed === speed ? 'active' : ''}`}
                                             onClick={() => handleSpeedChange(speed)}
+                                            style={{
+                                                fontSize: '0.7rem',
+                                                padding: '6px',
+                                                borderRadius: '6px',
+                                                border: playbackSpeed === speed ? '1px solid #f472b6' : '1px solid rgba(255,255,255,0.06)',
+                                                background: playbackSpeed === speed ? 'rgba(236, 72, 153, 0.15)' : 'rgba(0,0,0,0.2)',
+                                                color: playbackSpeed === speed ? '#f472b6' : '#a1a1aa',
+                                                cursor: 'pointer'
+                                            }}
                                         >
                                             {speed}x
                                         </button>
@@ -536,16 +570,14 @@ const PodcastViewer = ({ notebookId, documents, selectedDocIds }) => {
                                 </div>
                             </div>
 
-                            {/* Center Play Button */}
-                            <button className="player-main-play-btn" onClick={handlePlayPause}>
-                                {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" style={{ marginLeft: 3 }} />}
-                            </button>
-
-                            {/* Volume & Download Area */}
-                            <div className="player-utility-controls">
-                                <div className="volume-control">
-                                    <button className="mute-btn" onClick={handleToggleMute}>
-                                        {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                            {/* Volume controls */}
+                            <div className="form-group">
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <button 
+                                        onClick={handleToggleMute}
+                                        style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer', padding: 0 }}
+                                    >
+                                        {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
                                     </button>
                                     <input 
                                         type="range" 
@@ -554,36 +586,45 @@ const PodcastViewer = ({ notebookId, documents, selectedDocIds }) => {
                                         step="0.05"
                                         value={isMuted ? 0 : volume} 
                                         onChange={handleVolumeChange}
-                                        className="volume-slider"
+                                        style={{ flex: 1, accentColor: '#ec4899' }}
                                     />
                                 </div>
-
-                                <a 
-                                    href={`${API_BASE}${audioUrl}`} 
-                                    download={`podcast_${notebookId}.wav`}
-                                    className="player-download-btn"
-                                    title="Download Podcast"
-                                    target="_blank" 
-                                    rel="noreferrer"
-                                >
-                                    <Download size={16} />
-                                    <span>Download</span>
-                                </a>
                             </div>
-                        </div>
-                    </div>
 
-                    {/* Script Transcript Display */}
-                    <div className="transcript-box">
-                        <h6>Dialogue Script Transcript</h6>
-                        <div className="transcript-text">
-                            {scriptText.split('\n\n').map((paragraph, index) => (
-                                <p key={index}>{paragraph}</p>
-                            ))}
+                            {/* Download Button */}
+                            <a 
+                                href={`${API_BASE}${audioUrl}`} 
+                                download={`podcast_${notebookId}.wav`}
+                                className="toolbar-btn secondary"
+                                style={{ 
+                                    textDecoration: 'none', 
+                                    color: '#fff', 
+                                    display: 'flex', 
+                                    justifyContent: 'center', 
+                                    alignItems: 'center',
+                                    border: '1px solid rgba(236, 72, 153, 0.3)',
+                                    background: 'rgba(236, 72, 153, 0.05)'
+                                }}
+                                target="_blank" 
+                                rel="noreferrer"
+                            >
+                                <Download size={12} />
+                                <span>Download WAV</span>
+                            </a>
                         </div>
+                    )}
+
+                    <div className="sidebar-help">
+                        <span style={{ fontSize: '1.2rem', color: '#f472b6', marginBottom: '8px' }}>🎙️</span>
+                        <p><strong>Podcast Guide:</strong></p>
+                        <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <li style={{ fontSize: '0.75rem', color: '#a1a1aa', lineHeight: '1.35' }}>Generate scripts in regional Indian accents.</li>
+                            <li style={{ fontSize: '0.75rem', color: '#a1a1aa', lineHeight: '1.35' }}>Keep the script content under 2500 characters.</li>
+                            <li style={{ fontSize: '0.75rem', color: '#a1a1aa', lineHeight: '1.35' }}>Listen to voice pace speed controls.</li>
+                        </ul>
                     </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 };

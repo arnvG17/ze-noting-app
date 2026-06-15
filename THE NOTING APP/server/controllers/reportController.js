@@ -27,9 +27,9 @@ exports.generateReport = async (req, res) => {
 
     const docIds = docsResult.rows.map(r => r.id);
     
-    // Fetch up to 25 text chunks for deep content coverage
+    // Fetch up to 8 text chunks for deep content coverage (limited to avoid Groq 12k TPM rate limits)
     const chunksResult = await query(
-      "SELECT content FROM chunks WHERE document_id = ANY($1::uuid[]) ORDER BY chunk_index LIMIT 25",
+      "SELECT content FROM chunks WHERE document_id = ANY($1::uuid[]) ORDER BY chunk_index LIMIT 8",
       [docIds]
     );
     const chunksText = chunksResult.rows.map(r => r.content).join('\n\n');

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DocumentUpload from './DocumentUpload';
 import Header from './Header';
-import Features from './Features';
 import Footer from './Footer';
 import { useDocumentText } from './DocumentTextContext';
 import AnimatedBackground from './ui/AnimatedBackground';
@@ -155,8 +154,6 @@ const LandingPage = () => {
                         </div>
                     </div>
                 </section>
-
-                <Features />
             </main>
 
             <Footer />

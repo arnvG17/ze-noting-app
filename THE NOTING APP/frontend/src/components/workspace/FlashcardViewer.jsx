@@ -235,26 +235,14 @@ export default function FlashcardViewer({ notebookId, documents = [] }) {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      backgroundColor: '#0c0b10',
-      color: '#e4e4e7',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '40px',
-      boxSizing: 'border-box',
-      position: 'relative'
-    }}>
+    <div className="flowchart-wrapper flashcards-wrapper" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Dynamic Flip Card CSS */}
       <style>{`
         .flashcard-perspective {
           perspective: 1000px;
           width: 100%;
-          max-width: 680px;
-          aspect-ratio: 16/9;
-          margin-bottom: 30px;
+          max-width: 600px;
+          aspect-ratio: 16/10;
         }
         .flashcard-inner {
           position: relative;
@@ -273,14 +261,14 @@ export default function FlashcardViewer({ notebookId, documents = [] }) {
           height: 100%;
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
-          border-radius: 24px;
+          border-radius: 20px;
           border: 1px solid rgba(255, 255, 255, 0.05);
-          box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 1px 1px 0 rgba(255,255,255,0.03);
+          box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 1px 1px 0 rgba(255,255,255,0.03);
           display: flex;
           flex-direction: column;
           justify-content: center;
           align-items: center;
-          padding: 40px 50px;
+          padding: 30px;
           box-sizing: border-box;
         }
         .flashcard-front {
@@ -290,145 +278,129 @@ export default function FlashcardViewer({ notebookId, documents = [] }) {
           background: #0d0c13;
           transform: rotateY(180deg);
         }
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
       `}</style>
 
-      {/* Grid Canvas Overlay */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        backgroundImage: 'radial-gradient(circle, rgba(255, 255, 255, 0.02) 1px, transparent 1px)',
-        backgroundSize: '24px 24px',
-        pointerEvents: 'none'
-      }} />
-
-      {/* Counter */}
-      <div style={{
-        fontSize: '12px',
-        fontWeight: 'bold',
-        color: '#a78bfa',
-        letterSpacing: '1.5px',
-        textTransform: 'uppercase',
-        marginBottom: '20px',
-        zIndex: 10
-      }}>
-        Card {currentCard + 1} of {cards.length}
+      <div className="flowchart-header flashcards-header">
+        <h3>Study Flashcards</h3>
+        <p>Test your memory and study key concepts with interactive cards.</p>
       </div>
 
-      {/* Interactive Card */}
-      <div className="flashcard-perspective" onClick={() => setIsFlipped(!isFlipped)}>
-        <div className={`flashcard-inner ${isFlipped ? 'flipped' : ''}`}>
-          {/* Card Front */}
-          <div className="flashcard-front">
-            <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#a78bfa', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '25px', opacity: 0.8 }}>
-              {current.frontTitle}
-            </div>
-            <div style={{
-              fontSize: '20px',
-              lineHeight: '1.5',
-              textAlign: 'center',
-              color: '#ffffff',
-              maxWidth: '85%',
-              ...current.frontStyle
-            }}>
-              {current.frontContent}
-            </div>
-            <div style={{ fontSize: '11px', color: '#71717a', marginTop: '30px', fontWeight: '600' }}>
-              Click to Flip
-            </div>
-          </div>
+      <div className="flowchart-layout-container flashcards-layout" style={{ flex: 1, display: 'flex', gap: '1.25rem', width: '100%', minHeight: 0, overflow: 'hidden' }}>
+        {/* Main Canvas Area */}
+        <div className="flowchart-container flashcards-canvas" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: '#09090b', border: '1px solid rgba(63, 63, 70, 0.4)', borderRadius: '16px', position: 'relative', padding: '40px' }}>
+          {/* Grid Canvas Overlay */}
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: 'radial-gradient(circle, rgba(255, 255, 255, 0.02) 1px, transparent 1px)',
+            backgroundSize: '24px 24px',
+            pointerEvents: 'none'
+          }} />
 
-          {/* Card Back */}
-          <div className="flashcard-back">
-            <div style={{ fontSize: '11px', fontWeight: 'bold', color: current.backColor, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '25px' }}>
-              {current.backTitle}
-            </div>
-            <div style={{
-              width: '100%',
-              fontSize: '15px',
-              lineHeight: '1.6',
-              textAlign: typeof current.backContent === 'string' ? 'center' : 'left',
-              color: '#e4e4e7',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center'
-            }}>
-              {current.backContent}
-            </div>
-            <div style={{ fontSize: '11px', color: '#71717a', marginTop: '30px', fontWeight: '600' }}>
-              Click to Flip
+          {/* Interactive Card */}
+          <div className="flashcard-perspective" onClick={() => setIsFlipped(!isFlipped)} style={{ zIndex: 5 }}>
+            <div className={`flashcard-inner ${isFlipped ? 'flipped' : ''}`}>
+              {/* Card Front */}
+              <div className="flashcard-front">
+                <div style={{ fontSize: '10px', fontWeight: 'bold', color: '#a78bfa', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '20px', opacity: 0.8 }}>
+                  {current.frontTitle}
+                </div>
+                <div style={{
+                  fontSize: '18px',
+                  lineHeight: '1.5',
+                  textAlign: 'center',
+                  color: '#ffffff',
+                  maxWidth: '85%',
+                  ...current.frontStyle
+                }}>
+                  {current.frontContent}
+                </div>
+                <div style={{ fontSize: '10px', color: '#71717a', marginTop: '25px', fontWeight: '600' }}>
+                  Click to Flip
+                </div>
+              </div>
+
+              {/* Card Back */}
+              <div className="flashcard-back">
+                <div style={{ fontSize: '10px', fontWeight: 'bold', color: current.backColor, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '20px' }}>
+                  {current.backTitle}
+                </div>
+                <div style={{
+                  width: '100%',
+                  fontSize: '14px',
+                  lineHeight: '1.6',
+                  textAlign: typeof current.backContent === 'string' ? 'center' : 'left',
+                  color: '#e4e4e7',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
+                  {current.backContent}
+                </div>
+                <div style={{ fontSize: '10px', color: '#71717a', marginTop: '25px', fontWeight: '600' }}>
+                  Click to Flip
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Control Buttons (Text-only, Solid Purple) */}
-      <div style={{ display: 'flex', gap: '15px', zIndex: 10 }}>
-        <button
-          disabled={currentCard === 0}
-          onClick={handlePrev}
-          onMouseOver={(e) => { if (currentCard !== 0) e.currentTarget.style.backgroundColor = '#6d28d9'; }}
-          onMouseOut={(e) => { if (currentCard !== 0) e.currentTarget.style.backgroundColor = '#7c3aed'; }}
-          style={{
-            height: '38px',
-            padding: '0 20px',
-            borderRadius: '8px',
-            backgroundColor: currentCard === 0 ? 'rgba(124, 58, 237, 0.2)' : '#7c3aed',
-            color: currentCard === 0 ? '#52525b' : '#ffffff',
-            fontWeight: '700',
-            fontSize: '12px',
-            border: 'none',
-            cursor: currentCard === 0 ? 'not-allowed' : 'pointer',
-            transition: 'background-color 0.2s'
-          }}
-        >
-          Previous
-        </button>
+        {/* Sidebar Controls */}
+        <div className="flowchart-sidebar flashcards-sidebar" style={{ width: '250px', background: 'rgba(10, 10, 12, 0.5)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', overflowY: 'auto' }}>
+          <div className="sidebar-section">
+            <h4>Card Navigation</h4>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{
+                fontSize: '0.72rem',
+                fontWeight: '700',
+                color: '#a78bfa',
+                letterSpacing: '1.5px',
+                textTransform: 'uppercase'
+              }}>
+                Card {currentCard + 1} of {cards.length}
+              </div>
 
-        <button
-          onClick={() => setIsFlipped(!isFlipped)}
-          onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#6d28d9'; }}
-          onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#7c3aed'; }}
-          style={{
-            height: '38px',
-            padding: '0 24px',
-            borderRadius: '8px',
-            backgroundColor: '#7c3aed',
-            color: '#ffffff',
-            fontWeight: '700',
-            fontSize: '12px',
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'background-color 0.2s',
-            boxShadow: '0 4px 15px rgba(124, 58, 237, 0.2)'
-          }}
-        >
-          Flip Card
-        </button>
+              <div className="toolbar-buttons">
+                <button
+                  className="toolbar-btn primary"
+                  onClick={() => setIsFlipped(!isFlipped)}
+                  style={{ width: '100%' }}
+                >
+                  Flip Card
+                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    className="toolbar-btn secondary"
+                    disabled={currentCard === 0}
+                    onClick={handlePrev}
+                    style={{ flex: 1, padding: '8px 10px', fontSize: '0.75rem' }}
+                  >
+                    Previous
+                  </button>
+                  <button
+                    className="toolbar-btn secondary"
+                    disabled={currentCard === cards.length - 1}
+                    onClick={handleNext}
+                    style={{ flex: 1, padding: '8px 10px', fontSize: '0.75rem' }}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <button
-          disabled={currentCard === cards.length - 1}
-          onClick={handleNext}
-          onMouseOver={(e) => { if (currentCard !== cards.length - 1) e.currentTarget.style.backgroundColor = '#6d28d9'; }}
-          onMouseOut={(e) => { if (currentCard !== cards.length - 1) e.currentTarget.style.backgroundColor = '#7c3aed'; }}
-          style={{
-            height: '38px',
-            padding: '0 20px',
-            borderRadius: '8px',
-            backgroundColor: currentCard === cards.length - 1 ? 'rgba(124, 58, 237, 0.2)' : '#7c3aed',
-            color: currentCard === cards.length - 1 ? '#52525b' : '#ffffff',
-            fontWeight: '700',
-            fontSize: '12px',
-            border: 'none',
-            cursor: currentCard === cards.length - 1 ? 'not-allowed' : 'pointer',
-            transition: 'background-color 0.2s'
-          }}
-        >
-          Next
-        </button>
+          <div className="sidebar-help">
+            <span style={{ fontSize: '1.2rem', color: '#a78bfa', marginBottom: '8px' }}>💡</span>
+            <p><strong>Study Tips:</strong></p>
+            <ul style={{ paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <li style={{ fontSize: '0.75rem', color: '#a1a1aa', lineHeight: '1.35' }}>Click the card to flip it and reveal details.</li>
+              <li style={{ fontSize: '0.75rem', color: '#a1a1aa', lineHeight: '1.35' }}>Pillars cover hook, solution, Q&A, and validation tests.</li>
+              <li style={{ fontSize: '0.75rem', color: '#a1a1aa', lineHeight: '1.35' }}>Generate new flashcards by uploading different documents.</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -404,959 +404,542 @@ export default function PitchDeckViewer({ notebookId, documents = [], selectedDo
     }
   };
 
-  const SLIDE_NAMES = ["Hook Question", "The Problem", "The Solution", "Key Features", "RAG Workflow", "Call to Action"];
+  const SLIDE_NAMES = ["Hook Question", "The Problem", "The Solution", "Key Features", "RAG Workflow", "Call to Action"];  return (
+    <div className="flowchart-wrapper pitch-wrapper" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div className="flowchart-header pitch-header">
+        <h3>Pitch Video & Slides</h3>
+        <p>Generate, review, customize, and export cinematic pitch videos or PowerPoint slide presentations.</p>
+      </div>
 
-  return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'row',
-      height: '100%',
-      backgroundColor: '#0c0b10',
-      color: '#e4e4e7',
-      overflow: 'hidden'
-    }}>
-      {/* Left Column: Player & Tab switcher */}
-      <div style={{
-        flex: 1.2,
-        padding: '24px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '20px',
-        borderRight: '1px solid rgba(255, 255, 255, 0.08)',
-        height: '100%',
-        overflowY: 'auto'
-      }}>
+      <div className="flowchart-layout-container pitch-layout" style={{ flex: 1, display: 'flex', gap: '1.25rem', width: '100%', minHeight: 0, overflow: 'hidden' }}>
         
-        {/* Tab Controls */}
-        <div style={{
-          display: 'flex',
-          backgroundColor: 'rgba(255, 255, 255, 0.03)',
-          border: '1px solid rgba(255, 255, 255, 0.06)',
-          borderRadius: '10px',
-          padding: '4px',
-          gap: '4px'
-        }}>
-          <button
-            onClick={() => setActiveTab('video')}
-            style={{
-              flex: 1,
-              height: '36px',
-              borderRadius: '7px',
-              backgroundColor: activeTab === 'video' ? '#7c3aed' : 'transparent',
-              color: '#ffffff',
-              fontWeight: '700',
-              fontSize: '13px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              cursor: 'pointer',
-              border: 'none',
-              transition: 'background-color 0.2s'
-            }}
-          >
-            <span>Cinematic Video Preview</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('slides')}
-            style={{
-              flex: 1,
-              height: '36px',
-              borderRadius: '7px',
-              backgroundColor: activeTab === 'slides' ? '#7c3aed' : 'transparent',
-              color: '#ffffff',
-              fontWeight: '700',
-              fontSize: '13px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              cursor: 'pointer',
-              border: 'none',
-              transition: 'background-color 0.2s'
-            }}
-          >
-            <span>Slide Presentation Preview</span>
-          </button>
-        </div>
-
-        {/* Tab Viewport */}
-        {activeTab === 'video' ? (
-          <>
-            {/* 1. Show Video Preview First */}
-            <div style={{
-              width: '100%',
-              backgroundColor: '#040406',
-              borderRadius: '16px',
-              border: '1px solid rgba(139, 92, 246, 0.15)',
-              overflow: 'hidden',
-              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5), 0 0 60px rgba(139, 92, 246, 0.05)',
-              position: 'relative'
-            }}>
-              {isGenerating ? (
-                <div style={{ width: '100%', aspectRatio: '16/9', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#09080d', gap: '15px' }}>
-                  <Loader2 size={36} className="animate-spin text-purple-500" style={{ color: '#a78bfa' }} />
-                  <span style={{ fontSize: '14px', color: '#a1a1aa', fontWeight: '500' }}>AI is writing script & slides from document context...</span>
-                </div>
-              ) : (
-                <Player
-                  ref={playerRef}
-                  component={MainVideo}
-                  durationInFrames={1800}
-                  fps={30}
-                  compositionWidth={1920}
-                  compositionHeight={1080}
-                  style={{
-                    width: '100%',
-                    aspectRatio: '16/9'
-                  }}
-                  inputProps={script}
-                  controls
-                />
-              )}
-            </div>
-
-            {/* AI Generator In-Between (Prominent tailoring controller) */}
-            <div style={{
-              padding: '16px',
-              borderRadius: '12px',
-              backgroundColor: 'rgba(139, 92, 246, 0.03)',
-              border: '1px solid rgba(139, 92, 246, 0.12)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '10px'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '700', color: '#a78bfa', fontSize: '13px' }}>
-                <Wand2 size={14} />
-                <span>AI Custom Instructions</span>
-              </div>
-              <textarea
-                rows={2}
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                placeholder={readyDocs.length > 0 
-                  ? "Customize slide focus (e.g. Focus on Chapter 3, target audience is investors)..."
-                  : "Type your product idea/description here to generate custom slides..."}
-                style={{
-                  borderRadius: '6px',
-                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
-                  padding: '8px 10px',
-                  color: '#fff',
-                  fontSize: '12px',
-                  resize: 'none',
-                  lineHeight: '1.4'
-                }}
-              />
-              <button
-                onClick={handleGenerateScript}
-                disabled={isGenerating}
-                onMouseOver={(e) => { if (!isGenerating) e.currentTarget.style.backgroundColor = '#6d28d9'; }}
-                onMouseOut={(e) => { if (!isGenerating) e.currentTarget.style.backgroundColor = '#7c3aed'; }}
-                style={{
-                  height: '34px',
-                  borderRadius: '6px',
-                  backgroundColor: '#7c3aed',
-                  border: 'none',
-                  color: '#ffffff',
-                  fontWeight: '700',
-                  fontSize: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px',
-                  cursor: isGenerating ? 'not-allowed' : 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-              >
-                {isGenerating && <Loader2 size={14} className="animate-spin" style={{ marginRight: '6px' }} />}
-                Regenerate AI Script & Video
-              </button>
-            </div>
-
-            {/* 2. Download Options Shown At The Bottom */}
-            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '15px' }}>
-              <button
-                onClick={handleExportVideo}
-                disabled={isExporting || isGenerating}
-                onMouseOver={(e) => { if (!isExporting && !isGenerating) e.currentTarget.style.backgroundColor = '#6d28d9'; }}
-                onMouseOut={(e) => { if (!isExporting && !isGenerating) e.currentTarget.style.backgroundColor = '#7c3aed'; }}
-                style={{
-                  width: '100%',
-                  height: '42px',
-                  borderRadius: '8px',
-                  backgroundColor: '#7c3aed',
-                  border: 'none',
-                  color: '#ffffff',
-                  fontWeight: '700',
-                  fontSize: '13px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  cursor: (isExporting || isGenerating) ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 15px rgba(124, 58, 237, 0.2)',
-                  transition: 'background-color 0.2s'
-                }}
-              >
-                {isExporting && <Loader2 size={16} className="animate-spin" style={{ marginRight: '8px' }} />}
-                {isExporting ? "Rendering Video..." : "Export & Download Pitch Video"}
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            {/* 1. Show PPT Slides Preview First */}
-            <div style={{
-              width: '100%',
-              aspectRatio: '16/9',
-              backgroundColor: '#09080d',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              position: 'relative',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
-              <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(to right, rgba(99, 102, 241, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(99, 102, 241, 0.03) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-              
-              <div style={{ flex: 1, zIndex: 10, position: 'relative' }}>
-                {isGenerating ? (
-                  <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#09080d', gap: '15px' }}>
-                    <Loader2 size={36} className="animate-spin text-purple-500" style={{ color: '#a78bfa' }} />
-                    <span style={{ fontSize: '14px', color: '#a1a1aa', fontWeight: '500' }}>AI is compiling slides from your documents...</span>
-                  </div>
-                ) : renderSlideDOM()}
-              </div>
-
-              {/* Navigation Controller & Dot Selector */}
-              <div style={{
-                height: '46px',
-                borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-                backgroundColor: 'rgba(10, 10, 15, 0.7)',
-                zIndex: 10,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '0 20px'
-              }}>
-                <button
-                  disabled={activeSlide === 0 || isGenerating}
-                  onClick={() => setActiveSlide(prev => Math.max(0, prev - 1))}
-                  style={{
-                    backgroundColor: 'transparent',
-                    border: 'none',
-                    color: (activeSlide === 0 || isGenerating) ? '#52525b' : '#fff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    cursor: (activeSlide === 0 || isGenerating) ? 'not-allowed' : 'pointer',
-                    fontSize: '12px',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  Prev
-                </button>
-                
-                {/* Horizontal list of slide indicators */}
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  {[0, 1, 2, 3, 4, 5].map(idx => (
-                    <div
-                      key={idx}
-                      onClick={() => !isGenerating && setActiveSlide(idx)}
-                      title={SLIDE_NAMES[idx]}
-                      style={{
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
-                        backgroundColor: activeSlide === idx ? '#a78bfa' : 'rgba(255,255,255,0.2)',
-                        cursor: isGenerating ? 'not-allowed' : 'pointer',
-                        transition: 'background-color 0.2s'
-                      }}
-                    />
-                  ))}
-                </div>
-
-                <button
-                  disabled={activeSlide === 5 || isGenerating}
-                  onClick={() => setActiveSlide(prev => Math.min(5, prev + 1))}
-                  style={{
-                    backgroundColor: 'transparent',
-                    border: 'none',
-                    color: (activeSlide === 5 || isGenerating) ? '#52525b' : '#fff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    cursor: (activeSlide === 5 || isGenerating) ? 'not-allowed' : 'pointer',
-                    fontSize: '12px',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-
-            {/* AI Generator In-Between (Prominent tailoring controller) */}
-            <div style={{
-              padding: '16px',
-              borderRadius: '12px',
-              backgroundColor: 'rgba(139, 92, 246, 0.03)',
-              border: '1px solid rgba(139, 92, 246, 0.12)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '10px'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '700', color: '#a78bfa', fontSize: '13px' }}>
-                <Wand2 size={14} />
-                <span>AI Custom Instructions</span>
-              </div>
-              <textarea
-                rows={2}
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                placeholder={readyDocs.length > 0 
-                  ? "Customize slide focus (e.g. Focus on Chapter 3, target audience is investors)..."
-                  : "Type your product idea/description here to generate custom slides..."}
-                style={{
-                  borderRadius: '6px',
-                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
-                  padding: '8px 10px',
-                  color: '#fff',
-                  fontSize: '12px',
-                  resize: 'none',
-                  lineHeight: '1.4'
-                }}
-              />
-              <button
-                onClick={handleGenerateScript}
-                disabled={isGenerating}
-                onMouseOver={(e) => { if (!isGenerating) e.currentTarget.style.backgroundColor = '#6d28d9'; }}
-                onMouseOut={(e) => { if (!isGenerating) e.currentTarget.style.backgroundColor = '#7c3aed'; }}
-                style={{
-                  height: '34px',
-                  borderRadius: '6px',
-                  backgroundColor: '#7c3aed',
-                  border: 'none',
-                  color: '#ffffff',
-                  fontWeight: '700',
-                  fontSize: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px',
-                  cursor: isGenerating ? 'not-allowed' : 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-              >
-                {isGenerating && <Loader2 size={14} className="animate-spin" style={{ marginRight: '6px' }} />}
-                Regenerate AI Script & Slides
-              </button>
-            </div>
-
-            {/* 2. Download Option Shown At The Bottom */}
-            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '15px' }}>
-              <button
-                onClick={handleExportPPTX}
-                disabled={isGenerating}
-                onMouseOver={(e) => { if (!isGenerating) e.currentTarget.style.backgroundColor = '#6d28d9'; }}
-                onMouseOut={(e) => { if (!isGenerating) e.currentTarget.style.backgroundColor = '#7c3aed'; }}
-                style={{
-                  width: '100%',
-                  height: '42px',
-                  borderRadius: '8px',
-                  backgroundColor: '#7c3aed',
-                  border: 'none',
-                  color: '#ffffff',
-                  fontWeight: '700',
-                  fontSize: '13px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  cursor: isGenerating ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 15px rgba(124, 58, 237, 0.2)',
-                  transition: 'background-color 0.2s'
-                }}
-              >
-                Download PowerPoint Presentation (.pptx)
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* Export Logging Messages */}
-        {isExporting && (
+        {/* Left Column: Player / Slides Preview (Main Content Canvas) */}
+        <div className="flowchart-container pitch-preview-container" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden', background: '#09090b', border: '1px solid rgba(63, 63, 70, 0.4)', borderRadius: '16px', padding: '24px' }}>
+          
+          {/* Tab Controls inside main view */}
           <div style={{
-            padding: '16px',
-            backgroundColor: 'rgba(255, 255, 255, 0.02)',
+            display: 'flex',
+            backgroundColor: 'rgba(255, 255, 255, 0.03)',
             border: '1px solid rgba(255, 255, 255, 0.06)',
             borderRadius: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px'
+            padding: '4px',
+            gap: '4px',
+            marginBottom: '20px',
+            flexShrink: 0
           }}>
-            <Loader2 size={20} className="animate-spin" style={{ color: '#a78bfa' }} />
-            <div>
-              <div style={{ fontWeight: 'bold', color: '#fff', fontSize: '13px' }}>Server Rendering Active</div>
-              <div style={{ fontSize: '11px', color: '#71717a', marginTop: '2px' }}>Running Remotion CLI + FFmpeg on the server...</div>
-            </div>
-          </div>
-        )}
-
-        {exportResult && (
-          <div style={{
-            padding: '20px',
-            backgroundColor: 'rgba(34, 197, 94, 0.05)',
-            border: '1px solid rgba(34, 197, 94, 0.2)',
-            borderRadius: '10px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#22c55e' }} />
-              <div style={{ fontWeight: 'bold', color: '#22c55e', fontSize: '14px' }}>Export Complete!</div>
-            </div>
-            <a
-              href={exportResult}
-              download
-              onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#6d28d9'; }}
-              onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#7c3aed'; }}
+            <button
+              onClick={() => setActiveTab('video')}
               style={{
-                alignSelf: 'flex-start',
-                padding: '8px 16px',
-                borderRadius: '6px',
-                backgroundColor: '#7c3aed',
+                flex: 1,
+                height: '36px',
+                borderRadius: '7px',
+                backgroundColor: activeTab === 'video' ? '#7c3aed' : 'transparent',
                 color: '#ffffff',
                 fontWeight: '700',
-                fontSize: '12px',
+                fontSize: '13px',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '6px',
-                textDecoration: 'none',
+                cursor: 'pointer',
+                border: 'none',
                 transition: 'background-color 0.2s'
               }}
             >
-              Download MP4 Video
-            </a>
+              <span>Cinematic Video Preview</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('slides')}
+              style={{
+                flex: 1,
+                height: '36px',
+                borderRadius: '7px',
+                backgroundColor: activeTab === 'slides' ? '#7c3aed' : 'transparent',
+                color: '#ffffff',
+                fontWeight: '700',
+                fontSize: '13px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                cursor: 'pointer',
+                border: 'none',
+                transition: 'background-color 0.2s'
+              }}
+            >
+              <span>Slide Presentation Preview</span>
+            </button>
           </div>
-        )}
 
-        {exportError && (
-          <div style={{
-            padding: '20px',
-            backgroundColor: 'rgba(239, 68, 68, 0.04)',
-            border: '1px solid rgba(239, 68, 68, 0.2)',
-            borderRadius: '10px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px'
-          }}>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <AlertTriangle size={16} style={{ color: '#ef4444' }} />
-              <div style={{ fontWeight: 'bold', color: '#ef4444', fontSize: '14px' }}>Server Rendering Fallback</div>
-            </div>
-            <p style={{ fontSize: '12px', color: '#a1a1aa', margin: 0, lineHeight: '1.5' }}>
-              Local rendering limits met. Copy the script properties and render locally in your CLI!
-            </p>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button
-                onClick={copyPropsToClipboard}
-                onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(124, 58, 237, 0.1)'; }}
-                onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: '6px',
-                  backgroundColor: 'transparent',
-                  border: '1px solid #7c3aed',
-                  color: '#a78bfa',
-                  fontSize: '11px',
-                  fontWeight: '600',
+          {/* Viewer Area */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: 0, overflow: 'hidden', position: 'relative' }}>
+            {activeTab === 'video' ? (
+              <div style={{
+                width: '100%',
+                backgroundColor: '#040406',
+                borderRadius: '12px',
+                border: '1px solid rgba(139, 92, 246, 0.15)',
+                overflow: 'hidden',
+                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
+                position: 'relative'
+              }}>
+                {isGenerating ? (
+                  <div style={{ width: '100%', aspectRatio: '16/9', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#09080d', gap: '15px' }}>
+                    <Loader2 size={36} className="animate-spin text-purple-500" style={{ color: '#a78bfa' }} />
+                    <span style={{ fontSize: '14px', color: '#a1a1aa', fontWeight: '500' }}>AI is writing script & slides...</span>
+                  </div>
+                ) : (
+                  <Player
+                    ref={playerRef}
+                    component={MainVideo}
+                    durationInFrames={1800}
+                    fps={30}
+                    compositionWidth={1920}
+                    compositionHeight={1080}
+                    style={{
+                      width: '100%',
+                      aspectRatio: '16/9'
+                    }}
+                    inputProps={script}
+                    controls
+                  />
+                )}
+              </div>
+            ) : (
+              <div style={{
+                width: '100%',
+                aspectRatio: '16/9',
+                backgroundColor: '#09080d',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                position: 'relative',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                display: 'flex',
+                flexDirection: 'column'
+              }}>
+                <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(to right, rgba(99, 102, 241, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(99, 102, 241, 0.03) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+                
+                <div style={{ flex: 1, zIndex: 10, position: 'relative' }}>
+                  {isGenerating ? (
+                    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#09080d', gap: '15px' }}>
+                      <Loader2 size={36} className="animate-spin text-purple-500" style={{ color: '#a78bfa' }} />
+                      <span style={{ fontSize: '14px', color: '#a1a1aa', fontWeight: '500' }}>AI is compiling slides...</span>
+                    </div>
+                  ) : renderSlideDOM()}
+                </div>
+
+                {/* Navigation Controller & Dot Selector */}
+                <div style={{
+                  height: '46px',
+                  borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+                  backgroundColor: 'rgba(10, 10, 15, 0.7)',
+                  zIndex: 10,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '4px',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-              >
-                {copiedProps ? "Copied!" : "Copy Props JSON"}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Right Column: Customization Editor */}
-      <div style={{
-        flex: 1,
-        padding: '24px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '20px',
-        height: '100%',
-        overflowY: 'auto',
-        backgroundColor: '#0a090e'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: '800', margin: 0, color: '#ffffff' }}>Script & Slide Editor</h3>
-          <button 
-            onClick={resetToDefault} 
-            onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(124, 58, 237, 0.1)'; }}
-            onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
-            style={{
-              padding: '4px 10px',
-              borderRadius: '6px',
-              backgroundColor: 'transparent',
-              border: '1px solid #7c3aed',
-              color: '#a78bfa',
-              fontSize: '11px',
-              fontWeight: '600',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              cursor: 'pointer',
-              transition: 'background-color 0.2s'
-            }}
-          >
-            Reset Default
-          </button>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          
-          {/* Section 1: Basic Metadata */}
-          <div style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '15px' }}>
-            <div 
-              onClick={() => toggleSection('metadata')}
-              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontWeight: '700', color: '#fff', fontSize: '14px' }}
-            >
-              <span>1. Basic Info & Brand</span>
-              {expandedSection === 'metadata' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </div>
-
-            {expandedSection === 'metadata' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label style={{ fontSize: '11px', fontWeight: 'bold', color: '#71717a' }}>Product Name</label>
-                  <input
-                    type="text"
-                    value={script.productName}
-                    onChange={(e) => setScript(prev => ({ ...prev, productName: e.target.value }))}
-                    style={{
-                      height: '36px',
-                      borderRadius: '6px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      padding: '0 10px',
-                      color: '#fff',
-                      fontSize: '13px'
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Section 2: Narrative Scenes */}
-          <div style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '15px' }}>
-            <div 
-              onClick={() => toggleSection('scenes')}
-              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontWeight: '700', color: '#fff', fontSize: '14px' }}
-            >
-              <span>2. Narrative Voiceovers (Scenes 1, 2, 3, 6)</span>
-              {expandedSection === 'scenes' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </div>
-
-            {expandedSection === 'scenes' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label style={{ fontSize: '11px', fontWeight: 'bold', color: '#71717a' }}>Scene 1: Hook (Question)</label>
-                  <textarea
-                    rows={2}
-                    value={script.hookText}
-                    onChange={(e) => setScript(prev => ({ ...prev, hookText: e.target.value }))}
-                    style={{
-                      borderRadius: '6px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      padding: '8px 10px',
-                      color: '#fff',
-                      fontSize: '13px',
-                      resize: 'none'
-                    }}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label style={{ fontSize: '11px', fontWeight: 'bold', color: '#71717a' }}>Scene 2: Problem</label>
-                  <textarea
-                    rows={2}
-                    value={script.problemText}
-                    onChange={(e) => setScript(prev => ({ ...prev, problemText: e.target.value }))}
-                    style={{
-                      borderRadius: '6px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      padding: '8px 10px',
-                      color: '#fff',
-                      fontSize: '13px',
-                      resize: 'none'
-                    }}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label style={{ fontSize: '11px', fontWeight: 'bold', color: '#71717a' }}>Scene 3: Solution</label>
-                  <textarea
-                    rows={2}
-                    value={script.solutionText}
-                    onChange={(e) => setScript(prev => ({ ...prev, solutionText: e.target.value }))}
-                    style={{
-                      borderRadius: '6px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      padding: '8px 10px',
-                      color: '#fff',
-                      fontSize: '13px',
-                      resize: 'none'
-                    }}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label style={{ fontSize: '11px', fontWeight: 'bold', color: '#71717a' }}>Scene 6: Call To Action (CTA)</label>
-                  <textarea
-                    rows={2}
-                    value={script.ctaText}
-                    onChange={(e) => setScript(prev => ({ ...prev, ctaText: e.target.value }))}
-                    style={{
-                      borderRadius: '6px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      padding: '8px 10px',
-                      color: '#fff',
-                      fontSize: '13px',
-                      resize: 'none'
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Section 3: Feature Animations */}
-          <div style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '15px' }}>
-            <div 
-              onClick={() => toggleSection('features')}
-              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontWeight: '700', color: '#fff', fontSize: '14px' }}
-            >
-              <span>3. Animated Feature Simulations</span>
-              {expandedSection === 'features' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </div>
-
-            {expandedSection === 'features' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '12px' }}>
-                
-                {/* Feature 1: RAG Chat */}
-                <div style={{
-                  padding: '14px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.01)',
-                  border: '1px solid rgba(255, 255, 255, 0.05)',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px'
+                  justifyContent: 'space-between',
+                  padding: '0 20px'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 'bold', color: '#3b82f6' }}>
-                    <MessageSquare size={14} />
-                    <span>Feature 1: RAG Chat</span>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Feature Title"
-                    value={script.features[0]?.title}
-                    onChange={(e) => handleFeatureChange(0, 'title', e.target.value)}
+                  <button
+                    disabled={activeSlide === 0 || isGenerating}
+                    onClick={() => setActiveSlide(prev => Math.max(0, prev - 1))}
                     style={{
-                      height: '32px',
-                      borderRadius: '4px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                      border: '1px solid rgba(255, 255, 255, 0.06)',
-                      padding: '0 8px',
-                      color: '#fff',
-                      fontSize: '12px'
-                    }}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Feature Description"
-                    value={script.features[0]?.description}
-                    onChange={(e) => handleFeatureChange(0, 'description', e.target.value)}
-                    style={{
-                      height: '32px',
-                      borderRadius: '4px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                      border: '1px solid rgba(255, 255, 255, 0.06)',
-                      padding: '0 8px',
-                      color: '#fff',
-                      fontSize: '12px'
-                    }}
-                  />
-                  <div style={{ fontSize: '11px', color: '#71717a', fontWeight: '700', textTransform: 'uppercase', marginTop: '4px' }}>Simulated Interaction</div>
-                  <input
-                    type="text"
-                    placeholder="Simulated Question"
-                    value={script.features[0]?.simulatedChat?.userQuestion}
-                    onChange={(e) => handleSimulationChange(0, 'simulatedChat', 'userQuestion', e.target.value)}
-                    style={{
-                      height: '32px',
-                      borderRadius: '4px',
-                      backgroundColor: 'rgba(0, 0, 0, 0.2)',
-                      border: '1px solid rgba(255, 255, 255, 0.06)',
-                      padding: '0 8px',
-                      color: '#fff',
-                      fontSize: '12px'
-                    }}
-                  />
-                  <textarea
-                    rows={2}
-                    placeholder="Simulated AI Answer"
-                    value={script.features[0]?.simulatedChat?.aiAnswer}
-                    onChange={(e) => handleSimulationChange(0, 'simulatedChat', 'aiAnswer', e.target.value)}
-                    style={{
-                      borderRadius: '4px',
-                      backgroundColor: 'rgba(0, 0, 0, 0.2)',
-                      border: '1px solid rgba(255, 255, 255, 0.06)',
-                      padding: '6px 8px',
-                      color: '#fff',
+                      backgroundColor: 'transparent',
+                      border: 'none',
+                      color: (activeSlide === 0 || isGenerating) ? '#52525b' : '#fff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      cursor: (activeSlide === 0 || isGenerating) ? 'not-allowed' : 'pointer',
                       fontSize: '12px',
-                      resize: 'none'
+                      fontWeight: 'bold'
                     }}
-                  />
-                </div>
-
-                {/* Feature 2: Flowchart */}
-                <div style={{
-                  padding: '14px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.01)',
-                  border: '1px solid rgba(255, 255, 255, 0.05)',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 'bold', color: '#f472b6' }}>
-                    <GitBranch size={14} />
-                    <span>Feature 2: Flowcharts</span>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Feature Title"
-                    value={script.features[1]?.title}
-                    onChange={(e) => handleFeatureChange(1, 'title', e.target.value)}
-                    style={{
-                      height: '32px',
-                      borderRadius: '4px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                      border: '1px solid rgba(255, 255, 255, 0.06)',
-                      padding: '0 8px',
-                      color: '#fff',
-                      fontSize: '12px'
-                    }}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Feature Description"
-                    value={script.features[1]?.description}
-                    onChange={(e) => handleFeatureChange(1, 'description', e.target.value)}
-                    style={{
-                      height: '32px',
-                      borderRadius: '4px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                      border: '1px solid rgba(255, 255, 255, 0.06)',
-                      padding: '0 8px',
-                      color: '#fff',
-                      fontSize: '12px'
-                    }}
-                  />
-                  <div style={{ fontSize: '11px', color: '#71717a', fontWeight: '700', textTransform: 'uppercase', marginTop: '4px' }}>Flowchart Nodes (process sequence)</div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <input
-                      type="text"
-                      placeholder="Node A"
-                      value={script.features[1]?.simulatedFlowchart?.nodeA}
-                      onChange={(e) => handleSimulationChange(1, 'simulatedFlowchart', 'nodeA', e.target.value)}
-                      style={{
-                        flex: 1,
-                        height: '32px',
-                        borderRadius: '4px',
-                        backgroundColor: 'rgba(0, 0, 0, 0.2)',
-                        border: '1px solid rgba(255, 255, 255, 0.06)',
-                        padding: '0 6px',
-                        color: '#fff',
-                        fontSize: '11px',
-                        textAlign: 'center'
-                      }}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Node B"
-                      value={script.features[1]?.simulatedFlowchart?.nodeB}
-                      onChange={(e) => handleSimulationChange(1, 'simulatedFlowchart', 'nodeB', e.target.value)}
-                      style={{
-                        flex: 1,
-                        height: '32px',
-                        borderRadius: '4px',
-                        backgroundColor: 'rgba(0, 0, 0, 0.2)',
-                        border: '1px solid rgba(255, 255, 255, 0.06)',
-                        padding: '0 6px',
-                        color: '#fff',
-                        fontSize: '11px',
-                        textAlign: 'center'
-                      }}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Node C"
-                      value={script.features[1]?.simulatedFlowchart?.nodeC}
-                      onChange={(e) => handleSimulationChange(1, 'simulatedFlowchart', 'nodeC', e.target.value)}
-                      style={{
-                        flex: 1,
-                        height: '32px',
-                        borderRadius: '4px',
-                        backgroundColor: 'rgba(0, 0, 0, 0.2)',
-                        border: '1px solid rgba(255, 255, 255, 0.06)',
-                        padding: '0 6px',
-                        color: '#fff',
-                        fontSize: '11px',
-                        textAlign: 'center'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Feature 3: Quiz */}
-                <div style={{
-                  padding: '14px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.01)',
-                  border: '1px solid rgba(255, 255, 255, 0.05)',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 'bold', color: '#22c55e' }}>
-                    <HelpCircle size={14} />
-                    <span>Feature 3: Quizzes</span>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Feature Title"
-                    value={script.features[2]?.title}
-                    onChange={(e) => handleFeatureChange(2, 'title', e.target.value)}
-                    style={{
-                      height: '32px',
-                      borderRadius: '4px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                      border: '1px solid rgba(255, 255, 255, 0.06)',
-                      padding: '0 8px',
-                      color: '#fff',
-                      fontSize: '12px'
-                    }}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Feature Description"
-                    value={script.features[2]?.description}
-                    onChange={(e) => handleFeatureChange(2, 'description', e.target.value)}
-                    style={{
-                      height: '32px',
-                      borderRadius: '4px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                      border: '1px solid rgba(255, 255, 255, 0.06)',
-                      padding: '0 8px',
-                      color: '#fff',
-                      fontSize: '12px'
-                    }}
-                  />
-                  <div style={{ fontSize: '11px', color: '#71717a', fontWeight: '700', textTransform: 'uppercase', marginTop: '4px' }}>Simulated Quiz Card</div>
-                  <input
-                    type="text"
-                    placeholder="Quiz Question"
-                    value={script.features[2]?.simulatedQuiz?.question}
-                    onChange={(e) => handleSimulationChange(2, 'simulatedQuiz', 'question', e.target.value)}
-                    style={{
-                      height: '32px',
-                      borderRadius: '4px',
-                      backgroundColor: 'rgba(0, 0, 0, 0.2)',
-                      border: '1px solid rgba(255, 255, 255, 0.06)',
-                      padding: '0 8px',
-                      color: '#fff',
-                      fontSize: '12px'
-                    }}
-                  />
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                    {[0, 1, 2, 3].map((optIdx) => (
-                      <input
-                        key={optIdx}
-                        type="text"
-                        placeholder={`Option ${String.fromCharCode(65 + optIdx)}`}
-                        value={script.features[2]?.simulatedQuiz?.options[optIdx]}
-                        onChange={(e) => handleQuizOptionChange(optIdx, e.target.value)}
+                  >
+                    Prev
+                  </button>
+                  
+                  {/* Slide Indicators */}
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    {[0, 1, 2, 3, 4, 5].map(idx => (
+                      <div
+                        key={idx}
+                        onClick={() => !isGenerating && setActiveSlide(idx)}
+                        title={SLIDE_NAMES[idx]}
                         style={{
-                          height: '28px',
-                          borderRadius: '4px',
-                          backgroundColor: 'rgba(0, 0, 0, 0.2)',
-                          border: '1px solid rgba(255, 255, 255, 0.06)',
-                          padding: '0 6px',
-                          color: '#fff',
-                          fontSize: '11px'
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          backgroundColor: activeSlide === idx ? '#a78bfa' : 'rgba(255,255,255,0.2)',
+                          cursor: isGenerating ? 'not-allowed' : 'pointer',
+                          transition: 'background-color 0.2s'
                         }}
                       />
                     ))}
                   </div>
-                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                    <label style={{ fontSize: '11px', color: '#71717a', fontWeight: 'bold' }}>Correct Option:</label>
-                    <select
-                      value={script.features[2]?.simulatedQuiz?.correctIndex}
-                      onChange={(e) => handleSimulationChange(2, 'simulatedQuiz', 'correctIndex', parseInt(e.target.value))}
-                      style={{
-                        height: '26px',
-                        backgroundColor: 'rgba(0, 0, 0, 0.4)',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                        borderRadius: '4px',
-                        color: '#fff',
-                        fontSize: '11px',
-                        padding: '0 4px'
-                      }}
-                    >
-                      <option value={0}>Option A</option>
-                      <option value={1}>Option B</option>
-                      <option value={2}>Option C</option>
-                      <option value={3}>Option D</option>
-                    </select>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Success Banner Feedback Text"
-                    value={script.features[2]?.simulatedQuiz?.feedback}
-                    onChange={(e) => handleSimulationChange(2, 'simulatedQuiz', 'feedback', e.target.value)}
-                    style={{
-                      height: '32px',
-                      borderRadius: '4px',
-                      backgroundColor: 'rgba(0, 0, 0, 0.2)',
-                      border: '1px solid rgba(255, 255, 255, 0.06)',
-                      padding: '0 8px',
-                      color: '#fff',
-                      fontSize: '12px'
-                    }}
-                  />
-                </div>
 
+                  <button
+                    disabled={activeSlide === 5 || isGenerating}
+                    onClick={() => setActiveSlide(prev => Math.min(5, prev + 1))}
+                    style={{
+                      backgroundColor: 'transparent',
+                      border: 'none',
+                      color: (activeSlide === 5 || isGenerating) ? '#52525b' : '#fff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      cursor: (activeSlide === 5 || isGenerating) ? 'not-allowed' : 'pointer',
+                      fontSize: '12px',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             )}
+          </div>
+
+          {/* Export rendering status messages at the bottom of the preview panel */}
+          {(isExporting || exportResult || exportError) && (
+            <div style={{ marginTop: '16px', flexShrink: 0 }}>
+              {isExporting && (
+                <div style={{
+                  padding: '16px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}>
+                  <Loader2 size={20} className="animate-spin" style={{ color: '#a78bfa' }} />
+                  <div>
+                    <div style={{ fontWeight: 'bold', color: '#fff', fontSize: '13px' }}>Server Rendering Active</div>
+                    <div style={{ fontSize: '11px', color: '#71717a', marginTop: '2px' }}>Running Remotion CLI + FFmpeg on the server...</div>
+                  </div>
+                </div>
+              )}
+
+              {exportResult && (
+                <div style={{
+                  padding: '16px',
+                  backgroundColor: 'rgba(34, 197, 94, 0.05)',
+                  border: '1px solid rgba(34, 197, 94, 0.2)',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '10px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#22c55e' }} />
+                    <div style={{ fontWeight: 'bold', color: '#22c55e', fontSize: '13px' }}>Export Complete!</div>
+                  </div>
+                  <a
+                    href={exportResult}
+                    download
+                    style={{
+                      alignSelf: 'flex-start',
+                      padding: '6px 14px',
+                      borderRadius: '6px',
+                      backgroundColor: '#7c3aed',
+                      color: '#ffffff',
+                      fontWeight: '700',
+                      fontSize: '11px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    Download MP4 Video
+                  </a>
+                </div>
+              )}
+
+              {exportError && (
+                <div style={{
+                  padding: '16px',
+                  backgroundColor: 'rgba(239, 68, 68, 0.04)',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '10px'
+                }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <AlertTriangle size={16} style={{ color: '#ef4444' }} />
+                    <div style={{ fontWeight: 'bold', color: '#ef4444', fontSize: '13px' }}>Rendering Error</div>
+                  </div>
+                  <p style={{ fontSize: '11px', color: '#a1a1aa', margin: 0, lineHeight: '1.5' }}>
+                    Rendering failed on server. You can copy the props JSON and render locally:
+                  </p>
+                  <button
+                    onClick={copyPropsToClipboard}
+                    style={{
+                      alignSelf: 'flex-start',
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      backgroundColor: 'transparent',
+                      border: '1px solid #7c3aed',
+                      color: '#a78bfa',
+                      fontSize: '10px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {copiedProps ? "Copied!" : "Copy Props JSON"}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Right Column: Customization Editor & Actions Sidebar */}
+        <div className="flowchart-sidebar pitch-sidebar" style={{ width: '310px', background: 'rgba(10, 10, 12, 0.5)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', overflowY: 'auto' }}>
+          
+          <div className="sidebar-section">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h4 style={{ margin: 0 }}>Pitch Customizer</h4>
+              <button 
+                onClick={resetToDefault} 
+                style={{
+                  padding: '2px 8px',
+                  borderRadius: '4px',
+                  backgroundColor: 'transparent',
+                  border: '1px solid #7c3aed',
+                  color: '#a78bfa',
+                  fontSize: '10px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                Reset
+              </button>
+            </div>
+
+            {/* AI Generator Prominent tailoring controller */}
+            <div style={{
+              padding: '12px',
+              borderRadius: '10px',
+              backgroundColor: 'rgba(139, 92, 246, 0.03)',
+              border: '1px solid rgba(139, 92, 246, 0.12)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              marginTop: '10px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '700', color: '#a78bfa', fontSize: '11px' }}>
+                <Wand2 size={12} />
+                <span>AI Prompt Customization</span>
+              </div>
+              <textarea
+                rows={2}
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                placeholder={readyDocs.length > 0 
+                  ? "E.g., Focus on Chapter 3, target audience is investors..."
+                  : "Type idea to generate custom slides..."}
+                style={{
+                  borderRadius: '6px',
+                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  padding: '6px 8px',
+                  color: '#fff',
+                  fontSize: '0.75rem',
+                  resize: 'none',
+                  lineHeight: '1.4',
+                  outline: 'none'
+                }}
+              />
+              <button
+                className="toolbar-btn primary"
+                onClick={handleGenerateScript}
+                disabled={isGenerating}
+                style={{ width: '100%', fontSize: '0.75rem', padding: '6px' }}
+              >
+                Regenerate AI Slides
+              </button>
+            </div>
+          </div>
+
+          {/* Slide Editor Accordions */}
+          <div className="sidebar-section">
+            <h4 style={{ fontSize: '0.75rem', color: '#71717a' }}>Slide Content Editor</h4>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '6px' }}>
+              
+              {/* Section 1: Basic Metadata */}
+              <div style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '10px' }}>
+                <div 
+                  onClick={() => toggleSection('metadata')}
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontWeight: '700', color: '#fff', fontSize: '0.8rem' }}
+                >
+                  <span>1. Brand & Info</span>
+                  {expandedSection === 'metadata' ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                </div>
+
+                {expandedSection === 'metadata' && (
+                  <div className="form-group" style={{ marginTop: '8px' }}>
+                    <label style={{ fontSize: '0.65rem' }}>Product Name</label>
+                    <input
+                      type="text"
+                      value={script.productName}
+                      onChange={(e) => setScript(prev => ({ ...prev, productName: e.target.value }))}
+                      style={{ fontSize: '0.75rem', padding: '6px', backgroundColor: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '4px', color: '#fff' }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Section 2: Narrative Scenes */}
+              <div style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '10px' }}>
+                <div 
+                  onClick={() => toggleSection('scenes')}
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontWeight: '700', color: '#fff', fontSize: '0.8rem' }}
+                >
+                  <span>2. Slide Text (Scenes 1-3, 6)</span>
+                  {expandedSection === 'scenes' ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                </div>
+
+                {expandedSection === 'scenes' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
+                    <div className="form-group">
+                      <label style={{ fontSize: '0.65rem' }}>Scene 1: Hook</label>
+                      <textarea
+                        rows={2}
+                        value={script.hookText}
+                        onChange={(e) => setScript(prev => ({ ...prev, hookText: e.target.value }))}
+                        style={{ fontSize: '0.75rem', padding: '6px', backgroundColor: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '4px', color: '#fff' }}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label style={{ fontSize: '0.65rem' }}>Scene 2: Problem</label>
+                      <textarea
+                        rows={2}
+                        value={script.problemText}
+                        onChange={(e) => setScript(prev => ({ ...prev, problemText: e.target.value }))}
+                        style={{ fontSize: '0.75rem', padding: '6px', backgroundColor: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '4px', color: '#fff' }}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label style={{ fontSize: '0.65rem' }}>Scene 3: Solution</label>
+                      <textarea
+                        rows={2}
+                        value={script.solutionText}
+                        onChange={(e) => setScript(prev => ({ ...prev, solutionText: e.target.value }))}
+                        style={{ fontSize: '0.75rem', padding: '6px', backgroundColor: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '4px', color: '#fff' }}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label style={{ fontSize: '0.65rem' }}>Scene 6: CTA</label>
+                      <textarea
+                        rows={2}
+                        value={script.ctaText}
+                        onChange={(e) => setScript(prev => ({ ...prev, ctaText: e.target.value }))}
+                        style={{ fontSize: '0.75rem', padding: '6px', backgroundColor: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '4px', color: '#fff' }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Section 3: Feature Animations */}
+              <div style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '10px' }}>
+                <div 
+                  onClick={() => toggleSection('features')}
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontWeight: '700', color: '#fff', fontSize: '0.8rem' }}
+                >
+                  <span>3. Capabilities (Scenes 4-5)</span>
+                  {expandedSection === 'features' ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                </div>
+
+                {expandedSection === 'features' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px' }}>
+                    {/* Feature 1 */}
+                    <div style={{ borderBottom: '1px dashed rgba(255,255,255,0.05)', paddingBottom: '8px' }}>
+                      <div style={{ fontSize: '10px', color: '#3b82f6', fontWeight: 'bold', marginBottom: '4px' }}>Feature 1: RAG Chat</div>
+                      <input
+                        type="text"
+                        placeholder="Title"
+                        value={script.features[0]?.title}
+                        onChange={(e) => handleFeatureChange(0, 'title', e.target.value)}
+                        style={{ fontSize: '0.75rem', padding: '6px', width: '100%', marginBottom: '4px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '4px', color: '#fff' }}
+                      />
+                      <textarea
+                        rows={1}
+                        placeholder="Description"
+                        value={script.features[0]?.description}
+                        onChange={(e) => handleFeatureChange(0, 'description', e.target.value)}
+                        style={{ fontSize: '0.75rem', padding: '6px', width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '4px', color: '#fff', resize: 'none' }}
+                      />
+                    </div>
+                    {/* Feature 2 */}
+                    <div style={{ borderBottom: '1px dashed rgba(255,255,255,0.05)', paddingBottom: '8px' }}>
+                      <div style={{ fontSize: '10px', color: '#f472b6', fontWeight: 'bold', marginBottom: '4px' }}>Feature 2: Flowcharts</div>
+                      <input
+                        type="text"
+                        placeholder="Title"
+                        value={script.features[1]?.title}
+                        onChange={(e) => handleFeatureChange(1, 'title', e.target.value)}
+                        style={{ fontSize: '0.75rem', padding: '6px', width: '100%', marginBottom: '4px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '4px', color: '#fff' }}
+                      />
+                      <textarea
+                        rows={1}
+                        placeholder="Description"
+                        value={script.features[1]?.description}
+                        onChange={(e) => handleFeatureChange(1, 'description', e.target.value)}
+                        style={{ fontSize: '0.75rem', padding: '6px', width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '4px', color: '#fff', resize: 'none' }}
+                      />
+                    </div>
+                    {/* Feature 3 */}
+                    <div>
+                      <div style={{ fontSize: '10px', color: '#22c55e', fontWeight: 'bold', marginBottom: '4px' }}>Feature 3: Quizzes</div>
+                      <input
+                        type="text"
+                        placeholder="Title"
+                        value={script.features[2]?.title}
+                        onChange={(e) => handleFeatureChange(2, 'title', e.target.value)}
+                        style={{ fontSize: '0.75rem', padding: '6px', width: '100%', marginBottom: '4px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '4px', color: '#fff' }}
+                      />
+                      <textarea
+                        rows={1}
+                        placeholder="Description"
+                        value={script.features[2]?.description}
+                        onChange={(e) => handleFeatureChange(2, 'description', e.target.value)}
+                        style={{ fontSize: '0.75rem', padding: '6px', width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '4px', color: '#fff', resize: 'none' }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Export Actions */}
+          <div className="sidebar-section" style={{ marginTop: 'auto' }}>
+            <h4 style={{ fontSize: '0.75rem', color: '#71717a' }}>Export Options</h4>
+            <div className="toolbar-buttons" style={{ marginTop: '8px', gap: '8px' }}>
+              {activeTab === 'video' ? (
+                <button
+                  className="toolbar-btn primary"
+                  onClick={handleExportVideo}
+                  disabled={isExporting || isGenerating}
+                  style={{ width: '100%' }}
+                >
+                  {isExporting ? "Rendering MP4..." : "Export MP4 Video"}
+                </button>
+              ) : (
+                <button
+                  className="toolbar-btn primary"
+                  onClick={handleExportPPTX}
+                  disabled={isGenerating}
+                  style={{ width: '100%' }}
+                >
+                  Download PowerPoint (.pptx)
+                </button>
+              )}
+            </div>
           </div>
 
         </div>
@@ -1364,3 +947,5 @@ export default function PitchDeckViewer({ notebookId, documents = [], selectedDo
     </div>
   );
 }
+
+

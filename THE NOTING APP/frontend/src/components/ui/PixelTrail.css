@@ -1,0 +1,18 @@
+.goo-filter-container {
+  position: fixed;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 9999;
+  width: 0;
+  height: 0;
+}
+
+.pixel-canvas {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  pointer-events: none;
+  z-index: 9999;
+}
