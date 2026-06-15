@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
     Headphones, Play, Pause, RotateCcw, Volume2, VolumeX, Download, 
-    Languages, Mic, Gauge, Wand2, AudioLines, AlertTriangle, FileAudio, Settings
+    Languages, Mic, Gauge, Wand2, AlertTriangle, FileAudio, Settings
 } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://the-noting-app.onrender.com' : 'http://localhost:5000');
@@ -347,7 +347,7 @@ const PodcastViewer = ({ notebookId, documents, selectedDocIds }) => {
                                 >
                                     {SPEAKERS.map(sp => (
                                         <option key={sp.name} value={sp.name}>
-                                            {sp.gender === 'female' ? '👩' : '👨'} {sp.label}
+                                            {sp.label}
                                         </option>
                                     ))}
                                 </select>
@@ -463,7 +463,7 @@ const PodcastViewer = ({ notebookId, documents, selectedDocIds }) => {
                             onClick={handleSynthesizeAudio}
                             disabled={isSynthesizing || !scriptText.trim() || isOverLimit}
                         >
-                            <AudioLines size={16} />
+                            <Volume2 size={16} />
                             <span>{isSynthesizing ? "Synthesizing Voice..." : "Synthesize Audio"}</span>
                         </button>
                     </div>

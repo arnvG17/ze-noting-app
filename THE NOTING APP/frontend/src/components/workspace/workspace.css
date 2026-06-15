@@ -1306,6 +1306,45 @@
     overflow: hidden;
 }
 
+.podcast-viewer,
+.podcast-viewer h3,
+.podcast-viewer h4,
+.podcast-viewer h5,
+.podcast-viewer h6,
+.podcast-viewer p,
+.podcast-viewer label,
+.podcast-viewer span,
+.podcast-viewer select,
+.podcast-viewer textarea,
+.podcast-viewer option,
+.podcast-viewer input {
+    color: #000000 !important;
+}
+
+.podcast-viewer svg {
+    color: inherit;
+}
+
+.podcast-viewer .text-\[\#f472b6\] {
+    color: #f472b6 !important;
+}
+
+.podcast-viewer textarea::placeholder,
+.podcast-viewer input::placeholder {
+    color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.podcast-viewer .podcast-action-btn.pink-gradient,
+.podcast-viewer .podcast-action-btn.pink-gradient * {
+    color: #ffffff !important;
+}
+
+.podcast-viewer .podcast-action-btn:disabled,
+.podcast-viewer .podcast-action-btn:disabled * {
+    color: rgba(0, 0, 0, 0.3) !important;
+}
+
+
 .podcast-header {
     display: flex;
     justify-content: space-between;
