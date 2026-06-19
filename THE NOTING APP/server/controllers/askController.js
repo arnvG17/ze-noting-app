@@ -28,6 +28,23 @@ exports.handleAsk = async (req, res) => {
             return res.status(400).json({ error: "notebookId is required for RAG mode" });
         }
 
+        // Parse toggles from body or prompt prefix
+        let isWebSearch = req.body.webSearch === true;
+        let isThinkMode = req.body.thinkMode === true;
+        let cleanQuestion = question.trim();
+
+        // Robust regex matching for prefix fallbacks (supports newlines and whitespace)
+        const searchMatch = cleanQuestion.match(/^\[Search:\s*(.*)\]$/is);
+        const thinkMatch = cleanQuestion.match(/^\[Think:\s*(.*)\]$/is);
+
+        if (searchMatch) {
+            isWebSearch = true;
+            cleanQuestion = searchMatch[1].trim();
+        } else if (thinkMatch) {
+            isThinkMode = true;
+            cleanQuestion = thinkMatch[1].trim();
+        }
+
         // Get document IDs to search
         let docIds = selectedDocIds;
         if (!docIds || docIds.length === 0) {
@@ -39,7 +56,7 @@ exports.handleAsk = async (req, res) => {
             docIds = docsResult.rows.map(r => r.id);
         }
 
-        if (docIds.length === 0) {
+        if (docIds.length === 0 && !isWebSearch) {
             return res.json({
                 answer: "No documents are ready for searching yet. Please wait for document processing to complete.",
                 citations: []
@@ -47,17 +64,17 @@ exports.handleAsk = async (req, res) => {
         }
 
         // Run the full RAG pipeline
-        const { context, chunks, queryVariations } = await runRAG(question, docIds);
+        const { context, chunks, queryVariations } = await runRAG(cleanQuestion, docIds, {
+            webSearch: isWebSearch,
+            thinkMode: isThinkMode
+        });
 
         // Build citation metadata
         const citations = buildCitationMetadata(chunks);
         const citationInstr = citationInstruction(chunks);
 
-        // Generate answer with LLM
-        const response = await chat.call([
-            {
-                role: "system",
-                content: `You are an expert AI assistant for a knowledge workspace. You answer questions based ONLY on the provided context from the user's documents.
+        // Customize system prompt based on thinkMode
+        let systemPrompt = `You are an expert AI assistant for a knowledge workspace. You answer questions based ONLY on the provided context.
 
 📋 **FORMATTING GUIDELINES:**
 - Use ## for main sections and ### for subsections
@@ -67,24 +84,36 @@ exports.handleAsk = async (req, res) => {
 - Use inline code for technical terms
 
 📌 **CITATION RULES:**
-- Cite ALL claims using [Source N] format
+- Cite ALL claims using the requested format
 - Every factual statement must have a citation
-- If the context doesn't contain the answer, say "I couldn't find this in your documents."
+- If the context doesn't contain the answer, say "I couldn't find this in the documents or web search results."
 ${citationInstr}
 
-Be clear, thorough, and well-organized.`
+Be clear, thorough, and well-organized.`;
+
+        if (isThinkMode) {
+            systemPrompt += `\n\n🧠 **THINKING INSTRUCTION:**\nBefore providing your final response, think step-by-step about the information. Analyze the relationships between the local documents and web results, resolve any conflicts, and outline your reasoning.`;
+        }
+
+        // Generate answer with LLM
+        const response = await chat.call([
+            {
+                role: "system",
+                content: systemPrompt
             },
             {
                 role: "user",
-                content: `Context from your documents:\n\n${context}\n\n---\n\nQuestion: ${question}\n\nProvide a comprehensive answer with citations.`
+                content: `Context:\n\n${context}\n\n---\n\nQuestion: ${cleanQuestion}\n\nProvide a comprehensive answer with citations.`
             }
-        ]);
+        ], {
+            temperature: isThinkMode ? 0.2 : 0.7 // slightly lower temperature for deliberate thinking
+        });
 
         // Save messages to database
         try {
             await query(
                 "INSERT INTO messages (notebook_id, role, content) VALUES ($1, 'user', $2)",
-                [notebookId, question]
+                [notebookId, cleanQuestion]
             );
             await query(
                 "INSERT INTO messages (notebook_id, role, content, citations, chunks_used) VALUES ($1, 'assistant', $2, $3, $4)",

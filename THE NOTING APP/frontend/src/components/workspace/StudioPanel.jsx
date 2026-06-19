@@ -120,6 +120,10 @@ const StudioPanel = ({ summaryText, flowchartData, documentText, notebookId, sel
             if (onActiveCenterViewChange) {
                 onActiveCenterViewChange('podcast');
             }
+        } else if (itemId === 'quiz') {
+            if (onActiveCenterViewChange) {
+                onActiveCenterViewChange('quiz');
+            }
         } else {
             setActiveModal(itemId);
         }
@@ -129,8 +133,6 @@ const StudioPanel = ({ summaryText, flowchartData, documentText, notebookId, sel
         switch (activeModal) {
             case 'notes':
                 return <NotesViewer notes={summaryText} />;
-            case 'quiz':
-                return <QuizSection docText={documentText} />;
             case 'mindmap':
                 return <MindMapViewer flowchartData={flowchartData} />;
             case 'flowchart':

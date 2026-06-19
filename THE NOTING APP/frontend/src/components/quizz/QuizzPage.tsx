@@ -12,10 +12,15 @@ type QuizQuestion = {
 
 type QuizSectionProps = {
   docText: string;
+  notebookId: string;
+  quizQuestions: QuizQuestion[] | null;
+  onQuizQuestionsChange: (questions: QuizQuestion[] | null) => void;
 };
 
-const QuizSection: React.FC<QuizSectionProps> = ({ docText }) => {
-  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+const QuizSection: React.FC<QuizSectionProps> = ({ docText, notebookId, quizQuestions, onQuizQuestionsChange }) => {
+  const questions = quizQuestions || [];
+  const setQuestions = onQuizQuestionsChange;
+
   const [current, setCurrent] = useState(0);
   const [score, setScore] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
@@ -23,14 +28,17 @@ const QuizSection: React.FC<QuizSectionProps> = ({ docText }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const handleGenerateQuiz = () => {
     if (!docText) return;
     setLoading(true);
     setError(null);
     fetch(`${API_BASE}/api/ask/quiz`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: docText.slice(0, 4000) })
+      body: JSON.stringify({ 
+        text: docText.slice(0, 4000),
+        notebookId
+      })
     })
       .then(res => res.json())
       .then(data => {
@@ -76,7 +84,7 @@ const QuizSection: React.FC<QuizSectionProps> = ({ docText }) => {
         setError('Failed to fetch quiz. Please try again.');
         setLoading(false);
       });
-  }, [docText]);
+  };
 
   const handleOption = (option: string) => {
     if (showAnswer) return;
@@ -100,11 +108,67 @@ const QuizSection: React.FC<QuizSectionProps> = ({ docText }) => {
     setShowAnswer(false);
   };
 
-  if (!docText) return null;
+  if (!docText && !quizQuestions) {
+    return (
+      <div className="quiz-container" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '300px', gap: '20px', color: '#e4e4e7', padding: '40px', textAlign: 'center' }}>
+        <div style={{ fontSize: '40px' }}>❓</div>
+        <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '700', color: '#ffffff' }}>No Source Text Found</h3>
+        <p style={{ margin: 0, fontSize: '0.85rem', color: '#a1a1aa', maxWidth: '360px', lineHeight: '1.5' }}>
+          Please upload and process documents in this notebook first to generate a quiz.
+        </p>
+      </div>
+    );
+  }
 
-  if (loading) return <div className="quiz-container"><div className="loader">Generating Quiz...</div></div>;
+  if (loading) {
+    return (
+      <div className="quiz-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
+        <div className="loader">Generating Quiz...</div>
+      </div>
+    );
+  }
 
-  if (error) return <div className="quiz-container"><div className="error">{error}</div></div>;
+  if (error) {
+    return (
+      <div className="quiz-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
+        <div className="error" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+          <p>{error}</p>
+          <button className="quiz-button" onClick={handleGenerateQuiz}>Retry</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!quizQuestions) {
+    return (
+      <div className="quiz-container" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '300px', gap: '20px', color: '#e4e4e7', padding: '40px', textAlign: 'center' }}>
+        <div style={{ fontSize: '40px' }}>❓</div>
+        <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '700', color: '#ffffff' }}>No Quiz Generated Yet</h3>
+        <p style={{ margin: 0, fontSize: '0.85rem', color: '#a1a1aa', maxWidth: '360px', lineHeight: '1.5' }}>
+          Test your comprehension of the documents by generating a custom multiple-choice quiz.
+        </p>
+        <button
+          onClick={handleGenerateQuiz}
+          disabled={!docText}
+          style={{
+            padding: '10px 24px',
+            borderRadius: '10px',
+            backgroundColor: '#7c3aed',
+            color: '#ffffff',
+            fontWeight: '700',
+            fontSize: '13px',
+            border: 'none',
+            cursor: !docText ? 'not-allowed' : 'pointer',
+            transition: 'background-color 0.2s',
+            opacity: !docText ? 0.5 : 1,
+            boxShadow: '0 4px 12px rgba(124, 58, 237, 0.25)'
+          }}
+        >
+          Generate Quiz
+        </button>
+      </div>
+    );
+  }
 
   if (!questions.length) return null;
 

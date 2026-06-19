@@ -51,39 +51,37 @@ const PLACEHOLDER_SCRIPT = {
   ctaText: "Upload your business documents to start tailoring your pitch."
 };
 
-export default function FlashcardViewer({ notebookId, documents = [] }) {
-  const [script, setScript] = useState(null);
+export default function FlashcardViewer({ notebookId, documents = [], pitchScript, onPitchScriptChange }) {
   const [isLoading, setIsLoading] = useState(false);
   const [currentCard, setCurrentCard] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
 
   const readyDocs = documents ? documents.filter(d => d.status === 'ready') : [];
 
-  useEffect(() => {
-    const fetchScript = async () => {
-      setIsLoading(true);
-      try {
-        const response = await axios.post(`${API_BASE}/api/pitch/generate`, { 
-          notebookId,
-          userInput: ''
-        });
-        setScript(response.data);
-      } catch (err) {
-        console.error(err);
-        setScript(PLACEHOLDER_SCRIPT);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (notebookId && readyDocs.length > 0) {
-      fetchScript();
-    } else {
-      setScript(PLACEHOLDER_SCRIPT);
+  const handleGenerateScript = async () => {
+    if (readyDocs.length === 0) {
+      toast.error("Please upload documents first to generate study flashcards.");
+      return;
     }
-  }, [notebookId, readyDocs.length]);
 
-  if (isLoading || !script) {
+    setIsLoading(true);
+    const loadingToast = toast.loading("Analyzing documents and writing study flashcards...");
+    try {
+      const response = await axios.post(`${API_BASE}/api/pitch/generate`, { 
+        notebookId,
+        userInput: ''
+      });
+      onPitchScriptChange(response.data);
+      toast.success("Study flashcards generated successfully!", { id: loadingToast });
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate study flashcards.", { id: loadingToast });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
     return (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#0c0b10', gap: '15px', color: '#e4e4e7', height: '100%' }}>
         <div style={{ width: '36px', height: '36px', border: '3px solid #7c3aed', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
@@ -91,6 +89,42 @@ export default function FlashcardViewer({ notebookId, documents = [] }) {
       </div>
     );
   }
+
+  if (!pitchScript) {
+    return (
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#0c0b10', gap: '20px', color: '#e4e4e7', height: '100%', padding: '40px', textAlign: 'center' }}>
+        <div style={{ fontSize: '40px' }}>📇</div>
+        <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '700', color: '#ffffff' }}>No Flashcards Generated Yet</h3>
+        <p style={{ margin: 0, fontSize: '0.85rem', color: '#a1a1aa', maxWidth: '360px', lineHeight: '1.5' }}>
+          Generate interactive study flashcards from your uploaded documents to test your memory and study key concepts.
+        </p>
+        <button
+          onClick={handleGenerateScript}
+          disabled={readyDocs.length === 0}
+          style={{
+            padding: '10px 24px',
+            borderRadius: '10px',
+            backgroundColor: '#7c3aed',
+            color: '#ffffff',
+            fontWeight: '700',
+            fontSize: '13px',
+            border: 'none',
+            cursor: readyDocs.length === 0 ? 'not-allowed' : 'pointer',
+            transition: 'background-color 0.2s',
+            opacity: readyDocs.length === 0 ? 0.5 : 1,
+            boxShadow: '0 4px 12px rgba(124, 58, 237, 0.25)'
+          }}
+        >
+          Generate Flashcards
+        </button>
+        {readyDocs.length === 0 && (
+          <span style={{ fontSize: '0.75rem', color: '#ef4444', marginTop: '5px' }}>⚠️ Please upload ready documents in the workspace first.</span>
+        )}
+      </div>
+    );
+  }
+
+  const script = pitchScript;
 
   // Generate cards
   const cards = [

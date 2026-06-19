@@ -1208,6 +1208,15 @@
     background: transparent;
     margin-top: 12px;
     z-index: 1;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    -webkit-overflow-scrolling: touch;
+}
+
+.chat-tabs::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
 }
 
 .chat-tab {
@@ -1224,6 +1233,7 @@
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 0.75;
+    flex-shrink: 0;
 }
 
 .chat-tab:hover {
@@ -1304,6 +1314,14 @@
     border-color: transparent;
     box-shadow: none;
     color: #f472b6; /* Hot Pink */
+    background: transparent;
+}
+
+/* Tab Active State for Quiz (7th Tab) */
+.chat-tab.active:nth-child(7) {
+    border-color: transparent;
+    box-shadow: none;
+    color: #fbbf24; /* Amber/Yellow */
     background: transparent;
 }
 

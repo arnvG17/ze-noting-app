@@ -6,7 +6,6 @@ import ChatPanel from './ChatPanel';
 import StudioPanel from './StudioPanel';
 import { useDocumentText } from '../DocumentTextContext';
 import './workspace.css';
-import PixelTrail from '../ui/PixelTrail';
 
 const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://the-noting-app.onrender.com' : 'http://localhost:5000');
 
@@ -19,9 +18,112 @@ const WorkspacePage = () => {
     const [documents, setDocuments] = useState([]);
     const [selectedDocIds, setSelectedDocIds] = useState([]);
     const [notebookTitle, setNotebookTitle] = useState('Untitled Notebook');
-    const [flowchartData, setFlowchartData] = useState(null);
     const [summaryText, setSummaryText] = useState('');
     const [loading, setLoading] = useState(true);
+
+    // Feature states
+    const [flowchartData, _setFlowchartData] = useState(null);
+    const [pitchScript, _setPitchScript] = useState(null);
+    const [reportMarkdown, _setReportMarkdown] = useState('');
+    const [podcastScript, _setPodcastScript] = useState('');
+    const [podcastAudioUrl, _setPodcastAudioUrl] = useState('');
+    const [quizQuestions, _setQuizQuestions] = useState(null);
+
+    // Custom state updaters that write to localStorage
+    const setFlowchartData = useCallback((val) => {
+        _setFlowchartData(val);
+        if (notebookId) {
+            if (val) localStorage.setItem(`notebook_${notebookId}_flowchart_data`, JSON.stringify(val));
+            else localStorage.removeItem(`notebook_${notebookId}_flowchart_data`);
+        }
+    }, [notebookId]);
+
+    const setPitchScript = useCallback((val) => {
+        _setPitchScript(val);
+        if (notebookId) {
+            if (val) localStorage.setItem(`notebook_${notebookId}_pitch_script`, JSON.stringify(val));
+            else localStorage.removeItem(`notebook_${notebookId}_pitch_script`);
+        }
+    }, [notebookId]);
+
+    const setReportMarkdown = useCallback((val) => {
+        _setReportMarkdown(val);
+        if (notebookId) {
+            if (val) localStorage.setItem(`notebook_${notebookId}_report_markdown`, val);
+            else localStorage.removeItem(`notebook_${notebookId}_report_markdown`);
+        }
+    }, [notebookId]);
+
+    const setPodcastScript = useCallback((val) => {
+        _setPodcastScript(val);
+        if (notebookId) {
+            if (val) localStorage.setItem(`notebook_${notebookId}_podcast_script`, val);
+            else localStorage.removeItem(`notebook_${notebookId}_podcast_script`);
+        }
+    }, [notebookId]);
+
+    const setPodcastAudioUrl = useCallback((val) => {
+        _setPodcastAudioUrl(val);
+        if (notebookId) {
+            if (val) localStorage.setItem(`notebook_${notebookId}_podcast_audio_url`, val);
+            else localStorage.removeItem(`notebook_${notebookId}_podcast_audio_url`);
+        }
+    }, [notebookId]);
+
+    const setQuizQuestions = useCallback((val) => {
+        _setQuizQuestions(val);
+        if (notebookId) {
+            if (val) localStorage.setItem(`notebook_${notebookId}_quiz_questions`, JSON.stringify(val));
+            else localStorage.removeItem(`notebook_${notebookId}_quiz_questions`);
+        }
+    }, [notebookId]);
+
+    // Load feature states from localStorage when notebookId changes
+    useEffect(() => {
+        if (!notebookId) return;
+
+        try {
+            const savedFlowchart = localStorage.getItem(`notebook_${notebookId}_flowchart_data`);
+            _setFlowchartData(savedFlowchart ? JSON.parse(savedFlowchart) : null);
+        } catch (e) {
+            _setFlowchartData(null);
+        }
+
+        try {
+            const savedPitch = localStorage.getItem(`notebook_${notebookId}_pitch_script`);
+            _setPitchScript(savedPitch ? JSON.parse(savedPitch) : null);
+        } catch (e) {
+            _setPitchScript(null);
+        }
+
+        try {
+            const savedReport = localStorage.getItem(`notebook_${notebookId}_report_markdown`);
+            _setReportMarkdown(savedReport || '');
+        } catch (e) {
+            _setReportMarkdown('');
+        }
+
+        try {
+            const savedPodcastScript = localStorage.getItem(`notebook_${notebookId}_podcast_script`);
+            _setPodcastScript(savedPodcastScript || '');
+        } catch (e) {
+            _setPodcastScript('');
+        }
+
+        try {
+            const savedPodcastAudio = localStorage.getItem(`notebook_${notebookId}_podcast_audio_url`);
+            _setPodcastAudioUrl(savedPodcastAudio || '');
+        } catch (e) {
+            _setPodcastAudioUrl('');
+        }
+
+        try {
+            const savedQuiz = localStorage.getItem(`notebook_${notebookId}_quiz_questions`);
+            _setQuizQuestions(savedQuiz ? JSON.parse(savedQuiz) : null);
+        } catch (e) {
+            _setQuizQuestions(null);
+        }
+    }, [notebookId]);
 
     // Dynamic sizing states
     const [leftWidth, setLeftWidth] = useState(310);
@@ -194,13 +296,6 @@ const WorkspacePage = () => {
     if (loading) {
         return (
             <div className="workspace">
-                <PixelTrail
-                    gridSize={80}
-                    trailSize={0.03}
-                    maxAge={200}
-                    interpolate={5}
-                    color="#8b5cf6"
-                />
                 <div className="studio-panel">
                     <div className="studio-header"><h2>Studio</h2></div>
                 </div>
@@ -232,13 +327,6 @@ const WorkspacePage = () => {
 
     return (
         <div className="workspace" style={workspaceStyle}>
-            <PixelTrail
-                gridSize={80}
-                trailSize={0.03}
-                maxAge={200}
-                interpolate={5}
-                color="#8b5cf6"
-            />
             <StudioPanel
                 summaryText={summaryText}
                 flowchartData={flowchartData}
@@ -248,6 +336,8 @@ const WorkspacePage = () => {
                 setFlowchartData={setFlowchartData}
                 activeCenterView={activeCenterView}
                 onActiveCenterViewChange={setActiveCenterView}
+                quizQuestions={quizQuestions}
+                setQuizQuestions={setQuizQuestions}
             />
 
             {isDesktop && (
@@ -268,6 +358,17 @@ const WorkspacePage = () => {
                 activeCenterView={activeCenterView}
                 onActiveCenterViewChange={setActiveCenterView}
                 flowchartData={flowchartData}
+                pitchScript={pitchScript}
+                setPitchScript={setPitchScript}
+                reportMarkdown={reportMarkdown}
+                setReportMarkdown={setReportMarkdown}
+                podcastScript={podcastScript}
+                setPodcastScript={setPodcastScript}
+                podcastAudioUrl={podcastAudioUrl}
+                setPodcastAudioUrl={setPodcastAudioUrl}
+                documentText={documentText}
+                quizQuestions={quizQuestions}
+                setQuizQuestions={setQuizQuestions}
             />
 
             {isDesktop && (

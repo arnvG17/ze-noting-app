@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, Sparkles, GitBranch, Presentation, Layers, ClipboardList, Headphones } from 'lucide-react';
+import { MessageSquare, Sparkles, GitBranch, Presentation, Layers, ClipboardList, Headphones, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ChatMessage from './ChatMessage';
 import FlowchartViewer from '../FlowchartViewer';
@@ -7,6 +7,7 @@ import PitchDeckViewer from './PitchDeckViewer';
 import FlashcardViewer from './FlashcardViewer';
 import ReportViewer from './ReportViewer';
 import PodcastViewer from './PodcastViewer';
+import QuizSection from '../quizz/QuizzPage';
 import { PromptInputBox } from '../ui/ai-prompt-box';
 
 
@@ -22,7 +23,18 @@ const ChatPanel = ({
     setFlowchartData,
     activeCenterView,
     onActiveCenterViewChange,
-    flowchartData
+    flowchartData,
+    pitchScript,
+    setPitchScript,
+    reportMarkdown,
+    setReportMarkdown,
+    podcastScript,
+    setPodcastScript,
+    podcastAudioUrl,
+    setPodcastAudioUrl,
+    documentText,
+    quizQuestions,
+    setQuizQuestions
 }) => {
     const [messages, setMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -55,10 +67,23 @@ const ChatPanel = ({
     const handleSubmit = async (messageText) => {
         if (!messageText || !messageText.trim() || isLoading) return;
 
+        let webSearch = false;
+        let thinkMode = false;
+        let cleanText = messageText.trim();
+
+        // Parse search/think toggle prefixes
+        if (cleanText.startsWith('[Search: ') && cleanText.endsWith(']')) {
+            webSearch = true;
+            cleanText = cleanText.substring(9, cleanText.length - 1).trim();
+        } else if (cleanText.startsWith('[Think: ') && cleanText.endsWith(']')) {
+            thinkMode = true;
+            cleanText = cleanText.substring(8, cleanText.length - 1).trim();
+        }
+
         const userMessage = {
             id: Date.now(),
             role: 'user',
-            content: messageText.trim()
+            content: cleanText
         };
 
         setMessages(prev => [...prev, userMessage]);
@@ -69,9 +94,11 @@ const ChatPanel = ({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    question: userMessage.content,
+                    question: cleanText,
                     notebookId,
-                    selectedDocIds: selectedDocIds.length > 0 ? selectedDocIds : undefined
+                    selectedDocIds: selectedDocIds.length > 0 ? selectedDocIds : undefined,
+                    webSearch,
+                    thinkMode
                 })
             });
 
@@ -194,7 +221,8 @@ const ChatPanel = ({
                     { id: 'slides', label: 'Pitch Video', icon: Presentation, activeBg: 'rgba(124, 58, 237, 0.12)', activeBorder: 'rgba(124, 58, 237, 0.45)' },
                     { id: 'flashcards', label: 'Flashcards', icon: Layers, activeBg: 'rgba(20, 184, 166, 0.12)', activeBorder: 'rgba(20, 184, 166, 0.45)' },
                     { id: 'report', label: 'Report', icon: ClipboardList, activeBg: 'rgba(99, 102, 241, 0.12)', activeBorder: 'rgba(99, 102, 241, 0.45)' },
-                    { id: 'podcast', label: 'Podcast', icon: Headphones, activeBg: 'rgba(236, 72, 153, 0.12)', activeBorder: 'rgba(236, 72, 153, 0.45)' }
+                    { id: 'podcast', label: 'Podcast', icon: Headphones, activeBg: 'rgba(236, 72, 153, 0.12)', activeBorder: 'rgba(236, 72, 153, 0.45)' },
+                    { id: 'quiz', label: 'Quiz', icon: HelpCircle, activeBg: 'rgba(234, 179, 8, 0.12)', activeBorder: 'rgba(234, 179, 8, 0.45)' }
                 ].map(tab => {
                     const Icon = tab.icon;
                     const isActive = activeCenterView === tab.id;
@@ -339,6 +367,8 @@ const ChatPanel = ({
                                 <FlashcardViewer 
                                     notebookId={notebookId} 
                                     documents={documents}
+                                    pitchScript={pitchScript}
+                                    onPitchScriptChange={setPitchScript}
                                 />
                             </div>
                         ) : activeCenterView === 'report' ? (
@@ -346,6 +376,8 @@ const ChatPanel = ({
                                 <ReportViewer 
                                     notebookId={notebookId} 
                                     documents={documents}
+                                    reportMarkdown={reportMarkdown}
+                                    onReportMarkdownChange={setReportMarkdown}
                                 />
                             </div>
                         ) : activeCenterView === 'podcast' ? (
@@ -354,6 +386,19 @@ const ChatPanel = ({
                                     notebookId={notebookId} 
                                     documents={documents}
                                     selectedDocIds={selectedDocIds}
+                                    podcastScript={podcastScript}
+                                    onPodcastScriptChange={setPodcastScript}
+                                    podcastAudioUrl={podcastAudioUrl}
+                                    onPodcastAudioUrlChange={setPodcastAudioUrl}
+                                />
+                            </div>
+                        ) : activeCenterView === 'quiz' ? (
+                            <div className="center-panel-viewer-wrapper" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'hidden' }}>
+                                <QuizSection 
+                                    docText={documentText}
+                                    notebookId={notebookId}
+                                    quizQuestions={quizQuestions}
+                                    onQuizQuestionsChange={setQuizQuestions}
                                 />
                             </div>
                         ) : (
@@ -362,6 +407,8 @@ const ChatPanel = ({
                                     notebookId={notebookId} 
                                     documents={documents}
                                     selectedDocIds={selectedDocIds}
+                                    pitchScript={pitchScript}
+                                    onPitchScriptChange={setPitchScript}
                                 />
                             </div>
                         )}

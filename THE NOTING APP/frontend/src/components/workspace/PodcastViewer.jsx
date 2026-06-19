@@ -50,7 +50,7 @@ const TONES = [
     { code: 'dramatic', label: 'Storytelling Narrative (Dynamic)', desc: 'Highlighting dramatic implications and breakthroughs.' }
 ];
 
-const PodcastViewer = ({ notebookId, documents, selectedDocIds }) => {
+const PodcastViewer = ({ notebookId, documents, selectedDocIds, podcastScript, onPodcastScriptChange, podcastAudioUrl, onPodcastAudioUrlChange }) => {
     // Customization states
     const [language, setLanguage] = useState('en-IN');
     const [tone, setTone] = useState('conversational');
@@ -60,11 +60,28 @@ const PodcastViewer = ({ notebookId, documents, selectedDocIds }) => {
 
     // Workflow states
     const [step, setStep] = useState(1); // 1: Config, 2: Script Edit, 3: Audio Player
-    const [scriptText, setScriptText] = useState('');
-    const [audioUrl, setAudioUrl] = useState('');
     const [isGeneratingScript, setIsGeneratingScript] = useState(false);
     const [isSynthesizing, setIsSynthesizing] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+
+    const scriptText = podcastScript || '';
+    const setScriptText = onPodcastScriptChange;
+    const audioUrl = podcastAudioUrl || '';
+    const setAudioUrl = onPodcastAudioUrlChange;
+
+    const characterCount = scriptText ? scriptText.length : 0;
+    const isOverLimit = characterCount > 2500;
+
+    // Sync workflow step based on script and audio persistence
+    useEffect(() => {
+        if (podcastAudioUrl) {
+            setStep(3);
+        } else if (podcastScript) {
+            setStep(2);
+        } else {
+            setStep(1);
+        }
+    }, [podcastScript, podcastAudioUrl]);
 
     // Audio controls state
     const [isPlaying, setIsPlaying] = useState(false);
@@ -266,6 +283,7 @@ const PodcastViewer = ({ notebookId, documents, selectedDocIds }) => {
         }
         setIsPlaying(false);
         setAudioUrl('');
+        setScriptText('');
     };
 
     return (

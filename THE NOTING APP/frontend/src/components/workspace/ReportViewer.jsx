@@ -5,11 +5,10 @@ import ReactMarkdown from 'react-markdown';
 
 const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://the-noting-app.onrender.com' : 'http://localhost:5000');
 
-export default function ReportViewer({ notebookId, documents = [] }) {
+export default function ReportViewer({ notebookId, documents = [], reportMarkdown, onReportMarkdownChange }) {
   const [tone, setTone] = useState('Formal');
   const [focus, setFocus] = useState('Business');
   const [extraInputs, setExtraInputs] = useState('');
-  const [reportMarkdown, setReportMarkdown] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
   const readyDocs = documents ? documents.filter(d => d.status === 'ready') : [];
@@ -31,7 +30,7 @@ export default function ReportViewer({ notebookId, documents = [] }) {
         extraInputs
       });
 
-      setReportMarkdown(response.data.reportMarkdown);
+      onReportMarkdownChange(response.data.reportMarkdown);
       toast.success("Research report generated successfully!", { id: loadingToast });
     } catch (err) {
       console.error(err);
